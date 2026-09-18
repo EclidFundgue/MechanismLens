@@ -208,6 +208,8 @@ export function Formula({ tex, block = false }: { tex: string; block?: boolean }
 - **揭示**：原图也必须由 `step` 驱动——高亮框 / 箭头 / 局部放大 /
   逐块裁剪，禁止静态贴图一屏到底（与 SVG 图同一原则）。
 - 命名与 digest 素材清单一一对应，章节代码注释里可写 `Fig. 1`。
+- **可复现**：取图时把页码 / bbox / dpi / LaTeX 源文件记进 digest 素材
+  清单；Phase 8 用户要换裁切 / 换分辨率时按参数重跑，不凭印象重找。
 
 ---
 
@@ -229,3 +231,4 @@ export function Formula({ tex, block = false }: { tex: string; block?: boolean }
 - [ ] 素材文件是否复制进 `presentation/public/assets/` 且路径用 BASE_URL？
 - [ ] 原图是否也有 `step` 驱动的揭示 / 高亮，而不是静态贴图？
 - [ ] 素材清单与 digest 是否对得上（编号、用于章节）？
+- [ ] 取图参数（页码 / bbox / dpi / 源文件）是否记进 digest，便于日后重取？

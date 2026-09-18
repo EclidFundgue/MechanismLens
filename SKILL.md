@@ -1,13 +1,15 @@
 ---
 name: paper-explainer
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装；生成时按可扩展性铁律组织产物（真相源链 / 章节独立 / 数据驱动 / step 定位表），交付后支持按用户反馈快速展开或修改某一节（最小改动面 + 增量重录，见 Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
 ---
 
 # Paper Explainer
 
 把一篇论文变成一支**无声、带字幕、网页实现、可录屏**的讲解视频。
+做完不是终点——产物按「以后要加要改」组织，用户一句「这部分展开讲」
+就能低成本改稿 / 扩章 / 重录（Phase 8）。
 
-三条主线：
+四条主线：
 
 - **一步到位**：整条流水线自动跑完，**不在中途向用户确认任何事**
   （原 Checkpoint 已全部移除）；所有自主决定在最终汇报里列明。
@@ -16,6 +18,9 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 - **素材求真**：为了讲准，允许并鼓励直接使用论文素材——**原图、公式、
   原文摘录**（PDF 抽取或 arXiv LaTeX 源码），与 SVG 重绘混用（见
   `references/PAPER-ASSETS.md`）。
+- **可扩展 · 可快改**：真相源链固定、章节独立、视觉数据驱动、step 定位
+  表齐全；交付后按最小改动面协议快速响应反馈（见
+  `references/REVISION.md`）。
 
 本 Skill 是**编排层**：它不重复造轮子，而是串起两个已安装的 skill：
 
@@ -98,6 +103,31 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
 「我替你做了哪些决定」。
 
+> **边界**：以上只约束**首次生成**。交付后用户主动提出的展开 / 修改
+> 走 **Phase 8**——允许先定位、必要时最多问一个澄清问题，然后按最小
+> 改动面直接改，不再「闷头做完」。
+
+---
+
+## 可扩展性铁律（生成阶段就要遵守）
+
+生成完才想「以后怎么改」就晚了。写每个产出时按以下结构组织，Phase 8
+的修改成本才能压到最低（完整规格 + 修改工作流见 `REVISION.md`）：
+
+1. **真相源链不漂**：`digest.md → script.md → outline.md → narrations.ts
+   → 章节 tsx → chapters.ts`；下游只引用上游，不绕过。
+2. **章节独立可替换**：一章一目录、独立 CSS 前缀、不跨章 import；
+   章节 id / 目录名生成后**不再改名**（插入新章靠 `chapters.ts` 注册
+   顺序，文件夹编号允许留空隙）。
+3. **step 数只有 `narrations.ts` 一个来源**：章节代码不写死步数，用
+   `narrations.length` / 数据数组长度。
+4. **视觉数据驱动**：节点 / 柱 / 线 / 列表项写数组，揭示索引由 `step`
+   推出——插入一步 ≈ 数组插一项 + narration 插一条。
+5. **三份定位表互为索引**：outline（step→画面）、script（`---` 块→文案）、
+   digest（内容 / 素材→出处），改任何一步都能先定位再动手。
+6. **素材可复现 + 改动留痕**：素材命名与 digest 编号一致、记录取图参数；
+   每次修改追加 `revisions.md`。
+
 ---
 
 ## 工作流总览
@@ -114,6 +144,7 @@ Phase 5  逐章实现（技术核心章节自动加篇幅）
    ▼（本工作流无声，跳过音频）
 Phase 6  静音录屏（自动推进 + 字幕）
 Phase 7  DTF 反 AI 味终审
+Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 增量重录
 ```
 
 工作目录（在用户当前目录下创建）：
@@ -124,8 +155,9 @@ Phase 7  DTF 反 AI 味终审
 ├── paper-src/          # arXiv LaTeX 源码（有则存，素材第一来源）
 ├── assets/             # 取出的原图 / 公式 / 原文摘录（进网页的素材）
 ├── digest.md           # 7 维 + 贡献权重（内容中枢）
-├── script.md           # 口播稿 = 字幕文本
-├── outline.md          # 章节 + step + 信息池
+├── script.md           # 口播稿 = 字幕文本（`---` 块 = step）
+├── outline.md          # 章节 + step + 信息池（修改时的定位表）
+├── revisions.md        # Phase 8 改动记录（追加式；改前先读）
 └── presentation/       # WVP 脚手架 + 字幕层
 ```
 
@@ -145,6 +177,7 @@ Phase 7  DTF 反 AI 味终审
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
 | 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
 | 成片 | DTF §9 AI tells 终审 |
+| 修改（Phase 8） | `references/REVISION.md` B4 自检 |
 
 **铁律**：拿到 fail 项**先改完再汇报**，不允许「目测一遍就放行」。
 
@@ -215,6 +248,8 @@ Phase 7  DTF 反 AI 味终审
   一上来念一长串指标。
 - **每句话就是一 step 的字幕**——写的时候就想着它会显示在屏幕底部，
   单句别超过约 40 字，超了就拆 step。
+- **节拍即修改单位**：`---` 分隔块 = outline 的 step = `narrations.ts`
+  的一项，三处顺序严格一致——Phase 8 的展开 / 压缩都按节拍操作。
 - **原文引用**：关键定义 / 作者原话可直接引用 `paper.md` / LaTeX 源
   （短句，注明出处），字幕里用引号标出。
 - 语言按配置 `narration.language`：`auto` = 中文论文→中文稿、英文论文→
@@ -242,6 +277,8 @@ Phase 7  DTF 反 AI 味终审
   `原文引用`（素材已由 Phase 0 落盘）。
 - outline **只写节奏与信息密度，不写动画**（WVP 铁律）。
 - 信息池从 `digest.md` + `paper.md` 抽，图表步标注重绘或原图策略。
+- **outline 同时是修改定位表**：每章 id / step 行 / 总步数保持可对照；
+  实现时 step 数变了回写这里；Phase 8 收到反馈先在这里定位。
 
 写完走 OUTLINE-FORMAT 自检。
 
@@ -319,6 +356,9 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 - **技术核心章节加码**：按 digest 的贡献权重，给核心创新更多 step 与
   更细的讲解层次（直觉 → 公式 → 对照 → 结果）；背景章克制。
 - 双源原则：节奏跟 `script.md`，画面细节回 `digest.md` / `paper.md`。
+- **可扩展**：视觉数据驱动（数组 + `step` 映射），步数取自
+  `narrations.length`；插入 / 删除 step 只动数组与 narrations，不重写
+  整章（规格见 `REVISION.md` Part A）。
 - 每章独立 CSS 前缀，不改 `chapters.ts` 结构（除非按 WVP 规则同步）。
 - 改章节结构或 `narrations.ts` 长度后，bump `useStepper.ts` 的
   `STORAGE_KEY`。
@@ -374,6 +414,32 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 ---
 
+## Phase 8 · 反馈迭代（按需，用户发起）
+
+首次交付后，产物进入「可快速修改」状态。**首次汇报里主动告诉用户**：
+想改哪里直接说（例：「展开讲 06 算法流程」「把结果图的数字核对一下」），
+不需要重跑全流程。用户看完预览 / 成片提出「这部分展开讲」「XX 改一下」
+「数字不对」等反馈时：
+
+1. **定位**：把反馈映射到章节 id + step 区间 + 改动层（文案 / 内容 /
+   结构 / 视觉 / 素材 / 主题）。先翻 `outline.md`（step→画面），再翻
+   `revisions.md`（改过什么）；反馈模糊时先给出定位判断，必要时最多问
+   一个澄清问题。
+2. **最小改动面**：按 `REVISION.md` Part B 的类型表动手——**先改上游
+   真相源，再改下游**；`script.md` 与 `narrations.ts` 必须同改。
+3. **展开一节**（最高频需求）：digest / paper 取料 → `script.md` 插
+   `---` 块 → `outline.md` 插 step 行 → `narrations.ts` 插条目 →
+   章节视觉插数据项 / 分支 → bump `STORAGE_KEY`。
+4. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 默认**整片
+   重录**（静音自动推进，成本低且无接缝）→ `revisions.md` 追加记录 →
+   按 B6 模板汇报。
+
+**不重跑 Phase 0–7**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
+才回到对应阶段。完整协议见
+[`references/REVISION.md`](references/REVISION.md)。
+
+---
+
 ## 与两个依赖 Skill 的边界（重要）
 
 | 事项 | 归谁 |
@@ -400,6 +466,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 | `scripts/fetch-arxiv.sh` | Phase 0 下载并解压 arXiv LaTeX 源码 |
 | `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射与权重 |
 | `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕、Phase 6 录屏 |
+| `references/REVISION.md` | 生成时按可扩展性铁律组织；Phase 8 收到反馈后（定位 / 改动面 / 同步 / 重录） |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构/流程/结果图时 |
 | `WVP/SKILL.md` | 全流程；Checkpoint 模板（本工作流已移除，仅作参考） |
 | `WVP/references/SCRIPT-STYLE.md` | Phase 2 |
