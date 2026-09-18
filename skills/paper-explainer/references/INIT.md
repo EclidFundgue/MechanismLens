@@ -90,7 +90,7 @@ bash "$SELF/scripts/install-deps.sh" --wvp-src=<url|path> --dtf-src=<url|path>
 | 缺什么 | 降级方式 |
 |---|---|
 | WVP | **不能降级**（它是骨架）。让用户提供已有路径，或终止并说明原因 |
-| DTF | 降级：主题审美改用 WVP `references/THEMES.md` 自带规范；Phase 7 终审改用 WVP `CHAPTER-CRAFT.md` 的 ANTI-AI 清单。在汇报里注明「本次无 DTF 终审」 |
+| DTF | 降级：主题审美改用 WVP `references/THEMES.md` 自带规范；Phase 6 终审改用 WVP `CHAPTER-CRAFT.md` 的 ANTI-AI 清单。在汇报里注明「本次无 DTF 终审」 |
 | 系统工具 | 按 §2.1 表降级：无浏览器 / ffmpeg → 跳过录屏，交付可运行项目 + build 通过（默认不录屏时本来就不需要）；无 PDF 工具 → 仅处理 arXiv 源码 / 网页输入 |
 
 ### 2.4 自动写默认配置
@@ -141,8 +141,8 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 | `devMode` | Phase 4.5 / Phase 5 —— A（按 B）/ B 顺序 / C subagent 并行 |
 | `materials.cover` | Phase 4.1 —— `svg` 自绘封面；`generate` 用 `gpt-image-2`（没装则回退 svg 并说明）；`placeholder` 占位；`ask` 按 `svg` |
 | `narration.language` | Phase 2 —— `auto` 按原文语言；`zh` / `en` 强制 |
-| `recording.enabled` | Phase 6 —— `false`（默认）整节跳过，不录屏；`true` 视为用户已明确要求录屏 |
-| `recording.autoAdvance` | Phase 6（仅录屏开启时）—— true 走 `?auto=1&reset=1`；false 手动点击录屏 |
+| `recording.enabled` | Phase 7（**最后一步**，等终审与全部修改定稿后）—— `false`（默认）整节跳过，不录屏；`true` 视为用户已明确要求录屏 |
+| `recording.autoAdvance` | Phase 7（仅录屏开启时）—— true 走 `?auto=1&reset=1`；false 手动点击录屏 |
 
 > **单次覆盖**：用户当场说「这次用 X 主题 / 这次并行」→ 只影响本次，
 > **不写配置**；除非用户明确说「以后都这样」，才 `init-config.sh --force`

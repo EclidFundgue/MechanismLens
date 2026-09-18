@@ -1,16 +1,17 @@
 ---
 name: paper-explainer
 license: MIT
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解演示。用法极简：调用 skill + 论文链接，主题默认固定（跨任务深浅统一），语言 / 篇幅 / 封面 / 录屏全部按配置自动决策，中途不向用户确认。字幕是核心特征：口播稿逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。流程：解析论文（arXiv 优先取 LaTeX 源码）→ 结构化 digest（贡献与创新优先，技术含量高的部分自动加篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 脚手架 + 字幕层 → 逐章实现 → DTF 终审；架构图 / 流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文。录屏默认关闭，仅用户明确要求或配置 `recording.enabled=true` 时出片。首次运行自动写默认配置、缺失依赖自动安装；产物按可扩展性铁律组织，交付后可按反馈最小改动迭代（Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频、论文网页讲解。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解演示。用法极简：调用 skill + 论文链接，主题默认固定（跨任务深浅统一），语言 / 篇幅 / 封面 / 录屏全部按配置自动决策，中途不向用户确认。字幕是核心特征：口播稿逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。流程：解析论文（arXiv 优先取 LaTeX 源码）→ 结构化 digest（贡献与创新优先，技术含量高的部分自动加篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 脚手架 + 字幕层 → 逐章实现 → DTF 终审 →（可选）录屏；录屏是整条流水线的**最后一步**，等终审与全部修改定稿后只录一次，避免反复渲染；架构图 / 流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文。录屏默认关闭，仅用户明确要求或配置 `recording.enabled=true` 时出片。首次运行自动写默认配置、缺失依赖自动安装；产物按可扩展性铁律组织，交付后可按反馈最小改动迭代（Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频、论文网页讲解。
 ---
 
 # Paper Explainer
 
 把一篇论文变成一份**带全局字幕、网页实现**的讲解演示。字幕是核心特征：
 口播稿的每一句都逐 step 显示在屏幕底部，与画面同源、可开关
-（`S` / `?subs=0`）、可导出 SRT。**录屏是可选出口**：默认不录屏，交付
-可运行、可交互的网页项目；仅用户明确提出「录屏 / 要视频文件」或配置
-`recording.enabled=true` 时才走 Phase 6 出片。
+（`S` / `?subs=0`）、可导出 SRT。**录屏是可选出口、且是最后一步**：默认
+不录屏，交付可运行、可交互的网页项目；仅用户明确提出「录屏 / 要视频文件」
+或配置 `recording.enabled=true` 时才走 Phase 7 出片——且等 DTF 终审与全部
+修改定稿后**只录一次**，不在修改过程中反复渲染。
 
 本 Skill 是**编排层**，串起两个已安装的 skill：
 
@@ -21,8 +22,8 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 
 本 Skill 自己负责 WVP 没有的部分：**论文结构化 digest**、**论文→章节
 映射（按贡献权重）**、**论文素材提取（原图 / 公式 / 原文 + arXiv LaTeX
-源）**、**全局字幕层（核心特征）**、**录屏（可选）**、**一次性初始化**
-（首次自动写默认配置；依赖缺失自动安装）。
+源）**、**全局字幕层（核心特征）**、**录屏（可选 · 最后一步）**、
+**一次性初始化**（首次自动写默认配置；依赖缺失自动安装）。
 
 > 路径约定：
 > `WVP = ~/.config/opencode/skills/web-video-presentation`
@@ -40,7 +41,8 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
   与 SVG 重绘混用（决策见 `PAPER-ASSETS.md` §0）。
 - **可扩展 · 可快改**：生成即按铁律组织产物，交付后按最小改动面响应
   反馈（`REVISION.md`）。
-- **录屏可选**：默认只交付可运行网页项目；触发条件见 Phase 6。
+- **录屏最后做**：默认只交付可运行网页项目；触发条件见 Phase 7。录屏排在
+  DTF 终审与所有修改之后，全片只录一次——内容没定稿不录，避免反复渲染。
 
 ## 核心约定
 
@@ -72,7 +74,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 | 开发模式 | 按配置；`A`（逐章确认）→ 按 `B`（顺序）执行 |
 | 第 1 章 | **不验收**；作为风格锚点做完直接继续 |
 | 音频 | 不合成配音，跳过；字幕承载全部口播文本 |
-| 录屏 | **默认不录屏**；仅用户明确提出或 `recording.enabled=true` 时执行 Phase 6 |
+| 录屏 | **默认不录屏**；仅用户明确提出或 `recording.enabled=true` 时执行 Phase 7（整条流水线最后一步，等全部修改定稿后一次录完） |
 | 后台进程 | 交付前全部停止并复查残留（见「进程卫生」） |
 
 原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
@@ -112,7 +114,7 @@ step 数唯一来源是 `narrations.ts`；视觉数据驱动（数组 + `step` �
 ### 3. 进程卫生（交付即清理，零遗留）
 
 **任何由本次运行启动的后台进程，都不许活过本次运行。** 每次收尾（含
-Phase 6 录屏 / Phase 8 重录）必须先清理再汇报——不把 dev server、浏览器、
+Phase 7 录屏 / Phase 8 重录）必须先清理再汇报——不把 dev server、浏览器、
 录屏工具、ffmpeg、临时 HTTP 留在后台「方便用户看」。启动即登记：
 
 ```bash
@@ -138,7 +140,7 @@ rm -rf .pe-run
 - 自检（汇报前必做）：脚本 exit 0；`ps` 里没有本次启动的 node / vite /
   chromium / ffmpeg；占用过的端口已释放。汇报里写一行：
   `进程 已清理（dev server / 浏览器 / ffmpeg）`。
-- 该规则贯穿所有 Phase（4.3 验证、5 预览、6 录屏、8 重录），一次都不例外。
+- 该规则贯穿所有 Phase（4.3 验证、5 预览、7 录屏、8 重录），一次都不例外。
 
 ## 工作流总览
 
@@ -152,9 +154,11 @@ Phase 3  开发计划          → outline.md（按技术含量分配篇幅）
 Phase 4  脚手架 + 字幕层 + 素材接入
 Phase 5  逐章实现（技术核心章节自动加篇幅）
    ▼（不合成配音，跳过音频）
-Phase 6  录屏（可选 · 仅用户明确要求时；字幕驱动自动推进 + 进程清理）
-Phase 7  DTF 反 AI 味终审
-Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 按需增量重录
+Phase 6  DTF 反 AI 味终审
+   ▼（内容定稿后）
+Phase 7  录屏（可选 · 仅用户明确要求时；**最后一步**，全片只录一次）
+Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源
+         → 改完验证（不录屏）→ 本轮全部改完后按需整片录一次（Phase 7）
 ```
 
 工作目录（在用户当前目录下创建）：
@@ -183,7 +187,7 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 | `outline.md` | WVP `OUTLINE-FORMAT.md` 自检 |
 | 素材 | `PAPER-ASSETS.md` §7 |
 | 单章 | WVP `CHAPTER-CRAFT.md` 完工自检 + `SVG-DIAGRAMS.md` §5 |
-| 字幕层 | `SUBTITLE-AND-RECORDING.md` §6（录屏项仅在录屏时执行） |
+| 字幕层 | `SUBTITLE-AND-RECORDING.md` §6（录屏项仅在录屏时执行，且必须在 DTF 终审与修改定稿后） |
 | 交付终审（网页项目） | DTF §9 AI tells 终审（无论是否录屏都要做） |
 | 全片字体 | `grep -rn "cursive" presentation/src` 为空，无花体 / 手写字体名（`KaTeX_*` 除外） |
 | 交付前（全部 Phase 完成后） | 「进程卫生」自检：`stop-processes.sh` exit 0、无本次启动的后台进程、端口已释放 |
@@ -389,27 +393,10 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 每章完工走 CHAPTER-CRAFT + SVG-DIAGRAMS + PAPER-ASSETS 自检。
 
-## Phase 6 · 录屏（可选 · 默认跳过）
+## Phase 6 · DTF 反 AI 味终审
 
-**触发条件（满足其一才执行本节）**：用户**明确提出**要视频产出（如
-「录成视频」「帮我录屏」「做成视频」「要 mp4 / 成片」），或配置
-`recording.enabled=true`。只给论文链接 / 只说「讲解一下」**不算**——按默认
-不录屏处理，并在汇报里提示「要出片说一声」。
-
-**不满足 → 整节跳过**：不装录屏工具、不录屏，交付可运行网页项目
-（`npm run build` + `npx tsc --noEmit` 通过、进程已清理），汇报里说明
-「默认未录屏；要出片说一声」。**不要**因为「来都来了」顺手录一版。
-
-触发时按 `references/SUBTITLE-AND-RECORDING.md` §4 执行：跳过 WVP 的
-音频合成（字幕就是全部口播文本）；走法由配置 `recording.autoAdvance`
-决定（默认 `?auto=1&reset=1` → `SPACE` 启动 → 按字幕字数估时自动推进、
-全程免点击；或手动推进）；录屏 → ffmpeg 裁头尾。若节奏不对：改
-`estimateMs` 的字数系数（`App.tsx`），或拆 step / 改稿，**不要**加 hold
-旋钮。结束后按「进程卫生」清理，再进 Phase 7。
-
-## Phase 7 · DTF 反 AI 味终审
-
-交付前用 DTF 做一次终审（**只取适用条款**；无论是否录屏都要做）：
+交付前用 DTF 做一次终审（**只取适用条款**；无论是否录屏都要做，且**必须
+排在录屏之前**——终审发现的修改如果发生在录屏之后，就得多录一遍）：
 
 **适用**（拿来审）：
 
@@ -428,6 +415,27 @@ hero/nav/CTA 规则、§3.E 响应式与 `dvh`、§4.5 的 CTA/表单、§6.C �
 > `references/CHAPTER-CRAFT.md` 的 ANTI-AI 清单做终审，并在汇报里注明
 > 「本次无 DTF 终审」。
 
+## Phase 7 · 录屏（可选 · 默认跳过 · 整条流水线的最后一步）
+
+录屏放在 DTF 终审之后、所有内容与修改定稿之后，**全片只录一次**。内容
+还在改（含 Phase 8 迭代）时不要录屏——每改一次就渲染一遍视频会非常慢。
+
+**触发条件（满足其一才执行本节）**：用户**明确提出**要视频产出（如
+「录成视频」「帮我录屏」「做成视频」「要 mp4 / 成片」），或配置
+`recording.enabled=true`。只给论文链接 / 只说「讲解一下」**不算**——按默认
+不录屏处理，并在汇报里提示「要出片说一声」。
+
+**不满足 → 整节跳过**：不装录屏工具、不录屏，交付可运行网页项目
+（`npm run build` + `npx tsc --noEmit` 通过、进程已清理），汇报里说明
+「默认未录屏；要出片说一声」。**不要**因为「来都来了」顺手录一版。
+
+触发时按 `references/SUBTITLE-AND-RECORDING.md` §4 执行：跳过 WVP 的
+音频合成（字幕就是全部口播文本）；走法由配置 `recording.autoAdvance`
+决定（默认 `?auto=1&reset=1` → `SPACE` 启动 → 按字幕字数估时自动推进、
+全程免点击；或手动推进）；录屏 → ffmpeg 裁头尾。若节奏不对：改
+`estimateMs` 的字数系数（`App.tsx`），或拆 step / 改稿，**不要**加 hold
+旋钮。结束后按「进程卫生」清理。
+
 ## Phase 8 · 反馈迭代（按需，用户发起）
 
 首次交付后，产物进入「可快速修改」状态。**首次汇报里主动告诉用户**：
@@ -440,14 +448,16 @@ hero/nav/CTA 规则、§3.E 响应式与 `dvh`、§4.5 的 CTA/表单、§6.C �
    一个澄清问题。
 2. **最小改动面**：按 `REVISION.md` Part B 的类型表动手——**先改上游
    真相源，再改下游**；`script.md` 与 `narrations.ts` 必须同改。
-3. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 若本项目录过屏
-   或用户要求出片，默认**整片重录**（字幕驱动自动推进，成本低且无接缝）；
-   否则只做预览验证、不出片 → 按「进程卫生」清理后台进程并复查 →
-   `revisions.md` 追加记录 → 按 B6 模板汇报。
+3. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 预览验证
+   （`?auto=1&reset=1` 全片过一遍）。**修改期间一律不录屏**：若本项目录过
+   屏或用户要求出片，等本轮反馈全部改完、用户不再提新改动后，才按 Phase 7
+   整片录一次（字幕驱动自动推进，无接缝）→ 按「进程卫生」清理后台进程并
+   复查 → `revisions.md` 追加记录 → 按 B6 模板汇报。
 
-**不重跑 Phase 0–7**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
-才回到对应阶段。完整协议（四步定位 / 改动类型表 / 展开一节的步骤 /
-重录策略）见 [`references/REVISION.md`](references/REVISION.md)。
+**不重跑 Phase 0–6**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
+才回到对应阶段（Phase 7 录屏按需在最后统一执行）。完整协议（四步定位 /
+改动类型表 / 展开一节的步骤 / 录屏策略）见
+[`references/REVISION.md`](references/REVISION.md)。
 
 ## 与两个依赖 Skill 的边界（重要）
 
@@ -470,7 +480,7 @@ hero/nav/CTA 规则、§3.E 响应式与 `dvh`、§4.5 的 CTA/表单、§6.C �
 | `references/INIT.md` | **Phase -1 开工前必读**：初始化 / 配置字段 / 运行时工具 / 依赖安装与降级 |
 | `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射与权重 |
 | `references/PAPER-ASSETS.md` | Phase 0 素材提取 + Phase 4.4 接入 + Phase 5 用原图 / 公式 / 原文时 |
-| `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕；Phase 6 录屏（可选） |
+| `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕；Phase 7 录屏（可选 · 最后一步） |
 | `references/REVISION.md` | **生成前读 Part A**（可扩展性）；Phase 8 读 Part B（修改协议） |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构 / 流程 / 结果图时 |
 | `scripts/init-config.sh` | 首次运行写默认配置；之后 `--show` 读配置 |
@@ -489,5 +499,5 @@ hero/nav/CTA 规则、§3.E 响应式与 `dvh`、§4.5 的 CTA/表单、§6.C �
 | `WVP/references/OUTLINE-FORMAT.md` | Phase 3 |
 | `WVP/references/CHAPTER-CRAFT.md` | Phase 5 每章单一必读 |
 | `WVP/references/THEMES.md` | Phase 4 造 / 选主题 |
-| `WVP/references/RECORDING.md` | Phase 6（可选）录屏工具细节 |
-| `DTF/SKILL.md` | Phase 4 主题审美、Phase 7 终审 |
+| `WVP/references/RECORDING.md` | Phase 7（可选 · 最后一步）录屏工具细节 |
+| `DTF/SKILL.md` | Phase 4 主题审美、Phase 6 终审 |
