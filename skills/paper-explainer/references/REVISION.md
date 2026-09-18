@@ -163,7 +163,7 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 
 ### B5. 重录策略
 
-- **默认整片重录**：本工作流是静音自动推进（`?auto=1&reset=1` + Space），
+- **默认整片重录**：本工作流不合成配音，字幕驱动自动推进（`?auto=1&reset=1` + Space），
   无人值守、无接缝，重录成本低。
 - 只有片长很长且只改一章时，才考虑分段录：切到 `manual` 模式录该章，
   或临时注释 `App.tsx` 里 `autoStarted` 的重置 effect 并在录完后恢复；

@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────
- * Subtitle.css — bottom subtitle bar for silent (no-audio) explainer videos.
+ * Subtitle.css — bottom subtitle bar for subtitle-driven explainer videos.
  *
  * Inverted-contrast rule: bar background = --text, bar text = --surface.
  * On a light theme that yields a dark bar with light text; on a dark theme

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# install-subtitle.sh — copy the silent-subtitle layer into a scaffolded
+# install-subtitle.sh — copy the global subtitle layer into a scaffolded
 # web-video-presentation project.
 #
 # Usage:
@@ -27,8 +27,8 @@ cp "$ASSETS/SubtitleToggle.css" "$DEST/src/components/SubtitleToggle.css"
 cp "$ASSETS/useSubtitle.ts"     "$DEST/src/hooks/useSubtitle.ts"
 
 # Patched useAudioPlayer: adds a `stepKey` dep so Auto mode re-arms on every
-# step even when `src`/estimate don't change (required for silent videos,
-# where src is always null). See SUBTITLE-AND-RECORDING.md §2.2.
+# step even when `src`/estimate don't change (required when there is no audio
+# track, where src is always null). See SUBTITLE-AND-RECORDING.md §2.2.
 cp "$ASSETS/useAudioPlayer.ts"  "$DEST/src/hooks/useAudioPlayer.ts"
 
 echo "Copied subtitle layer into $DEST:"

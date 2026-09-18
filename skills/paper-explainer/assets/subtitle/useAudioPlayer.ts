@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 export type PlaybackMode = "manual" | "audio" | "auto";
 
 interface Options {
-  /** Audio file path. `null` = no audio for this step (silent). */
+  /** Audio file path. `null` = no audio track for this step. */
   src: string | null;
   /** `manual` = no playback. `audio` = play but don't auto-advance.
    *  `auto` = play and auto-advance when finished. */
@@ -18,11 +18,11 @@ interface Options {
   /**
    * Identity of the current step, e.g. `${chapterId}:${step}`.
    *
-   * REQUIRED for silent videos: when `src` is always `null`, the effect would
-   * otherwise only re-arm when `estimateFallbackMs` changes. Two consecutive
-   * narrations of equal length produce the same estimate, so the effect would
-   * not re-run and Auto mode would stall on that step. A per-step key makes
-   * re-arming unconditional.
+   * REQUIRED when there is no audio track: when `src` is always `null`, the
+   * effect would otherwise only re-arm when `estimateFallbackMs` changes.
+   * Two consecutive narrations of equal length produce the same estimate, so
+   * the effect would not re-run and Auto mode would stall on that step. A
+   * per-step key makes re-arming unconditional.
    */
   stepKey?: string | number;
   /** Called when `auto` mode determines the step is finished. */
@@ -41,7 +41,7 @@ interface Options {
  * In `auto` mode:
  *   • Audio file present → advance `trailMs` after the audio's `ended` event.
  *   • Audio file missing / blocked / src = null → advance after
- *     `estimateFallbackMs` (so previews and silent steps still work).
+ *     `estimateFallbackMs` (so previews and no-audio steps still work).
  *
  * Audio playback is the sole driver of step duration — there is intentionally
  * no "minimum hold" knob. If a chapter's visual animation needs more time,
@@ -104,7 +104,7 @@ export function useAudioPlayer({
         if (mode === "auto") advanceAfter(estimateFallbackMs);
       });
     } else if (mode === "auto") {
-      // No audio for this step (silent / empty narration) — use estimate.
+      // No audio track for this step (empty narration) — use estimate.
       advanceAfter(estimateFallbackMs);
     }
 

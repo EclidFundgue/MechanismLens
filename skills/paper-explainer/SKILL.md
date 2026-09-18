@@ -1,12 +1,14 @@
 ---
 name: paper-explainer
 license: MIT
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装；生成时按可扩展性铁律组织产物（真相源链 / 章节独立 / 数据驱动 / step 定位表），交付后支持按用户反馈快速展开或修改某一节（最小改动面 + 增量重录，见 Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解视频。字幕是本 Skill 的核心特征：口播稿的每一句都逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装；生成时按可扩展性铁律组织产物（真相源链 / 章节独立 / 数据驱动 / step 定位表），交付后支持按用户反馈快速展开或修改某一节（最小改动面 + 增量重录，见 Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
 ---
 
 # Paper Explainer
 
-把一篇论文变成一支**无声、带字幕、网页实现、可录屏**的讲解视频。
+把一篇论文变成一支**带全局字幕、网页实现、可录屏**的讲解视频。
+**字幕是核心特征**：口播稿的每一句都逐 step 显示在屏幕底部，与画面
+同源、可开关（`S` / `?subs=0`）、可导出 SRT。
 做完不是终点——产物按「以后要加要改」组织，用户一句「这部分展开讲」
 就能低成本改稿 / 扩章 / 重录（Phase 8）。
 
@@ -32,8 +34,8 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 
 本 Skill 自己负责 WVP 没有的部分：**论文结构化 digest**、**论文→章节
 映射（按贡献权重）**、**论文素材提取（原图/公式/原文 + arXiv LaTeX
-源）**、**无声字幕层 + 静音录屏**，以及**一次性初始化**（首次自动写
-默认配置；依赖缺失自动安装，见 `references/INIT.md`）。
+源）**、**全局字幕层（核心特征）**、**录屏**，以及**一次性初始化**
+（首次自动写默认配置；依赖缺失自动安装，见 `references/INIT.md`）。
 
 > 路径约定：
 > `WVP = ~/.config/opencode/skills/web-video-presentation`
@@ -98,7 +100,7 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 | 论文图 / 公式 / 原文 | 按 `PAPER-ASSETS.md` §0 自动决策（重绘 or 原图） |
 | 开发模式 | 按配置；`A`（逐章确认）→ 按 `B`（顺序）执行 |
 | 第 1 章 | **不验收**；作为风格锚点做完直接继续 |
-| 音频 | 本工作流本就无声，跳过 |
+| 音频 | 不合成配音，跳过；字幕承载全部口播文本 |
 | 录屏 | 默认自动推进一镜到底；环境不支持则交付可运行项目 + build 通过 |
 
 原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
@@ -142,8 +144,8 @@ Phase 3  开发计划          → outline.md（按技术含量分配篇幅）
    ▼（无 Checkpoint，直接推进）
 Phase 4  脚手架 + 字幕层 + 素材接入
 Phase 5  逐章实现（技术核心章节自动加篇幅）
-   ▼（本工作流无声，跳过音频）
-Phase 6  静音录屏（自动推进 + 字幕）
+   ▼（不合成配音，跳过音频）
+Phase 6  录屏（字幕驱动自动推进）
 Phase 7  DTF 反 AI 味终审
 Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 增量重录
 ```
@@ -321,7 +323,7 @@ rm -rf presentation/src/chapters/01-example   # 并清掉 chapters.ts 里的 EXA
 > 删掉示例章 = 结构变更，**顺手 bump** `useStepper.ts` 的 `STORAGE_KEY`
 > （如 `v4`→`v5`），否则旧的持久化游标可能落在已不存在的 step 上。
 
-### 4.3 注入字幕层
+### 4.3 注入全局字幕层（核心特征，必做）
 
 ```bash
 bash "$SELF/scripts/install-subtitle.sh" ./presentation
@@ -373,14 +375,15 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 ---
 
-## Phase 6 · 静音录屏
+## Phase 6 · 录屏（字幕驱动自动推进）
 
-**跳过 WVP 的 Checkpoint Audio 与 Phase 3（音频合成）**。
+**跳过 WVP 的 Checkpoint Audio 与 Phase 3（音频合成）**；本工作流不合成
+配音，字幕就是全部口播文本。
 
 按 `references/SUBTITLE-AND-RECORDING.md` 第 4 节，走法由配置
 `recording.autoAdvance` 决定：
 
-1. `true`（默认）：`?auto=1&reset=1` → `SPACE` 启动 → 无音频时按字数
+1. `true`（默认）：`?auto=1&reset=1` → `SPACE` 启动 → 按字幕字数
    估时自动推进（`reset=1` 保证从第 1 页开始，不受上次游标影响）；
    字幕随 step 显示，全程免点击；
 2. `false`：走 4.2 手动推进（点击 / `→` / 空格），适合后期自己控制节奏；
@@ -432,7 +435,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
    `---` 块 → `outline.md` 插 step 行 → `narrations.ts` 插条目 →
    章节视觉插数据项 / 分支 → bump `STORAGE_KEY`。
 4. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 默认**整片
-   重录**（静音自动推进，成本低且无接缝）→ `revisions.md` 追加记录 →
+   重录**（字幕驱动自动推进，成本低且无接缝）→ `revisions.md` 追加记录 →
    按 B6 模板汇报。
 
 **不重跑 Phase 0–7**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
@@ -446,7 +449,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 | 事项 | 归谁 |
 |---|---|
 | 内容流程 / 章节 / step / 动效方法论 / 脚手架 / 录屏 | **WVP** |
-| 论文 digest / 章节映射 / 素材提取（原图/公式/原文/LaTeX 源）/ 字幕层 / 静音路径 | **本 Skill** |
+| 论文 digest / 章节映射 / 素材提取（原图/公式/原文/LaTeX 源）/ 全局字幕层（核心特征）/ 无配音自动推进路径 | **本 Skill** |
 | 主题的字体与配色审美、反 AI 味终审 | **DTF（仅这两处）** |
 | 单章代码怎么写 | **WVP 的 CHAPTER-CRAFT**（DTF 不参与） |
 

@@ -1,8 +1,9 @@
-# SUBTITLE-AND-RECORDING.md — 字幕层安装 + 静音录屏
+# SUBTITLE-AND-RECORDING.md — 字幕层安装 + 录屏
 
-本工作流产出**无声视频 + 字幕**。`web-video-presentation` 原生的音频
-链路（Phase 3 / Checkpoint Audio）全部跳过；字幕直接复用
-`narrations.ts` 这个「每 step 口播文本的唯一真相源」。
+本工作流产出**带全局字幕的网页讲解视频**——字幕是核心特征，也是文本的
+主载体：每个 step 的讲解都显示在舞台底部。`web-video-presentation` 原生
+的音频链路（Phase 3 / Checkpoint Audio）全部跳过（不合成配音）；字幕
+直接复用 `narrations.ts` 这个「每 step 口播文本的唯一真相源」。
 
 ---
 
@@ -15,7 +16,7 @@
 | `Subtitle.tsx` / `.css` | `src/components/` | 舞台底部字幕条（在 1920×1080 内，随舞台缩放） |
 | `SubtitleToggle.tsx` / `.css` | `src/components/` | 左下角悬浮开关（默认隐藏，hover 才现形，不进录制画面） |
 | `useSubtitle.ts` | `src/hooks/` | 显隐状态：`localStorage` 持久化 + `S` 键 + `?subs=0/1` |
-| `useAudioPlayer.ts` | `src/hooks/` | **覆盖模板版**：加 `stepKey` 依赖（见 §2.4，静音模式必须） |
+| `useAudioPlayer.ts` | `src/hooks/` | **覆盖模板版**：加 `stepKey` 依赖（见 §2.4，无配音模式必须） |
 
 **关键点**
 
@@ -80,17 +81,17 @@ const subtitle = useSubtitle();
 <SubtitleToggle visible={subtitle.visible} onToggle={subtitle.toggle} />
 ```
 
-**⑤ 静音模式：不要探测不存在的音频文件**（在 `estimateMs` 上方加常量）
+**⑤ 无配音模式：不要探测不存在的音频文件**（在 `estimateMs` 上方加常量）
 
 ```tsx
-const SILENT_VIDEO = true; // 无声工作流：永不请求 /audio/*.mp3
+const NO_AUDIO = true; // 本工作流不合成配音：永不请求 /audio/*.mp3
 ```
 
 并把 `audioSrc` 改成：
 
 ```tsx
 const audioSrc =
-  SILENT_VIDEO || mode === "manual" || stepText === ""
+  NO_AUDIO || mode === "manual" || stepText === ""
     ? null
     : `${import.meta.env.BASE_URL}audio/${ch.id}/${stepper.cursor.step + 1}.mp3`;
 ```
@@ -141,7 +142,7 @@ try {
 > 游标默认持久化在 `localStorage[STORAGE_KEY]`，所以刷新会「接着上次」。
 > 想强制从头：URL 加 `&reset=1`，或按 `Home` 键回第 1 页。
 
-### 2.4 为什么静音模式必须改这两处（否则会「卡住」）
+### 2.4 为什么无配音模式必须改这两处（否则会「卡住」）
 
 这是实测踩到的坑，务必理解：
 
@@ -150,7 +151,7 @@ try {
   `[src, mode, trailMs, estimateFallbackMs, autoStarted]`。
 - **有声时** `src` 每步都变（`.../1.mp3` → `.../2.mp3`），effect 必然
   重跑，所以没问题。
-- **静音时** 若让 `src` 指向不存在的 mp3，dev server 的 SPA 回退会返回
+- **无配音时** 若让 `src` 指向不存在的 mp3，dev server 的 SPA 回退会返回
   `200 text/html`，浏览器要等「解码失败」事件才回退到估时——每步多几秒
   抖动（§2.2 ⑤ 就是为了去掉它）。
 - 但把 `audioSrc` 设为 `null` 后，**唯一的 per-step 依赖只剩
@@ -159,7 +160,7 @@ try {
 - 解法就是 §2.2 ⑥ 的 `stepKey`：`useAudioPlayer` 已加该可选参数并纳入
   依赖，`${ch.id}:${step}` 每步必变，重跑无条件发生。
 
-> 手动模式不受影响（没有计时器）。只有 `?auto=1` 静音自动播放会卡。
+> 手动模式不受影响（没有计时器）。只有 `?auto=1` 自动播放会卡。
 
 ### 2.5 验证
 
@@ -190,13 +191,13 @@ cd presentation && npm run dev
 
 ---
 
-## 4. 静音录屏
+## 4. 录屏
 
 ### 4.1 自动推进（推荐，一镜到底）
 
 模板的 `auto` 模式在**没有音频文件**时，会用 `App.tsx` 里的
-`estimateMs(text)`（静音阅读 ≈ 5 字/秒）自动推进——这正好是「无声字幕
-自动播放」：
+`estimateMs(text)`（按阅读速度 ≈ 5 字/秒）自动推进——字幕随 step
+显示，无需任何点击：
 
 ```bash
 # dev server 已在 localhost:5173
@@ -214,7 +215,7 @@ http://localhost:5173/?auto=1&reset=1
 ```tsx
 function estimateMs(text: string): number {
   if (!text) return 1500;
-  // 静音阅读节奏 ≈ 5 字/秒（比朗读的 4 字/秒略快，因为看比念快）。
+  // 无配音时的阅读节奏 ≈ 5 字/秒（比朗读的 4 字/秒略快，因为看比念快）。
   // 动画被切短就调大系数；觉得太慢就调小。
   return Math.max(1500, text.length * 200);
 }
