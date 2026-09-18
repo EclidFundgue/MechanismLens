@@ -160,7 +160,7 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 - [ ] step 数 / 章节结构变化时 bump 了 `STORAGE_KEY`？
 - [ ] `?auto=1&reset=1` 从第 1 页连续推进到底、字幕不空条？
 - [ ] 被改章走一遍 CHAPTER-CRAFT 完工自检（视觉 / token / 反 AI 味）？
-- [ ] 英文无花体 / 手写字体残留（`grep -rn "cursive" presentation/src` 为空）？
+- [ ] 英文无花体 / 手写字体残留（`grep -rn "cursive" presentation/src` 为空，`KaTeX_*` 数学字体除外）？
 - [ ] 后台进程已清理（`stop-processes.sh` exit 0；无 dev server / 浏览器 /
       ffmpeg 残留，端口已释放）？
 - [ ] `revisions.md` 已记录？

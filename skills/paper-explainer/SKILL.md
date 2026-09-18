@@ -165,14 +165,21 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
   或正文衬线（Source Serif、IBM Plex Serif、Noto Serif）；中文字体不受限。
 - **判断标准**：录屏压缩后仍能一眼认清每个字母；拿不准就当花体处理，
   换成可读字体。
+- **例外（保留公式字体）**：KaTeX / LaTeX 数学字体**不在禁令内、必须保留**——
+  `KaTeX_Main` / `KaTeX_Math` / `KaTeX_Caligraphic` / `KaTeX_Script` /
+  `KaTeX_Fraktur` 等（含 `\mathcal` / `\mathscr` / `\mathfrak` 渲染出的
+  花体字形）是数学排版的一部分。公式 CSS 只调 `color` / `font-size`，
+  **不要给 `.katex` 及其子元素设 `font-family`**；`katex.min.css` 从
+  npm 引入、不复制进 `src/`（其内部无 `cursive`，不影响下面的自检）。
 - **选主题**：`auto` 时排除以手写 / 花体为气质的主题（如 `chalk-garden`
   的 Patrick Hand / Caveat），并在汇报里说明避开原因。
 - **兜底（必做）**：脚手架后检查项目 `presentation/src/styles/tokens.css`，
-  `--font-display-en` / `--font-body` 命中花体或 `cursive` 时，**在项目
-  文件里替换**为可读字体栈（`fixed` 主题同样执行）；不改 WVP 源主题目录。
-  字幕继承 `--font-body`，尤其要保证可读。
+  `--font-display-cn` / `--font-display-en` / `--font-body` 命中花体或
+  `cursive` 时，**在项目文件里替换**为可读字体栈（`fixed` 主题同样执行；
+  `body` 用的是 `--font-display-cn`，其首字体带拉丁字形，不能漏检）；
+  不改 WVP 源主题目录。字幕继承 `--font-body`，尤其要保证可读。
 - **自检**：`grep -rn "cursive" presentation/src` 必须为空（花体字体名
-  同理）；命中就改到干净为止。
+  同理，但排除 `KaTeX_*` 数学字体名）；命中就改到干净为止。
 
 ---
 
@@ -262,7 +269,7 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
 | 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
 | 成片 | DTF §9 AI tells 终审 |
-| 字体（全片） | 「字体可读性铁律」：`grep -rn "cursive" presentation/src` 为空，无花体 / 手写字体名 |
+| 字体（全片） | 「字体可读性铁律」：`grep -rn "cursive" presentation/src` 为空，无花体 / 手写字体名（`KaTeX_*` 数学字体除外） |
 | 交付前（全部 Phase 完成后） | 「进程卫生」自检：`stop-processes.sh` exit 0、无本次启动的后台进程、端口已释放 |
 | 修改（Phase 8） | `references/REVISION.md` B4 自检 |
 
@@ -449,7 +456,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 - 每章必须有视觉演示，禁纯文字。
 - **英文禁花体**：标题 / 正文 / 图表标注 / SVG 文字一律用可读字体
   （「字体可读性铁律」）；SVG 里用 `var(--font-mono)` / `var(--font-body)`，
-  不写 `cursive` / 手写字体。
+  不写 `cursive` / 手写字体。公式字体除外（见铁律的例外条）。
 - 清单/列表 1 项 = 1 step，禁一次全展示。
 - 图表按 `SVG-DIAGRAMS.md`（SVG 重绘）与 `PAPER-ASSETS.md`（原图 /
   公式 / 原文）：架构图逐模块点亮、流程图逐节点点亮、结果图逐柱/逐线
