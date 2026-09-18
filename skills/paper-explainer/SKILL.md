@@ -1,7 +1,7 @@
 ---
 name: paper-explainer
 license: MIT
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解演示。用法极简：调用 skill + 论文链接，主题 / 语言 / 篇幅 / 封面 / 录屏全部自动决策，中途不向用户确认。字幕是核心特征：口播稿逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。流程：解析论文（arXiv 优先取 LaTeX 源码）→ 结构化 digest（贡献与创新优先，技术含量高的部分自动加篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 脚手架 + 字幕层 → 逐章实现 → DTF 终审；架构图 / 流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文。录屏默认关闭，仅用户明确要求或配置 `recording.enabled=true` 时出片。首次运行自动写默认配置、缺失依赖自动安装；产物按可扩展性铁律组织，交付后可按反馈最小改动迭代（Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频、论文网页讲解。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解演示。用法极简：调用 skill + 论文链接，主题默认固定（跨任务深浅统一），语言 / 篇幅 / 封面 / 录屏全部按配置自动决策，中途不向用户确认。字幕是核心特征：口播稿逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。流程：解析论文（arXiv 优先取 LaTeX 源码）→ 结构化 digest（贡献与创新优先，技术含量高的部分自动加篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 脚手架 + 字幕层 → 逐章实现 → DTF 终审；架构图 / 流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文。录屏默认关闭，仅用户明确要求或配置 `recording.enabled=true` 时出片。首次运行自动写默认配置、缺失依赖自动安装；产物按可扩展性铁律组织，交付后可按反馈最小改动迭代（Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频、论文网页讲解。
 ---
 
 # Paper Explainer
@@ -66,7 +66,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 |---|---|
 | 初始化配置 | 有则直接用；无则写推荐默认值（不问卷、不确认）——见 `INIT.md` |
 | 依赖 skill / 系统工具 | 缺失自动安装；失败按 `INIT.md` §2.3 降级（录屏工具仅在要求录屏时装） |
-| 主题 | 按配置；`auto` → 自动挑最匹配并**汇报理由**；`ask` 按 `auto`；避开手写 / 花体气质主题 |
+| 主题 | 按配置（默认 `fixed` + `midnight-press`，**跨任务统一深浅**）；`auto`（显式配置）才按论文气质挑并**汇报理由**；`ask` 按 `auto`；避开手写 / 花体气质主题 |
 | 封面素材 | 按配置；`ask` 按 `svg`；`generate` 缺 gpt-image-2 → 回退 `svg` |
 | 论文图 / 公式 / 原文 | 按 `PAPER-ASSETS.md` §0 自动决策（重绘 or 原图） |
 | 开发模式 | 按配置；`A`（逐章确认）→ 按 `B`（顺序）执行 |
@@ -196,14 +196,16 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 **每次运行开头**先做这两件事：
 
 ```bash
-bash "$SELF/scripts/init-config.sh" --show    # 读配置
-bash "$SELF/scripts/check-deps.sh"            # 依赖自检
+bash "$SELF/scripts/init-config.sh" --ensure   # 读配置（无则写默认；旧配置自动补齐/迁移）
+bash "$SELF/scripts/check-deps.sh"             # 依赖自检
 ```
 
 - **有配置** → 直接应用（网页主题 / 开发模式 / 封面素材 / 讲解语言 /
-  录屏开关与自动推进），一行汇报「已加载配置：…」后继续。各配置项在哪个
-  Phase 生效见 `INIT.md` §3。
-- **无配置** → **不提问**：直接写入推荐默认值（`theme=auto` /
+  录屏开关与自动推进），一行汇报「已加载配置：…」后继续。`--ensure` 会
+  自动补齐缺失字段，并把旧默认的 `auto` 主题迁移为固定的
+  `midnight-press`（保证跨任务深浅一致；显式配置的 `auto` / 其他主题不动）。
+  各配置项在哪个 Phase 生效见 `INIT.md` §3。
+- **无配置** → **不提问**：直接写入推荐默认值（`theme=fixed:midnight-press` /
   `devMode=B` / `cover=svg` / `lang=auto` / `record=false` /
   `autoAdvance=true`）并继续。用户想自定义 → 预先写 `CONFIG`，或事后说
   「重配 paper-explainer」。
@@ -310,10 +312,11 @@ bash "$SELF/scripts/check-deps.sh"            # 依赖自检
 
 ### 4.1 自动决策（直接执行）
 
-- **主题**（`theme.mode`）：`fixed` → 用 `theme.id`；先确认
-  `WVP/themes/<id>/` 存在，否则警告并回退 `auto`。`auto` / `ask` → 按论文
-  气质读 `themes/*/theme.json`（`bestFor` / `descriptionZh`）挑最匹配的
-  一套，**汇报你选了什么、为什么**；跳过手写 / 花体气质主题。
+- **主题**（`theme.mode`）：`fixed`（默认）→ 用 `theme.id`（默认
+  `midnight-press`）；先确认 `WVP/themes/<id>/` 存在，否则警告并回退
+  `auto`。`auto` / `ask`（需显式配置）→ 按论文气质读
+  `themes/*/theme.json`（`bestFor` / `descriptionZh`）挑最匹配的一套，
+  **汇报你选了什么、为什么**；跳过手写 / 花体气质主题。
 - **封面素材**（`materials.cover`）：`svg` 自绘；`generate` 用
   `gpt-image-2`（未安装则回退 `svg` 并说明）；`placeholder` 占位；
   `ask` → 按 `svg` 处理。

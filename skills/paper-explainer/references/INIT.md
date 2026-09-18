@@ -25,12 +25,12 @@ paper-explainer 的原则：**能配置一次的事，不重复问；不能配�
 配置**不放 skill 目录**（那是 git 仓库，避免脏工作区）；它是**用户级**的，
 换项目目录也生效。
 
-### 字段表（version 1）
+### 字段表（version 2）
 
 | 字段 | 取值 | 默认 | 作用 |
 |---|---|---|---|
-| `theme.mode` | `auto` / `fixed` / `ask` | `auto` | 网页主题：每次自动挑 / 固定一个 / （`ask` 已废弃 → 按 `auto` 处理） |
-| `theme.id` | 主题 id（如 `paper-press`） | `""` | `fixed` 时使用；从 WVP `themes/*/theme.json` 读，不硬编码 |
+| `theme.mode` | `auto` / `fixed` / `ask` | `fixed` | 网页主题：**固定一个（跨任务深浅统一）** / 每次自动挑 /（`ask` 已废弃 → 按 `auto` 处理） |
+| `theme.id` | 主题 id（如 `midnight-press`） | `midnight-press` | `fixed` 时使用；从 WVP `themes/*/theme.json` 读，不硬编码 |
 | `devMode` | `A` / `B` / `C` | `B` | 开发模式：`A`（逐章确认，已废弃 → 按 `B`）/ 顺序 / 并行（subagent） |
 | `materials.cover` | `svg` / `generate` / `placeholder` / `ask` | `svg` | 封面 / 概念图：SVG 自绘 / `gpt-image-2` 生成 / 占位 /（`ask` 已废弃 → 按 `svg`） |
 | `narration.language` | `auto` / `zh` / `en` | `auto` | 口播语言；`auto` = 中文论文用中文，英文论文默认中文讲解 |
@@ -101,15 +101,16 @@ bash "$SELF/scripts/install-deps.sh" --wvp-src=<url|path> --dtf-src=<url|path>
 bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 ```
 
-写入内容：`theme=auto` / `devMode=B` / `cover=svg` / `lang=auto` /
-`recording.enabled=false` / `autoAdvance=true`。之后每次运行直接读取。
+写入内容：`theme=fixed:midnight-press` / `devMode=B` / `cover=svg` /
+`lang=auto` / `recording.enabled=false` / `autoAdvance=true`。之后每次运行
+直接读取。主题固定是**刻意设计**——避免不同任务之间深色 / 浅色漂移。
 
 ### 2.5 汇报模板
 
 ```
 初始化完成（自动，未打断）：
   配置    ~/.config/paper-explainer/config.json（新建，默认值）
-  主题    auto（按论文自动挑，会汇报理由）
+  主题    fixed · midnight-press（跨任务统一；想换说一声）
   模式    B（顺序开发）
   封面    svg
   语言    auto（英文论文默认中文讲解）
@@ -123,16 +124,20 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 
 ## 3. 之后每次运行
 
-1. **读配置**：`bash "$SELF/scripts/init-config.sh" --show`（或直接读 JSON）。
-   - 有配置 → 一行汇报「已加载配置：主题=… 模式=… 封面=… 语言=… 录屏=…」，继续。
+1. **读配置**：`bash "$SELF/scripts/init-config.sh" --ensure`。
+   - 有配置 → 补齐缺失字段 / 迁移旧默认后打印；一行汇报「已加载配置：主题=… 模式=… 封面=… 语言=… 录屏=…」，继续。
    - 无配置 → 自动写默认值（§2.4），继续。
+   - 旧默认（v1 `auto` + 空 id）→ **自动迁移**为 `fixed:midnight-press`
+     并打印迁移说明；显式配置的 `auto` / 其他主题保持不变。
+   - 只看不改用 `--show`；`--ensure` 失败（JSON 损坏）→ 报告并让用户
+     决定修复或 `--reset`，不要静默重写。
 2. **依赖快速自检**：`bash "$SELF/scripts/check-deps.sh"`；有 `[MISS]`
    就按 §2.1 自动处理（skill 缺失直接装，不确认）。
 3. **应用配置**（各 Phase 生效点见下表），不再重复提问。
 
 | 配置 | 生效点 |
 |---|---|
-| `theme` | Phase 4.1 —— `fixed` 直接用 `theme.id`（不存在则警告并回退 auto）；`auto` / `ask` 由 agent 按论文气质挑最佳并**汇报选择** |
+| `theme` | Phase 4.1 —— `fixed`（默认）直接用 `theme.id`（不存在则警告并回退 auto）；`auto` / `ask`（显式配置）才由 agent 按论文气质挑最佳并**汇报选择** |
 | `devMode` | Phase 4.5 / Phase 5 —— A（按 B）/ B 顺序 / C subagent 并行 |
 | `materials.cover` | Phase 4.1 —— `svg` 自绘封面；`generate` 用 `gpt-image-2`（没装则回退 svg 并说明）；`placeholder` 占位；`ask` 按 `svg` |
 | `narration.language` | Phase 2 —— `auto` 按原文语言；`zh` / `en` 强制 |
@@ -149,10 +154,11 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 
 | 需求 | 做法 |
 |---|---|
-| 看当前配置 | `init-config.sh --show` |
+| 看当前配置 | `init-config.sh --show`（只看不改） |
 | 改某一项 | 直接编辑 `~/.config/paper-explainer/config.json`，或 `init-config.sh --force …` 全量重写 |
+| 固定 / 切换主题 | `init-config.sh --theme-mode=fixed --theme-id=<id> --force`；恢复「每次自动挑」：`--theme-mode=auto --force` |
 | 开启 / 关闭录屏 | 编辑 `recording.enabled`，或 `init-config.sh --record=true --force`（默认 `false`，不录屏） |
-| 恢复默认 | `init-config.sh --reset`，下次运行自动写默认值 |
+| 恢复默认 | `init-config.sh --reset`，下次运行自动写默认值（fixed:midnight-press） |
 | 用户说「重配」 | 用 `question` 工具问一轮偏好，`--force` 写入（这是唯一允许的提问场景，由用户主动触发） |
 
 ---
@@ -178,4 +184,6 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 - [ ] 安装失败时是否按 §2.3 降级并在汇报里注明？
 - [ ] 单次覆盖是否没有污染持久配置？
 - [ ] 默认是否没有录屏、没有为录屏安装浏览器 / ffmpeg？（仅当用户明确提出或 `recording.enabled=true` 时才录屏）
+- [ ] 主题是否按配置固定（默认 `fixed:midnight-press`），不会跨任务深色 / 浅色漂移？
+- [ ] 旧配置是否经 `--ensure` 补齐 / 迁移（而不是直接按残缺配置跑）？
 - [ ] `fixed` 主题不存在时是否警告并回退，而不是硬跑？
