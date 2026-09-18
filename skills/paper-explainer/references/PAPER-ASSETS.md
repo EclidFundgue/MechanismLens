@@ -12,9 +12,10 @@
 
 | 内容 | 首选 | 备选 |
 |---|---|---|
-| 架构图 / 流程图（模块清晰） | SVG 重绘（逐模块点亮） | 原图 + 高亮框 |
-| 复杂系统总览 / 大图 | 原图（裁切 + 局部放大） | SVG 简化重绘 |
-| 定性结果（照片 / 渲染 / 对比图） | **原图** | — |
+| 架构图 / 流程图（模块清晰、≤ 10 个、连线简单） | SVG 重绘（逐模块点亮） | 原图 + 高亮框 |
+| 复杂系统总览 / 大图 / 连线密集 | 原图（裁切 + 局部放大） | SVG 简化重绘 |
+| 作者示意图比你能重绘得更清楚 | **原图**（准确优先） | SVG 简化重绘 |
+| 定性结果（照片 / 渲染 / 对比图） | **原图**（SVG 无法忠实复现） | — |
 | 结果表格（小） | SVG / flex 重绘 | — |
 | 结果表格（大而密） | 原图裁切 + 行高亮 | SVG 重绘 |
 | 公式 | **KaTeX 渲染**（推荐） | 原图裁切 / LaTeX→SVG |
@@ -153,12 +154,11 @@ export function Formula({ tex, block = false }: { tex: string; block?: boolean }
 .formula-inline .katex { color: var(--text); }
 ```
 
-- **公式字体保留**：KaTeX 自带数学字体（`KaTeX_Main` / `KaTeX_Math` /
-  `KaTeX_Script` / `KaTeX_Fraktur` 等，含 `\mathcal` 等花体字形）是数学
-  排版的一部分，不适用「字体可读性铁律」。公式 CSS 只调 `color` /
-  `font-size` / 间距，**禁止给 `.katex` 或其子元素设 `font-family`**。
-- `katex.min.css` 从 npm 包引入（`node_modules`），不要复制进 `src/`；
-  它内部不含 `cursive`，不会触发字体自检的误报。
+- **公式字体保留**：KaTeX 数学字体（含 `\mathcal` 等花体字形）不适用
+  「字体可读性铁律」（SKILL.md 跨阶段铁律 §2）。公式 CSS 只调 `color` /
+  `font-size` / 间距，**禁止给 `.katex` 或其子元素设 `font-family`**；
+  `katex.min.css` 从 npm 包引入（`node_modules`），不要复制进 `src/`
+  （它内部不含 `cursive`，不会触发字体自检的误报）。
 - 公式内容**以 LaTeX 源为准**；没有源码时对照 PDF 逐字符核对，别凭印象。
 - 主 .tex 的 `\newcommand` 收进 `macros`，否则渲染报错。
 - 极复杂 / KaTeX 不支持的公式 → 原图裁切（§2）或 LaTeX→SVG。
