@@ -1,0 +1,70 @@
+/* ─────────────────────────────────────────────────────────────────────
+ * Subtitle.css — bottom subtitle bar for silent (no-audio) explainer videos.
+ *
+ * Inverted-contrast rule: bar background = --text, bar text = --surface.
+ * On a light theme that yields a dark bar with light text; on a dark theme
+ * it yields a light bar with dark text. Either way it stays readable over
+ * any chapter visual, and it always matches the active theme.
+ *
+ * Tunables (set on the active theme's tokens.css if needed):
+ *   --subtitle-size      font-size         (default 38px)
+ *   --subtitle-bottom    distance to floor (default 72px)
+ *   --subtitle-pad-x     side gutter       (default 200px)
+ * ───────────────────────────────────────────────────────────────────── */
+
+.subtitle-layer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: var(--subtitle-bottom, 72px);
+  z-index: 20; /* above .scene (z-index 2) and the pattern layer (z-index 1) */
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--subtitle-pad-x, 200px);
+  pointer-events: none;
+}
+
+.subtitle-text {
+  margin: 0;
+  max-width: 1520px;
+  padding: 18px 40px 22px;
+  border-radius: var(--subtitle-radius, 6px);
+  border-top: var(--bw-2, 2px) solid var(--accent);
+  font-family: var(--font-body, var(--font-display-cn));
+  font-size: var(--subtitle-size, 38px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-wrap: balance;
+  /* Solid fallback first (guaranteed contrast, older engines). */
+  color: var(--surface);
+  background: var(--text);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+/* Progressive enhancement: a slightly translucent bar reads as "overlay"
+   rather than a solid slab. */
+@supports (background: color-mix(in srgb, red 50%, transparent)) {
+  .subtitle-text {
+    background: color-mix(in srgb, var(--text) 84%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .subtitle-text {
+    animation: subtitle-in 320ms var(--ease-quart, cubic-bezier(0.19, 1, 0.22, 1))
+      both;
+  }
+}
+
+@keyframes subtitle-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
