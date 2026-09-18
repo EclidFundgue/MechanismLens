@@ -1,6 +1,6 @@
 ---
 name: paper-explainer
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。流程：解析论文 → 结构化 digest（动机/核心思想/模型设计/模型结构/算法流程/实验设计/实验结果）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/算法流程图/结果图表一律用 SVG 重绘并逐步揭示。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。依赖已安装的 web-video-presentation 与 design-taste-frontend skill。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。流程：解析论文 → 结构化 digest（动机/核心思想/模型设计/模型结构/算法流程/实验设计/实验结果）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/算法流程图/结果图表一律用 SVG 重绘并逐步揭示。首次运行做一次性初始化（网页主题风格 / 开发模式 / 封面素材 / 讲解语言持久化到配置，之后不再重复提问）；依赖的 web-video-presentation 与 design-taste-frontend skill 缺失时，经用户确认可自动安装。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
 ---
 
 # Paper Explainer
@@ -15,24 +15,56 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
   「造/选主题」和「终审」两处用**，不指导单章代码。
 
 本 Skill 自己负责三件 WVP 没有的事：**论文结构化 digest**、
-**论文→章节的固定映射**、**无声字幕层 + 静音录屏**。
+**论文→章节的固定映射**、**无声字幕层 + 静音录屏**。另加一层
+**初始化**：首次运行把主题风格等偏好配置一次并持久化，之后不再重复
+提问；依赖 skill 缺失时经用户确认可自动安装（见 `references/INIT.md`）。
 
 > 路径约定：
 > `WVP = ~/.config/opencode/skills/web-video-presentation`
 > `DTF = ~/.config/opencode/skills/design-taste-frontend`
 > `SELF = ~/.config/opencode/skills/paper-explainer`
+> `CONFIG = ~/.config/paper-explainer/config.json`（`PAPER_EXPLAINER_CONFIG` 可覆盖）
 
 ---
 
-## 前置条件（开工前先查）
+## Phase -1 · 初始化（首次运行一次，之后直接读配置）
 
-1. **Node 运行时**（`node`/`npm`）：WVP 是 Vite + React + TS 项目，没有
-   Node 跑不起来。缺就先装 Node LTS。
-2. **一个 Chromium/Chrome 浏览器**：录屏用。
-3. `ffmpeg`：裁切 / 可选烧字幕。
-4. Python（可选）：解析 PDF（`pymupdf` / `pdftotext`）。
+**每次运行开头**先做这两件事（几秒钟）：
 
-缺任何一项先告诉用户并协助安装，不要假装能跑。
+```bash
+bash "$SELF/scripts/init-config.sh" --show    # 读配置
+bash "$SELF/scripts/check-deps.sh"            # 依赖自检
+```
+
+- **有配置** → 直接应用（网页主题 / 开发模式 / 封面素材 / 讲解语言 /
+  录屏自动推进），**不再重复提问**；一行汇报「已加载配置：…」后继续。
+  各配置项在哪个 Phase 生效见 `references/INIT.md` §3。
+- **无配置** → 跑首次初始化：依赖自检 + 一次性问卷（主题风格 / 开发
+  模式 / 封面素材 / 讲解语言），写入 `CONFIG`。
+- **依赖 skill 缺失**（WVP / DTF）→ 列给用户并问一次「是否自动安装」，
+  同意后：
+
+```bash
+bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
+```
+
+  装完提醒用户**重启 opencode** 才会加载；用户拒绝 → 按 `INIT.md` §2.3
+  降级（缺 WVP 不能开工；缺 DTF 可降级并注明）。
+
+> **完整规格**（字段表 / 问卷问法 / 自动安装 / 降级 / 重配）见
+> [`references/INIT.md`](references/INIT.md)。开工前先读它。
+
+### 运行时工具（缺了先装，不要假装能跑）
+
+| 工具 | 用途 | 缺失处理 |
+|---|---|---|
+| Node + npm | WVP 是 Vite + React + TS | 装 Node LTS（>= 18） |
+| Chromium / Chrome | 录屏 | 装浏览器 |
+| ffmpeg | 裁切 / 可选烧字幕 | 装 ffmpeg |
+| pdftotext 或 pymupdf | 解析 PDF | `poppler-utils` 或 `pip install pymupdf` |
+
+`check-deps.sh` 一次性报告以上全部；系统工具缺失时给出安装命令，
+**经用户确认后**再执行。
 
 ---
 
@@ -43,9 +75,11 @@ Checkpoint**，用以下默认值继续，并在最终汇报里列出「我替�
 
 | 交互点 | 默认动作 |
 |---|---|
-| Checkpoint Plan（主题） | 取推荐第 1 个主题；若已 scaffold，沿用现有主题 |
+| 初始化配置 | 有配置直接用；没有用默认值（`theme=auto` / `devMode=B` / `cover=svg` / `lang=auto` / `autoAdvance=true`），**不写配置文件** |
+| 依赖安装 | **不擅自安装**；缺 WVP → 终止并说明；缺 DTF → 降级（主题审美用 WVP THEMES、终审用 WVP ANTI-AI 清单）并注明 |
+| Checkpoint Plan（主题/素材/模式） | 按配置执行，不再问（主题 `auto` 时汇报选择） |
 | 第 1 章验收 | 直接继续后续章节（模式 B · 顺序开发） |
-| 开发模式 | B（主线程顺序，不并行） |
+| 开发模式 | 配置值；无配置 = B（主线程顺序，不并行） |
 | Checkpoint Audio | 跳过（本工作流本就无声） |
 | 录屏 | 跳过，只交付可运行项目 + 构建通过 |
 
@@ -60,19 +94,21 @@ Checkpoint**，用以下默认值继续，并在最终汇报里列出「我替�
 ## 工作流总览
 
 ```
+Phase -1 初始化            → ~/.config/paper-explainer/config.json
+                            （首次：依赖自检 + 一次性配置问卷；之后：读配置，见 references/INIT.md）
 Phase 0  论文解析          → paper.md
 Phase 1  结构化摘要        → digest.md        （本 Skill 独有，见 references/PAPER-DIGEST.md）
 Phase 2  口播稿            → script.md        （遵循 WVP/references/SCRIPT-STYLE.md）
 Phase 3  开发计划          → outline.md       （遵循 WVP/references/OUTLINE-FORMAT.md）
    ▼
-[Checkpoint Plan]  一次对齐：稿 / outline / 主题 / 素材 / 模式
+[Checkpoint Plan]  确认：稿 / outline（主题 / 素材 / 模式按配置执行）
    ▼
 Phase 4  脚手架 + 注入字幕层（本 Skill 独有，见 references/SUBTITLE-AND-RECORDING.md）
 Phase 5  逐章实现（遵循 WVP/references/CHAPTER-CRAFT.md；图表按 references/SVG-DIAGRAMS.md）
    ▼
 [Checkpoint Audio]  本工作流**跳过音频**，直接静音录屏
    ▼
-Phase 6  静音录屏（?auto=1 自动推进 + 字幕）
+Phase 6  静音录屏（自动推进按配置 + 字幕）
 Phase 7  DTF 反 AI 味终审
 ```
 
@@ -154,8 +190,8 @@ Phase 7  DTF 反 AI 味终审
   一上来念一长串指标。
 - **每句话就是一 step 的字幕**——写的时候就想着它会显示在屏幕底部，
   单句别超过约 40 字，超了就拆 step。
-- 保持论文原文语言（中文论文→中文稿；英文论文→默认中文讲解，除非
-  用户要求英文）。
+- 语言按配置 `narration.language`：`auto` = 中文论文→中文稿、英文论文→
+  默认中文讲解；`zh` / `en` 强制。
 
 写完走 SCRIPT-STYLE 三层自检。
 
@@ -182,26 +218,36 @@ Phase 7  DTF 反 AI 味终审
 
 ## Phase 4 · Checkpoint Plan + 脚手架 + 字幕层
 
-### 4.1 Checkpoint Plan（硬节点，一次对齐 5 件事）
+### 4.1 Checkpoint Plan（硬节点；主题 / 素材 / 模式已由配置决定）
 
-读 `WVP/SKILL.md` 的「Checkpoint Plan」段，按其模板向用户汇报
-`script.md` / `outline.md` / 主题 / 素材 / 开发模式。
+读 `WVP/SKILL.md` 的「Checkpoint Plan」段。与 WVP 原生「一次对齐 5
+件事」不同：本工作流的**主题 / 素材 / 开发模式来自初始化配置，不再
+提问**；Checkpoint 只确认**稿子 + outline**，并把已应用的配置列出来，
+给用户一次反悔机会（用户当场改 → 只影响本次）。
 
-**主题这一步引入 DTF**（本工作流唯一的主题集成点）：
+- **主题**（`theme.mode`）：
+  - `fixed` → 用 `theme.id`；先确认 `WVP/themes/<id>/` 存在，否则警告
+    并回退 `auto`；
+  - `auto` → 按论文气质读 `themes/*/theme.json`（`bestFor` /
+    `descriptionZh`）挑最匹配的一套，**汇报你选了什么、为什么**；
+  - `ask` → 才走 WVP 原生的「推荐 2–3 套让用户选」。
+- **素材**（`materials.cover`）：`svg` 封面自绘；`generate` 用
+  `gpt-image-2`（未安装则回退 `svg` 并说明）；`placeholder` 占位；
+  `ask` 才问。
+- **开发模式**（`devMode`）：A / B / C，直接执行。
 
-1. 读 WVP `themes/*/theme.json`，按论文气质（学术/严谨/数据密集）
-   先推荐 2–3 套内置主题。
-2. 用 DTF 的 **design read + 三档 dial**（`DESIGN_VARIANCE` /
-   `MOTION_INTENSITY` / `VISUAL_DENSITY`）判断该主题是否合适；学术讲解
-   通常 `DENSITY` 偏高、`MOTION` 中低。
-3. 若内置主题都不合，按 WVP `references/THEMES.md` 的「创作新主题」造
-   一个，**造主题时的字体/配色决策参考 DTF §4.1 / §4.2**（例如避开
-   DTF 点名的 AI 默认紫、避免 Inter 默认、serif 只在确实编辑风时用）。
+**主题这一步仍引入 DTF**：用 DTF 的 **design read + 三档 dial**
+（`DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`）判断主题
+是否合适（学术讲解通常 `DENSITY` 偏高、`MOTION` 中低）；若需造新主题，
+按 WVP `references/THEMES.md` 的「创作新主题」流程，字体/配色决策参考
+DTF §4.1 / §4.2（避开 AI 默认紫、避免 Inter 默认、serif 只在确实编辑
+风时用）。
 
 **素材决策**（论文特有）：
 
-- 架构图 / 流程图 / 结果图表 → **一律 SVG 重绘**，不贴原图、不生成图。
-- 封面 / 概念插画 / 氛围图 → 可用 `gpt-image-2`（有图像工具时）。
+- 架构图 / 流程图 / 结果图表 → **一律 SVG 重绘**（固定铁律，见
+  `references/SVG-DIAGRAMS.md`），不贴原图、不生成图。
+- 封面 / 概念插画 / 氛围图 → 按 `materials.cover` 配置。
 - 需要真图但拿不到 → 用清晰占位并列入素材清单。
 
 ### 4.2 脚手架
@@ -244,7 +290,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 - 改章节结构或 `narrations.ts` 长度后，bump `useStepper.ts` 的
   `STORAGE_KEY`。
 
-并行模式（WVP 模式 C）可用 subagent；subagent prompt 需附：本章 outline
+并行模式（`devMode=C`，WVP 模式 C）可用 subagent；subagent prompt 需附：本章 outline
 段 + CHAPTER-CRAFT 路径 + 主题气质 + 第 1 章代码作风格参考 +
 **SVG-DIAGRAMS 路径**（图表章尤其）+ 硬规则（独立 CSS 前缀、
 `npx tsc --noEmit`）。
@@ -257,11 +303,13 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 **跳过 WVP 的 Checkpoint Audio 与 Phase 3（音频合成）**。
 
-按 `references/SUBTITLE-AND-RECORDING.md` 第 4 节：
+按 `references/SUBTITLE-AND-RECORDING.md` 第 4 节，走法由配置
+`recording.autoAdvance` 决定：
 
-1. `?auto=1&reset=1` → `SPACE` 启动 → 无音频时按字数估时自动推进
-   （`reset=1` 保证从第 1 页开始，不受上次游标影响）；
-2. 字幕随 step 显示，全程免点击；
+1. `true`（默认）：`?auto=1&reset=1` → `SPACE` 启动 → 无音频时按字数
+   估时自动推进（`reset=1` 保证从第 1 页开始，不受上次游标影响）；
+   字幕随 step 显示，全程免点击；
+2. `false`：走 4.2 手动推进（点击 / `→` / 空格），适合后期自己控制节奏；
 3. 录屏 → ffmpeg 裁头尾。
 
 若节奏不对：改 `estimateMs` 的字数系数（`App.tsx`），或拆 step / 改稿，
@@ -286,6 +334,10 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 发现 AI 味 → 改主题 token 或该章视觉，改完复验。
 
+> 若 DTF 未安装且用户拒绝安装（`INIT.md` §2.3 降级）：改用 WVP
+> `references/CHAPTER-CRAFT.md` 的 ANTI-AI 清单做终审，并在汇报里注明
+> 「本次无 DTF 终审」。
+
 ---
 
 ## 与两个依赖 Skill 的边界（重要）
@@ -306,6 +358,10 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 | 文件 | 何时读 |
 |---|---|
+| `references/INIT.md` | **Phase -1 开工前必读**：初始化 / 配置字段 / 依赖安装 / 降级 |
+| `scripts/init-config.sh` | 首次运行写配置；之后 `--show` 读配置 |
+| `scripts/check-deps.sh` | 每次开工前依赖自检 |
+| `scripts/install-deps.sh` | 用户确认后自动安装 WVP / DTF |
 | `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射 |
 | `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕、Phase 6 录屏 |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构/流程/结果图时 |
