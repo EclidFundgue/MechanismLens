@@ -1,11 +1,21 @@
 ---
 name: paper-explainer
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。流程：解析论文 → 结构化 digest（动机/核心思想/模型设计/模型结构/算法流程/实验设计/实验结果）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/算法流程图/结果图表一律用 SVG 重绘并逐步揭示。首次运行做一次性初始化（网页主题风格 / 开发模式 / 封面素材 / 讲解语言持久化到配置，之后不再重复提问）；依赖的 web-video-presentation 与 design-taste-frontend skill 缺失时，经用户确认可自动安装。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成"无声 + 字幕"的网页讲解视频。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 静音录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
 ---
 
 # Paper Explainer
 
 把一篇论文变成一支**无声、带字幕、网页实现、可录屏**的讲解视频。
+
+三条主线：
+
+- **一步到位**：整条流水线自动跑完，**不在中途向用户确认任何事**
+  （原 Checkpoint 已全部移除）；所有自主决定在最终汇报里列明。
+- **贡献优先**：全片围绕论文的**主要贡献与创新点**组织；技术含量越高的
+  部分自动获得越多 step / 时长 / 讲解层次（见 `references/PAPER-DIGEST.md`）。
+- **素材求真**：为了讲准，允许并鼓励直接使用论文素材——**原图、公式、
+  原文摘录**（PDF 抽取或 arXiv LaTeX 源码），与 SVG 重绘混用（见
+  `references/PAPER-ASSETS.md`）。
 
 本 Skill 是**编排层**：它不重复造轮子，而是串起两个已安装的 skill：
 
@@ -14,10 +24,10 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 - **`design-taste-frontend`**（下称 DTF）—— 审美与反 AI 味。**只在
   「造/选主题」和「终审」两处用**，不指导单章代码。
 
-本 Skill 自己负责三件 WVP 没有的事：**论文结构化 digest**、
-**论文→章节的固定映射**、**无声字幕层 + 静音录屏**。另加一层
-**初始化**：首次运行把主题风格等偏好配置一次并持久化，之后不再重复
-提问；依赖 skill 缺失时经用户确认可自动安装（见 `references/INIT.md`）。
+本 Skill 自己负责 WVP 没有的部分：**论文结构化 digest**、**论文→章节
+映射（按贡献权重）**、**论文素材提取（原图/公式/原文 + arXiv LaTeX
+源）**、**无声字幕层 + 静音录屏**，以及**一次性初始化**（首次自动写
+默认配置；依赖缺失自动安装，见 `references/INIT.md`）。
 
 > 路径约定：
 > `WVP = ~/.config/opencode/skills/web-video-presentation`
@@ -27,9 +37,9 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 
 ---
 
-## Phase -1 · 初始化（首次运行一次，之后直接读配置）
+## Phase -1 · 初始化（自动，几秒钟）
 
-**每次运行开头**先做这两件事（几秒钟）：
+**每次运行开头**先做这两件事：
 
 ```bash
 bash "$SELF/scripts/init-config.sh" --show    # 读配置
@@ -37,78 +47,72 @@ bash "$SELF/scripts/check-deps.sh"            # 依赖自检
 ```
 
 - **有配置** → 直接应用（网页主题 / 开发模式 / 封面素材 / 讲解语言 /
-  录屏自动推进），**不再重复提问**；一行汇报「已加载配置：…」后继续。
-  各配置项在哪个 Phase 生效见 `references/INIT.md` §3。
-- **无配置** → 跑首次初始化：依赖自检 + 一次性问卷（主题风格 / 开发
-  模式 / 封面素材 / 讲解语言），写入 `CONFIG`。
-- **依赖 skill 缺失**（WVP / DTF）→ 列给用户并问一次「是否自动安装」，
-  同意后：
+  录屏自动推进），一行汇报「已加载配置：…」后继续。各配置项在哪个
+  Phase 生效见 `references/INIT.md` §3。
+- **无配置** → **不提问**：直接写入推荐默认值（`theme=auto` /
+  `devMode=B` / `cover=svg` / `lang=auto` / `autoAdvance=true`）并继续。
+  用户想自定义 → 预先写 `CONFIG`，或事后说「重配 paper-explainer」。
+- **依赖 skill 缺失**（WVP / DTF）→ **直接自动安装**（不再询问）：
 
 ```bash
 bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 ```
 
-  装完提醒用户**重启 opencode** 才会加载；用户拒绝 → 按 `INIT.md` §2.3
+  装完提醒用户**重启 opencode** 才会加载；装不上 → 按 `INIT.md` §2.3
   降级（缺 WVP 不能开工；缺 DTF 可降级并注明）。
+- **系统工具缺失** → 自动尝试安装（按平台选包管理器）；装不上就报告
+  影响并降级继续（Node 缺失除外——必须停下说明）。
 
-> **完整规格**（字段表 / 问卷问法 / 自动安装 / 降级 / 重配）见
+> **完整规格**（字段表 / 自动安装 / 降级 / 重配）见
 > [`references/INIT.md`](references/INIT.md)。开工前先读它。
 
 ### 运行时工具（缺了先装，不要假装能跑）
 
 | 工具 | 用途 | 缺失处理 |
 |---|---|---|
-| Node + npm | WVP 是 Vite + React + TS | 装 Node LTS（>= 18） |
-| Chromium / Chrome | 录屏 | 装浏览器 |
-| ffmpeg | 裁切 / 可选烧字幕 | 装 ffmpeg |
-| pdftotext 或 pymupdf | 解析 PDF | `poppler-utils` 或 `pip install pymupdf` |
+| Node + npm | WVP 是 Vite + React + TS | 自动装 Node LTS（>= 18）；装不上则终止 |
+| Chromium / Chrome | 录屏 | 自动装；装不上 → 交付可运行项目 + build 通过 |
+| ffmpeg | 裁切 / 可选烧字幕 | 自动装；装不上 → 不裁切并说明 |
+| pdftotext 或 pymupdf | 解析 PDF / 抽原图 | 自动装；装不上 → 仅能处理 arXiv 源码 / 网页输入 |
+| curl 或 wget | 拉取 arXiv LaTeX 源码 | 自动装；装不上 → 手动下载源码 |
+| pdftocairo / pdfimages | PDF 图转 SVG / 抽位图 | 随 poppler-utils 一起装 |
 
-`check-deps.sh` 一次性报告以上全部；系统工具缺失时给出安装命令，
-**经用户确认后**再执行。
+`check-deps.sh` 一次性报告以上全部；缺失项按上表自动处理。
 
 ---
 
-## 非交互 / 自动验证模式
+## 一步到位原则（无 Checkpoint）
 
-当没有真人可交互（自动化跑批、subagent 验证、CI）时，**不要停下来等
-Checkpoint**，用以下默认值继续，并在最终汇报里列出「我替你做了哪些决定」：
-
-| 交互点 | 默认动作 |
+| 决策点 | 自动动作 |
 |---|---|
-| 初始化配置 | 有配置直接用；没有用默认值（`theme=auto` / `devMode=B` / `cover=svg` / `lang=auto` / `autoAdvance=true`），**不写配置文件** |
-| 依赖安装 | **不擅自安装**；缺 WVP → 终止并说明；缺 DTF → 降级（主题审美用 WVP THEMES、终审用 WVP ANTI-AI 清单）并注明 |
-| Checkpoint Plan（主题/素材/模式） | 按配置执行，不再问（主题 `auto` 时汇报选择） |
-| 第 1 章验收 | 直接继续后续章节（模式 B · 顺序开发） |
-| 开发模式 | 配置值；无配置 = B（主线程顺序，不并行） |
-| Checkpoint Audio | 跳过（本工作流本就无声） |
-| 录屏 | 跳过，只交付可运行项目 + 构建通过 |
+| 初始化配置 | 有则直接用；无则写推荐默认值（不问卷、不确认） |
+| 依赖 skill / 系统工具 | 自动安装；失败按 `INIT.md` §2.3 降级 |
+| 主题 | 按配置；`auto` → 自动挑最匹配并**汇报理由**；配置为 `ask` 时按 `auto` 处理 |
+| 封面素材 | 按配置；`ask` → 按 `svg` 处理；`generate` 缺 gpt-image-2 → 回退 svg |
+| 论文图 / 公式 / 原文 | 按 `PAPER-ASSETS.md` §0 自动决策（重绘 or 原图） |
+| 开发模式 | 按配置；`A`（逐章确认）→ 按 `B`（顺序）执行 |
+| 第 1 章 | **不验收**；作为风格锚点做完直接继续 |
+| 音频 | 本工作流本就无声，跳过 |
+| 录屏 | 默认自动推进一镜到底；环境不支持则交付可运行项目 + build 通过 |
 
-**收尾必须**：`npm run build` 通过；用截图（见下）抽查至少 2 章渲染正确。
-若装不了浏览器，至少保证 build 通过并在汇报里说明未做视觉验证。
-
-> 有浏览器时可用 Playwright 截图验证：`viewport 1920×1080`，检查
-> `.subtitle-text` 存在且文本等于当前 step 的 narration。
+原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
+「我替你做了哪些决定」。
 
 ---
 
 ## 工作流总览
 
 ```
-Phase -1 初始化            → ~/.config/paper-explainer/config.json
-                            （首次：依赖自检 + 一次性配置问卷；之后：读配置，见 references/INIT.md）
-Phase 0  论文解析          → paper.md
-Phase 1  结构化摘要        → digest.md        （本 Skill 独有，见 references/PAPER-DIGEST.md）
-Phase 2  口播稿            → script.md        （遵循 WVP/references/SCRIPT-STYLE.md）
-Phase 3  开发计划          → outline.md       （遵循 WVP/references/OUTLINE-FORMAT.md）
-   ▼
-[Checkpoint Plan]  确认：稿 / outline（主题 / 素材 / 模式按配置执行）
-   ▼
-Phase 4  脚手架 + 注入字幕层（本 Skill 独有，见 references/SUBTITLE-AND-RECORDING.md）
-Phase 5  逐章实现（遵循 WVP/references/CHAPTER-CRAFT.md；图表按 references/SVG-DIAGRAMS.md）
-   ▼
-[Checkpoint Audio]  本工作流**跳过音频**，直接静音录屏
-   ▼
-Phase 6  静音录屏（自动推进按配置 + 字幕）
+Phase -1 初始化            → 读配置（无则自动写默认）；依赖自动补齐
+Phase 0  论文解析 + 素材提取 → paper.md / paper-src/（arXiv LaTeX 源）/ assets/
+Phase 1  结构化摘要        → digest.md（7 维 + 主要贡献与创新点；本 Skill 独有）
+Phase 2  口播稿            → script.md（贡献与创新重点展开）
+Phase 3  开发计划          → outline.md（按技术含量分配篇幅）
+   ▼（无 Checkpoint，直接推进）
+Phase 4  脚手架 + 字幕层 + 素材接入
+Phase 5  逐章实现（技术核心章节自动加篇幅）
+   ▼（本工作流无声，跳过音频）
+Phase 6  静音录屏（自动推进 + 字幕）
 Phase 7  DTF 反 AI 味终审
 ```
 
@@ -117,7 +121,9 @@ Phase 7  DTF 反 AI 味终审
 ```
 <paper-slug>-video/
 ├── paper.md            # 原文抽取，不删（画面细节源）
-├── digest.md           # 7 维结构化摘要（内容中枢）
+├── paper-src/          # arXiv LaTeX 源码（有则存，素材第一来源）
+├── assets/             # 取出的原图 / 公式 / 原文摘录（进网页的素材）
+├── digest.md           # 7 维 + 贡献权重（内容中枢）
 ├── script.md           # 口播稿 = 字幕文本
 ├── outline.md          # 章节 + step + 信息池
 └── presentation/       # WVP 脚手架 + 字幕层
@@ -132,9 +138,10 @@ Phase 7  DTF 反 AI 味终审
 
 | 产出 | 自检清单 |
 |---|---|
-| `digest.md` | `references/PAPER-DIGEST.md` 末尾自检 |
+| `digest.md` | `references/PAPER-DIGEST.md` 末尾自检（含贡献权重） |
 | `script.md` | WVP `references/SCRIPT-STYLE.md` 三层自检 |
 | `outline.md` | WVP `references/OUTLINE-FORMAT.md` 自检 |
+| 素材 | `references/PAPER-ASSETS.md` 第 7 节自检 |
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
 | 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
 | 成片 | DTF §9 AI tells 终审 |
@@ -143,19 +150,24 @@ Phase 7  DTF 反 AI 味终审
 
 ---
 
-## Phase 0 · 论文解析
+## Phase 0 · 论文解析 + 素材提取
 
 | 输入 | 做法 |
 |---|---|
-| PDF | `pdftotext`（poppler）或 `python3 -m pip install pymupdf` 后抽取 → `paper.md`。保留章节标题、图表标题、公式附近文本。 |
-| arXiv / 网页链接 | webfetch 取正文 → `paper.md`。若 HTML 版有 arXiv 的 LaTeX 源码更佳。 |
+| arXiv 链接 / ID | **先取 LaTeX 源码**：`bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> ./paper-src`。正文公式、图注、原文从 `.tex` 直接取（最准）；图从源码 `figures/` 取（见 `PAPER-ASSETS.md` §1）。无源码（老论文）→ 回退 HTML / PDF。 |
+| PDF | `pdftotext -layout`（poppler）或 `python3 -m pip install pymupdf` 后抽取 → `paper.md`；原图 / 公式按 `PAPER-ASSETS.md` §2–§3 抽取。保留章节标题、图表标题、公式附近文本。 |
+| 网页链接 | webfetch 取正文 → `paper.md`。若页面提供 arXiv LaTeX 源码，走第一行。 |
 | 粘贴文本 | 直接落盘 `paper.md`。 |
 
 要求：
 
 - `paper.md` **不删**。它是后续「画面细节源」（双源原则里的 article 角色）。
-- 抽取后**扫一遍图表标题**，把图号/表号列出来，Phase 1 的图表清单要用。
-- 公式若抽取后乱码，标注「公式需回原文核对」，别硬猜。
+- 抽取后**扫一遍图表标题**，把图号/表号列出来，Phase 1 的素材清单要用。
+- **素材落盘**：按 `PAPER-ASSETS.md` 建 `assets/`，把要进网页的原图 /
+  公式 / 原文摘录取出来并命名（`fig1.png` / `eq3.tex` / `quote1.md`），
+  在 digest 的「图表 / 素材清单」登记。
+- 公式抽取乱码时**不要硬猜**：优先回 arXiv LaTeX 源；没有源码再按
+  `PAPER-ASSETS.md` §3 从 PDF 取原图。
 
 （可选）若用户想先**读懂**论文再决定做不做视频，可用已安装的
 `paper-assist` skill 做深读对话；理解阶段结束后再回到本流程。
@@ -164,15 +176,23 @@ Phase 7  DTF 反 AI 味终审
 
 ## Phase 1 · 结构化摘要 digest.md
 
-**读** `references/PAPER-DIGEST.md`，按它的 **7 维 schema** 写
-`digest.md`：动机与问题 / 核心思想 / 模型设计 / 模型结构 / 算法流程 /
-实验设计 / 实验结果与结论，外加末尾「图表清单」。
+**读** `references/PAPER-DIGEST.md`，按它的 schema 写 `digest.md`：
+
+1. **主要贡献与创新点（第一屏，必写）**：1–3 条，逐条给出论文依据
+   （abstract / intro 贡献列表 / method / conclusion）与**技术含量分级**
+   （高 / 中 / 低 + 理由）。
+2. **7 个维度**：动机与问题 / 核心思想 / 模型设计 / 模型结构 / 算法流程 /
+   实验设计 / 实验结果与结论。
+3. **图表 / 素材清单**：每张关键图、表、公式、原句登记素材策略
+   （`SVG 重绘` / `原图嵌入` / `KaTeX 公式` / `原文引用`）+ 来源。
 
 关键约束：
 
-- 每个数字 / 结论可回溯到 `paper.md`；**不编造**。
+- 每个数字 / 结论可回溯到 `paper.md` 或 LaTeX 源；**不编造**。
 - 作者声称 vs 你的解读分开标注。
 - 每维都要有「可上屏」条目，具体到能直接指导画面。
+- **篇幅跟着技术含量走**：标「高」的贡献，可上屏条目更多、在 outline
+  里允许扩章（映射表见 `PAPER-DIGEST.md`）。
 - 论文没涉及的维度写「论文未涉及」，不要用常识填。
 
 写完走 `PAPER-DIGEST.md` 自检，修完再进 Phase 2。
@@ -184,12 +204,19 @@ Phase 7  DTF 反 AI 味终审
 **读** `WVP/references/SCRIPT-STYLE.md`，把 digest 转成平台化口播稿。
 论文题材的额外要求：
 
+- **贡献优先**：开场钩子直接指向核心创新；动机 / 背景压缩到「讲清
+  gap」即可；核心创新（新模块 / 新目标函数 / 新训练策略 / 新发现）
+  用多个 step 拆开讲——直觉 → 形式化 → 与已有方法对照 → 效果。
+- **技术含量定篇幅**：digest 里标「高」的贡献，至少拿到 3–6 个 step；
+  背景性内容 1–2 个 step 带过；核心创新合计约占全片时长的 50% 以上。
 - **术语**首次出现给「中文（English）」，之后只用中文简称。
 - **公式**念成人话：先给直觉，再说符号；长公式拆成 2–3 个 step。
 - **结果**先给结论再给数字（「比最强 baseline 高 3.2 个点」），不要
   一上来念一长串指标。
 - **每句话就是一 step 的字幕**——写的时候就想着它会显示在屏幕底部，
   单句别超过约 40 字，超了就拆 step。
+- **原文引用**：关键定义 / 作者原话可直接引用 `paper.md` / LaTeX 源
+  （短句，注明出处），字幕里用引号标出。
 - 语言按配置 `narration.language`：`auto` = 中文论文→中文稿、英文论文→
   默认中文讲解；`zh` / `en` 强制。
 
@@ -200,41 +227,44 @@ Phase 7  DTF 反 AI 味终审
 ## Phase 3 · 开发计划 outline.md
 
 **读** `WVP/references/OUTLINE-FORMAT.md`，按 `PAPER-DIGEST.md` 里的
-**章节映射表**切章：
+**章节映射表**切章（默认 9 章）：
 
 ```
 01 开场钩子 · 02 动机与不足 · 03 核心思想 · 04 模型设计 · 05 模型结构
 06 算法流程 · 07 实验设计 · 08 实验结果 · 09 结论与局限
 ```
 
+- **按技术含量分配篇幅**：技术核心章节（贡献标「高」的落点）可扩到
+  8–14 step；背景章（02 动机、07 实验设计）压到 3–5 step。核心创新
+  章节合计 ≥ 全片 step 的 50%。
 - 每章 30–60s；每步屏幕内容 + 章节首段**信息池**（数字/引用/标签）。
+- **每步标注素材策略**：`SVG 重绘` / `原图 Fig.X` / `公式 eq.N` /
+  `原文引用`（素材已由 Phase 0 落盘）。
 - outline **只写节奏与信息密度，不写动画**（WVP 铁律）。
-- 信息池从 `digest.md` + `paper.md` 抽，图表步标注「用 SVG 重绘
-  （见 SVG-DIAGRAMS.md）」。
+- 信息池从 `digest.md` + `paper.md` 抽，图表步标注重绘或原图策略。
 
 写完走 OUTLINE-FORMAT 自检。
 
 ---
 
-## Phase 4 · Checkpoint Plan + 脚手架 + 字幕层
+## Phase 4 · 脚手架 + 字幕层 + 素材接入
 
-### 4.1 Checkpoint Plan（硬节点；主题 / 素材 / 模式已由配置决定）
-
-读 `WVP/SKILL.md` 的「Checkpoint Plan」段。与 WVP 原生「一次对齐 5
-件事」不同：本工作流的**主题 / 素材 / 开发模式来自初始化配置，不再
-提问**；Checkpoint 只确认**稿子 + outline**，并把已应用的配置列出来，
-给用户一次反悔机会（用户当场改 → 只影响本次）。
+### 4.1 自动决策（原 Checkpoint Plan 已移除，直接执行）
 
 - **主题**（`theme.mode`）：
   - `fixed` → 用 `theme.id`；先确认 `WVP/themes/<id>/` 存在，否则警告
     并回退 `auto`；
-  - `auto` → 按论文气质读 `themes/*/theme.json`（`bestFor` /
-    `descriptionZh`）挑最匹配的一套，**汇报你选了什么、为什么**；
-  - `ask` → 才走 WVP 原生的「推荐 2–3 套让用户选」。
-- **素材**（`materials.cover`）：`svg` 封面自绘；`generate` 用
+  - `auto` / `ask` → 按论文气质读 `themes/*/theme.json`（`bestFor` /
+    `descriptionZh`）挑最匹配的一套，**汇报你选了什么、为什么**。
+- **封面素材**（`materials.cover`）：`svg` 自绘；`generate` 用
   `gpt-image-2`（未安装则回退 `svg` 并说明）；`placeholder` 占位；
-  `ask` 才问。
-- **开发模式**（`devMode`）：A / B / C，直接执行。
+  `ask` → 按 `svg` 处理。
+- **论文图表素材**（论文特有）：按 `PAPER-ASSETS.md` §0 决策——
+  模块清晰的架构图 / 流程图**优先 SVG 重绘**；复杂大图、定性结果、
+  密集表格、公式**允许直接嵌入论文原图**（注明编号、裁切干净）。
+  两种可混用，判断标准只有一个：**怎样讲得更准、更清楚**。
+- **开发模式**（`devMode`）：A / B / C 直接执行；`A` 按 `B` 处理
+  （本工作流不逐章确认）。
 
 **主题这一步仍引入 DTF**：用 DTF 的 **design read + 三档 dial**
 （`DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`）判断主题
@@ -242,13 +272,6 @@ Phase 7  DTF 反 AI 味终审
 按 WVP `references/THEMES.md` 的「创作新主题」流程，字体/配色决策参考
 DTF §4.1 / §4.2（避开 AI 默认紫、避免 Inter 默认、serif 只在确实编辑
 风时用）。
-
-**素材决策**（论文特有）：
-
-- 架构图 / 流程图 / 结果图表 → **一律 SVG 重绘**（固定铁律，见
-  `references/SVG-DIAGRAMS.md`），不贴原图、不生成图。
-- 封面 / 概念插画 / 氛围图 → 按 `materials.cover` 配置。
-- 需要真图但拿不到 → 用清晰占位并列入素材清单。
 
 ### 4.2 脚手架
 
@@ -269,11 +292,17 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 然后按 `references/SUBTITLE-AND-RECORDING.md` 第 2 节改 `App.tsx`
 （4 处最小改动）。改完 `npm run dev` 验证字幕条出现、`S` 键可开关。
 
-### 4.4 第 1 章（主线程 + 强制验收）
+### 4.4 素材接入
+
+把 `assets/` 里要用的文件复制进 `presentation/public/assets/`；公式按
+`PAPER-ASSETS.md` §3 装 KaTeX 或走图片；原图按「纸面卡片」适配暗色
+主题。路径与命名规范见 `PAPER-ASSETS.md` §5。
+
+### 4.5 第 1 章（不验收，作为风格锚点）
 
 按 `WVP/references/CHAPTER-CRAFT.md` 做第 1 章（通常是「开场钩子」），
-做完**停下等用户验收**（视觉 / 节奏 / 字幕 / 反 AI 味），OK 再按选定
-模式做其余章节。
+做完**直接继续**后续章节——本工作流不设验收停顿。第 1 章的代码是
+后续章节的风格参考。
 
 ---
 
@@ -283,19 +312,23 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 - 每章必须有视觉演示，禁纯文字。
 - 清单/列表 1 项 = 1 step，禁一次全展示。
-- 图表按 `references/SVG-DIAGRAMS.md`：架构图逐模块点亮、流程图逐节点
-  点亮、结果图逐柱/逐线揭示，颜色全走 token，揭示由 `step` 驱动。
+- 图表按 `SVG-DIAGRAMS.md`（SVG 重绘）与 `PAPER-ASSETS.md`（原图 /
+  公式 / 原文）：架构图逐模块点亮、流程图逐节点点亮、结果图逐柱/逐线
+  揭示；**原图同样由 `step` 驱动**（高亮框 / 局部放大 / 逐块揭示），
+  颜色全走 token。
+- **技术核心章节加码**：按 digest 的贡献权重，给核心创新更多 step 与
+  更细的讲解层次（直觉 → 公式 → 对照 → 结果）；背景章克制。
 - 双源原则：节奏跟 `script.md`，画面细节回 `digest.md` / `paper.md`。
 - 每章独立 CSS 前缀，不改 `chapters.ts` 结构（除非按 WVP 规则同步）。
 - 改章节结构或 `narrations.ts` 长度后，bump `useStepper.ts` 的
   `STORAGE_KEY`。
 
-并行模式（`devMode=C`，WVP 模式 C）可用 subagent；subagent prompt 需附：本章 outline
-段 + CHAPTER-CRAFT 路径 + 主题气质 + 第 1 章代码作风格参考 +
-**SVG-DIAGRAMS 路径**（图表章尤其）+ 硬规则（独立 CSS 前缀、
-`npx tsc --noEmit`）。
+并行模式（`devMode=C`，WVP 模式 C）可用 subagent；subagent prompt 需附：
+本章 outline 段 + CHAPTER-CRAFT 路径 + 主题气质 + 第 1 章代码作风格
+参考 + **SVG-DIAGRAMS / PAPER-ASSETS 路径**（图表章尤其）+ 硬规则
+（独立 CSS 前缀、`npx tsc --noEmit`）。
 
-每章完工走 CHAPTER-CRAFT + SVG-DIAGRAMS 自检。
+每章完工走 CHAPTER-CRAFT + SVG-DIAGRAMS + PAPER-ASSETS 自检。
 
 ---
 
@@ -310,7 +343,8 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
    估时自动推进（`reset=1` 保证从第 1 页开始，不受上次游标影响）；
    字幕随 step 显示，全程免点击；
 2. `false`：走 4.2 手动推进（点击 / `→` / 空格），适合后期自己控制节奏；
-3. 录屏 → ffmpeg 裁头尾。
+3. 录屏 → ffmpeg 裁头尾。浏览器 / ffmpeg 缺失时跳过录屏，交付可运行
+   项目并在汇报里说明。
 
 若节奏不对：改 `estimateMs` 的字数系数（`App.tsx`），或拆 step / 改稿，
 **不要**加 hold 旋钮。
@@ -334,7 +368,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 发现 AI 味 → 改主题 token 或该章视觉，改完复验。
 
-> 若 DTF 未安装且用户拒绝安装（`INIT.md` §2.3 降级）：改用 WVP
+> 若 DTF 未安装且自动安装失败（`INIT.md` §2.3 降级）：改用 WVP
 > `references/CHAPTER-CRAFT.md` 的 ANTI-AI 清单做终审，并在汇报里注明
 > 「本次无 DTF 终审」。
 
@@ -345,7 +379,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 | 事项 | 归谁 |
 |---|---|
 | 内容流程 / 章节 / step / 动效方法论 / 脚手架 / 录屏 | **WVP** |
-| 论文 digest / 章节映射 / 字幕层 / 静音路径 | **本 Skill** |
+| 论文 digest / 章节映射 / 素材提取（原图/公式/原文/LaTeX 源）/ 字幕层 / 静音路径 | **本 Skill** |
 | 主题的字体与配色审美、反 AI 味终审 | **DTF（仅这两处）** |
 | 单章代码怎么写 | **WVP 的 CHAPTER-CRAFT**（DTF 不参与） |
 
@@ -358,14 +392,16 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 | 文件 | 何时读 |
 |---|---|
-| `references/INIT.md` | **Phase -1 开工前必读**：初始化 / 配置字段 / 依赖安装 / 降级 |
-| `scripts/init-config.sh` | 首次运行写配置；之后 `--show` 读配置 |
+| `references/INIT.md` | **Phase -1 开工前必读**：自动初始化 / 配置字段 / 依赖安装 / 降级 |
+| `references/PAPER-ASSETS.md` | **Phase 0 素材提取 + Phase 4.4 接入 + Phase 5 用原图/公式/原文时** |
+| `scripts/init-config.sh` | 首次运行写默认配置；之后 `--show` 读配置 |
 | `scripts/check-deps.sh` | 每次开工前依赖自检 |
-| `scripts/install-deps.sh` | 用户确认后自动安装 WVP / DTF |
-| `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射 |
+| `scripts/install-deps.sh` | 自动安装缺失的 WVP / DTF |
+| `scripts/fetch-arxiv.sh` | Phase 0 下载并解压 arXiv LaTeX 源码 |
+| `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射与权重 |
 | `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕、Phase 6 录屏 |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构/流程/结果图时 |
-| `WVP/SKILL.md` | 全流程；Checkpoint Plan 模板 |
+| `WVP/SKILL.md` | 全流程；Checkpoint 模板（本工作流已移除，仅作参考） |
 | `WVP/references/SCRIPT-STYLE.md` | Phase 2 |
 | `WVP/references/OUTLINE-FORMAT.md` | Phase 3 |
 | `WVP/references/CHAPTER-CRAFT.md` | Phase 5 每章单一必读 |

@@ -62,7 +62,7 @@ check_skill() {
   elif [[ "$level" == "required" ]]; then
     printf '  [MISS]     skill  %-26s\n' "$name"
     MISSING_REQUIRED+=("skill:$name")
-    HINTS+=("skill:$name → bash scripts/install-deps.sh --skills=$name（先征得用户同意）")
+    HINTS+=("skill:$name → bash scripts/install-deps.sh --skills=$name（自动安装，无需确认）")
   else
     printf '  [OPT-MISS] skill  %-26s (可选，缺失不阻塞)\n' "$name"
   fi
@@ -105,6 +105,14 @@ else
   printf '  [MISS]     git    %-26s (自动安装依赖 skill 需要)\n' ""
   MISSING_REQUIRED+=("git")
   HINTS+=("git → apt install git / brew install git")
+fi
+
+if DOWNLOADER="$(find_cmd curl wget)"; then
+  printf '  [OK]       fetch  %s\n' "$DOWNLOADER"
+else
+  printf '  [MISS]     fetch  %-26s (拉取 arXiv LaTeX 源码需要 curl 或 wget)\n' ""
+  MISSING_RECOMMENDED+=("curl-or-wget")
+  HINTS+=("curl → apt install curl / brew install curl")
 fi
 
 if have_cmd ffmpeg; then
@@ -153,7 +161,7 @@ else
   echo "修复建议："
   for h in "${HINTS[@]}"; do echo "  - $h"; done
   echo
-  echo "注意：安装 skill / 系统工具前必须先征得用户同意。"
+  echo "注意：paper-explainer 为一步到位流程——缺失的依赖 skill / 系统工具由 agent 自动安装，装不上才降级并汇报。"
 fi
 
 if ((${#MISSING_REQUIRED[@]} > 0)); then

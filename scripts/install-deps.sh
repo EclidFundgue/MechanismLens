@@ -2,7 +2,8 @@
 # ─────────────────────────────────────────────────────────────────────
 # install-deps.sh — 安装 paper-explainer 依赖的 skill
 #
-# 只在用户明确同意后运行。默认安装缺失的：
+# 由 paper-explainer 在依赖缺失时自动调用（一步到位流程，无需用户确认）。
+# 默认安装缺失的：
 #   web-video-presentation  ← ConardLi/garden-skills
 #   design-taste-frontend   ← Leonxlnx/taste-skill
 #

@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# init-config.sh — paper-explainer 用户配置（首次运行初始化一次）
+# init-config.sh — paper-explainer 用户配置
 #
 # 配置文件默认路径：~/.config/paper-explainer/config.json
 # （可用环境变量 PAPER_EXPLAINER_CONFIG 覆盖）
 #
 # Usage:
+#   bash init-config.sh                        # 无参数 = 写推荐默认值（首次运行自动调用）
 #   bash init-config.sh --show                 # 打印当前配置
 #   bash init-config.sh --path                 # 打印配置文件路径
-#   bash init-config.sh --reset                # 删除配置（下次运行重新初始化）
+#   bash init-config.sh --reset                # 删除配置（下次运行重新写默认值）
 #   bash init-config.sh [options] [--force]    # 写入配置
 #
 # 写入选项（未指定的用默认值）：
-#   --theme-mode=auto|fixed|ask     网页主题：自动挑 / 固定一个 / 每次问
+#   --theme-mode=auto|fixed|ask     网页主题：自动挑 / 固定一个 /（ask 已废弃，按 auto）
 #   --theme-id=<theme-id>           theme-mode=fixed 时必填
-#   --dev-mode=A|B|C                开发模式：逐章确认 / 顺序 / 并行
-#   --cover=svg|generate|placeholder|ask   封面素材：SVG 重绘 / 生成 / 占位 / 每次问
+#   --dev-mode=A|B|C                开发模式：逐章确认（A 已废弃，按 B）/ 顺序 / 并行
+#   --cover=svg|generate|placeholder|ask   封面素材（ask 已废弃，按 svg）
 #   --lang=auto|zh|en               讲解语言
 #   --auto-advance=true|false       录屏时自动推进（否则手动点击）
 #
