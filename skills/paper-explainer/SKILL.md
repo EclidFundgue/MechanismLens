@@ -396,8 +396,8 @@ rm -rf presentation/src/chapters/01-example   # 并清掉 chapters.ts 里的 EXA
 bash "$SELF/scripts/install-subtitle.sh" ./presentation
 ```
 
-然后按 `references/SUBTITLE-AND-RECORDING.md` 第 2 节改 `App.tsx`
-（4 处最小改动）。改完 `npm run dev` 验证字幕条出现、`S` 键可开关，
+然后按 `references/SUBTITLE-AND-RECORDING.md` 第 2 节修改 `App.tsx` 和
+`src/hooks/useStepper.ts`，接入字幕与自动播放。改完 `npm run dev` 验证字幕条出现、`S` 键可开关，
 **验证完立即停掉 dev server**（见「进程卫生」）。
 
 ### 4.4 素材接入

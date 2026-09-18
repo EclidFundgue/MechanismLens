@@ -9,7 +9,7 @@
 
 ## 1. 字幕层是什么
 
-四个新文件（含一个**打过补丁的 hook**）+ 一处 `App.tsx` 接线：
+五个新文件 + 一个**覆盖模板版的 hook**，并接入字幕与自动播放：
 
 | 文件 | 位置 | 作用 |
 |---|---|---|
@@ -43,7 +43,7 @@ bash <paper-explainer>/scripts/install-subtitle.sh ./presentation
 
 ### 2.2 App.tsx 接线
 
-在 scaffold 出来的 `presentation/src/App.tsx` 上做 4 处最小改动：
+按以下步骤修改生成项目中的 `src/App.tsx` 和 `src/hooks/useStepper.ts`，接入字幕与自动播放：
 
 **① 新增 import**（放在其它 `./components/*` import 附近）
 
