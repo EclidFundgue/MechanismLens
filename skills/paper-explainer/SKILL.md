@@ -121,6 +121,7 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 | 第 1 章 | **不验收**；作为风格锚点做完直接继续 |
 | 音频 | 不合成配音，跳过；字幕承载全部口播文本 |
 | 录屏 | 默认自动推进一镜到底；环境不支持则交付可运行项目 + build 通过 |
+| 后台进程 | 交付前用 `scripts/stop-processes.sh` 全部停止并复查残留；不留 dev server / 浏览器 / 录屏进程 |
 
 原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
 「我替你做了哪些决定」。
@@ -152,6 +153,45 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 
 ---
 
+## 进程卫生（交付即清理，零遗留）
+
+**任何由本次运行启动的后台进程，都不许活过本次运行。** 生成完成
+（Phase 6 录屏结束 / Phase 8 重录结束）后，必须先清理再汇报——不允许把
+dev server、浏览器、录屏工具、ffmpeg、临时 HTTP 留在后台「方便用户看」。
+
+**启动即登记**（凡是用 `&` 放后台的服务）：
+
+```bash
+mkdir -p .pe-run
+npm run dev -- --port 5173 --strictPort >.pe-run/dev.log 2>&1 &
+echo $! > .pe-run/dev.pid
+```
+
+**交付前清理**（用脚本，不要裸 `kill`）：
+
+```bash
+bash "$SELF/scripts/stop-processes.sh" --pidfile .pe-run/dev.pid --port 5173
+rm -rf .pe-run
+```
+
+- `stop-processes.sh` 按进程树（含进程组）TERM → 等待 → KILL；端口
+  默认**只复查、不杀进程**（避免误杀别的项目）；有残留时 exit 1。
+- 确需清掉本项目的孤儿监听进程：
+  `--kill-port <port> --match "<项目绝对路径>"`（只杀命令行匹配的监听进程）。
+- 浏览器 / 录屏工具 / ffmpeg 若由本流程启动，启动时同样记 PID，收尾用
+  `--pid <pid>` 一并停掉。
+- **禁止** `nohup` / `disown` 后不管；**禁止**把「服务还开着」当交付
+  说明——想给用户预览，就在汇报里给命令
+  （`cd presentation && npm run dev`），由用户自己启动。
+- 自检（汇报前必做）：脚本 exit 0；`ps` 里没有本次启动的 node / vite /
+  chromium / ffmpeg；占用过的端口已释放。汇报里写一行：
+  `进程 已清理（dev server / 浏览器 / ffmpeg）`。
+
+> 该规则贯穿所有 Phase：4.3 验证、5 开发预览、6 录屏、8 重录，一次都不
+> 例外。进程清理属于交付的一部分——没清理 = 没完成。
+
+---
+
 ## 工作流总览
 
 ```
@@ -164,7 +204,7 @@ Phase 3  开发计划          → outline.md（按技术含量分配篇幅）
 Phase 4  脚手架 + 字幕层 + 素材接入
 Phase 5  逐章实现（技术核心章节自动加篇幅）
    ▼（不合成配音，跳过音频）
-Phase 6  录屏（字幕驱动自动推进）
+Phase 6  录屏（字幕驱动自动推进 + 进程清理）
 Phase 7  DTF 反 AI 味终审
 Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 增量重录
 ```
@@ -199,6 +239,7 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
 | 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
 | 成片 | DTF §9 AI tells 终审 |
+| 交付前（全部 Phase 完成后） | 「进程卫生」自检：`stop-processes.sh` exit 0、无本次启动的后台进程、端口已释放 |
 | 修改（Phase 8） | `references/REVISION.md` B4 自检 |
 
 **铁律**：拿到 fail 项**先改完再汇报**，不允许「目测一遍就放行」。
@@ -349,7 +390,8 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 ```
 
 然后按 `references/SUBTITLE-AND-RECORDING.md` 第 2 节改 `App.tsx`
-（4 处最小改动）。改完 `npm run dev` 验证字幕条出现、`S` 键可开关。
+（4 处最小改动）。改完 `npm run dev` 验证字幕条出现、`S` 键可开关，
+**验证完立即停掉 dev server**（见「进程卫生」）。
 
 ### 4.4 素材接入
 
@@ -408,6 +450,9 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 2. `false`：走 4.2 手动推进（点击 / `→` / 空格），适合后期自己控制节奏；
 3. 录屏 → ffmpeg 裁头尾。浏览器 / ffmpeg 缺失时跳过录屏，交付可运行
    项目并在汇报里说明。
+4. **清理**：录屏 / 裁切结束后按「进程卫生」停掉 dev server、浏览器、
+   录屏工具、ffmpeg（`scripts/stop-processes.sh`），确认无残留再进
+   Phase 7。
 
 若节奏不对：改 `estimateMs` 的字数系数（`App.tsx`），或拆 step / 改稿，
 **不要**加 hold 旋钮。
@@ -454,8 +499,8 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
    `---` 块 → `outline.md` 插 step 行 → `narrations.ts` 插条目 →
    章节视觉插数据项 / 分支 → bump `STORAGE_KEY`。
 4. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 默认**整片
-   重录**（字幕驱动自动推进，成本低且无接缝）→ `revisions.md` 追加记录 →
-   按 B6 模板汇报。
+   重录**（字幕驱动自动推进，成本低且无接缝）→ 按「进程卫生」清理
+   后台进程并复查 → `revisions.md` 追加记录 → 按 B6 模板汇报。
 
 **不重跑 Phase 0–7**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
 才回到对应阶段。完整协议见
@@ -499,3 +544,4 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 | `WVP/references/RECORDING.md` | Phase 6 录屏工具细节 |
 | `DTF/SKILL.md` | Phase 4 主题审美、Phase 7 终审 |
 | `scripts/install-subtitle.sh` | Phase 4.3 跑一次 |
+| `scripts/stop-processes.sh` | 启动过后台服务后、交付前清理（「进程卫生」） |

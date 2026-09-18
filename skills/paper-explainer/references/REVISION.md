@@ -145,7 +145,8 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 6. **更新视觉**：流程图为 `NODES` 数组时插入节点；伪代码高亮为行数组
    时插入行；`activeIndex = step` 映射自动顺延——**不要重写整章**。
 7. **收尾**：bump `STORAGE_KEY` → `npx tsc --noEmit` →
-   `?auto=1&reset=1` 全片过一遍（重点看插入点前后）→ 重录。
+   `?auto=1&reset=1` 全片过一遍（重点看插入点前后）→ 重录 →
+   **按「进程卫生」清理后台进程并复查**。
 8. **留痕**：`revisions.md` 追加一条。
 
 **判定标准**：展开后该章仍「一 step 一句」，动画时长 ≤ 字幕停留时长；
@@ -159,6 +160,8 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 - [ ] step 数 / 章节结构变化时 bump 了 `STORAGE_KEY`？
 - [ ] `?auto=1&reset=1` 从第 1 页连续推进到底、字幕不空条？
 - [ ] 被改章走一遍 CHAPTER-CRAFT 完工自检（视觉 / token / 反 AI 味）？
+- [ ] 后台进程已清理（`stop-processes.sh` exit 0；无 dev server / 浏览器 /
+      ffmpeg 残留，端口已释放）？
 - [ ] `revisions.md` 已记录？
 
 ### B5. 重录策略
@@ -169,6 +172,8 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
   或临时注释 `App.tsx` 里 `autoStarted` 的重置 effect 并在录完后恢复；
   注意分段录的字幕节奏可能与原片有细微差异。
 - 换主题 / 改 `estimateMs` / 改章节顺序 → **必须整片重录**。
+- **每次重录结束都要清理进程**（SKILL.md「进程卫生」）：dev server /
+  浏览器 / 录屏工具 / ffmpeg 用完即停，不留后台、不裸 `kill`。
 
 ### B6. 汇报模板
 
@@ -177,6 +182,7 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
   定位    06 算法流程（6 → 8 step）
   改动    script +2 节拍 / outline 更新 / narrations +2 / NODES +2 / STORAGE_KEY v5
   自检    tsc ✓ / step 数一致 ✓ / 自动播放全片 ✓
+  进程    已清理（dev server / 浏览器 / ffmpeg）
   产物    预览：npm run dev；重录：?auto=1&reset=1
 ```
 

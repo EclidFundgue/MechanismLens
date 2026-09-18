@@ -173,6 +173,10 @@ cd presentation && npm run dev
 - 点字幕条区域应仍然推进 step（不被拦截）；
 - `?subs=0` 应默认关闭。
 
+> 验证完**立即停掉 dev server**（进程卫生，见 SKILL.md）：用
+> `scripts/stop-processes.sh --pidfile .pe-run/dev.pid --port 5173`，
+> 不留后台进程。
+
 ---
 
 ## 3. 主题微调（可选）
@@ -238,6 +242,18 @@ ffmpeg -ss 00:00:03 -to 00:12:40 -i raw.mkv -c copy out.mp4
 
 需要浏览器窗口正好是 16:9；舞台本身会 letterbox 居中，但录制范围越接近
 16:9，成品黑边越少。建议录制时把浏览器窗口调成 16:9 再全屏。
+
+### 4.4 录屏结束后的进程清理（必做）
+
+录屏 / 裁切完成后，**不允许把任何进程留在后台**：
+
+```bash
+bash "$SELF/scripts/stop-processes.sh" --pidfile .pe-run/dev.pid --port 5173
+rm -rf .pe-run
+```
+
+浏览器 / 录屏工具 / ffmpeg 若由本流程启动，也一并 `--pid <pid>` 停掉；
+脚本 exit 0 且端口已释放后才能汇报（完整规则见 SKILL.md「进程卫生」）。
 
 ---
 
