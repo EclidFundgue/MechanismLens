@@ -123,7 +123,7 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 | 纯画面调整（布局 / 动效 / 配色微调） | 章节 `tsx` / `css`（走 token） | 否 | 该章 |
 | 换图 / 换裁切 / 补素材 | `assets/` 重取 → `public/assets/` → digest 素材清单 | 否 | 该章 |
 | 数字 / 事实纠错 | 回 `paper.md` 核对 → digest → script → narrations → 画面数字 | 否 | 该章 |
-| 换主题 | 按 Phase 4.1 重选主题 → 换 `tokens.css` → 各章抽查 token 合规 + 纸面卡片 | 否 | 全部 |
+| 换主题 | 按 Phase 4.1 重选主题（避开手写 / 花体）→ 换 `tokens.css` → **按「字体可读性铁律」查 `cursive` / 花体并替换** → 各章抽查 token 合规 + 纸面卡片 | 否 | 全部 |
 | 节奏整体偏快 / 偏慢 | `App.tsx` 的 `estimateMs` 系数（字幕层唯一旋钮） | 否 | 全部 |
 
 > **文案层铁律**：`script.md` 与 `narrations.ts` 必须同改。改完检查
@@ -160,6 +160,7 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 - [ ] step 数 / 章节结构变化时 bump 了 `STORAGE_KEY`？
 - [ ] `?auto=1&reset=1` 从第 1 页连续推进到底、字幕不空条？
 - [ ] 被改章走一遍 CHAPTER-CRAFT 完工自检（视觉 / token / 反 AI 味）？
+- [ ] 英文无花体 / 手写字体残留（`grep -rn "cursive" presentation/src` 为空）？
 - [ ] 后台进程已清理（`stop-processes.sh` exit 0；无 dev server / 浏览器 /
       ffmpeg 残留，端口已释放）？
 - [ ] `revisions.md` 已记录？

@@ -153,6 +153,29 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 
 ---
 
+## 字体可读性铁律（学术内容，英文禁花体）
+
+学术论文页面里**英文一律用可读字体**，禁止花体 / 手写 / 装饰性字体
+（生成时曾出现英文字体变花体、难辨认的问题，此规则为硬约束）：
+
+- **禁止** `cursive` / `script` / handwriting 类字体出现在任何英文文本
+  （标题、正文、字幕、图表 / SVG 标注、公式旁注）：如 Patrick Hand、
+  Caveat、Dancing Script、Pacifico、Lobster、Brush Script、Great Vibes。
+- **允许**：可读的无衬线（Inter、IBM Plex Sans、Manrope、Source Sans）
+  或正文衬线（Source Serif、IBM Plex Serif、Noto Serif）；中文字体不受限。
+- **判断标准**：录屏压缩后仍能一眼认清每个字母；拿不准就当花体处理，
+  换成可读字体。
+- **选主题**：`auto` 时排除以手写 / 花体为气质的主题（如 `chalk-garden`
+  的 Patrick Hand / Caveat），并在汇报里说明避开原因。
+- **兜底（必做）**：脚手架后检查项目 `presentation/src/styles/tokens.css`，
+  `--font-display-en` / `--font-body` 命中花体或 `cursive` 时，**在项目
+  文件里替换**为可读字体栈（`fixed` 主题同样执行）；不改 WVP 源主题目录。
+  字幕继承 `--font-body`，尤其要保证可读。
+- **自检**：`grep -rn "cursive" presentation/src` 必须为空（花体字体名
+  同理）；命中就改到干净为止。
+
+---
+
 ## 进程卫生（交付即清理，零遗留）
 
 **任何由本次运行启动的后台进程，都不许活过本次运行。** 生成完成
@@ -239,6 +262,7 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
 | 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
 | 成片 | DTF §9 AI tells 终审 |
+| 字体（全片） | 「字体可读性铁律」：`grep -rn "cursive" presentation/src` 为空，无花体 / 手写字体名 |
 | 交付前（全部 Phase 完成后） | 「进程卫生」自检：`stop-processes.sh` exit 0、无本次启动的后台进程、端口已释放 |
 | 修改（Phase 8） | `references/REVISION.md` B4 自检 |
 
@@ -362,7 +386,8 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
   - `fixed` → 用 `theme.id`；先确认 `WVP/themes/<id>/` 存在，否则警告
     并回退 `auto`；
   - `auto` / `ask` → 按论文气质读 `themes/*/theme.json`（`bestFor` /
-    `descriptionZh`）挑最匹配的一套，**汇报你选了什么、为什么**。
+    `descriptionZh`）挑最匹配的一套，**汇报你选了什么、为什么**；
+    **跳过以手写 / 花体为气质的主题**（见「字体可读性铁律」）。
 - **封面素材**（`materials.cover`）：`svg` 自绘；`generate` 用
   `gpt-image-2`（未安装则回退 `svg` 并说明）；`placeholder` 占位；
   `ask` → 按 `svg` 处理。
@@ -389,6 +414,9 @@ rm -rf presentation/src/chapters/01-example   # 并清掉 chapters.ts 里的 EXA
 
 > 删掉示例章 = 结构变更，**顺手 bump** `useStepper.ts` 的 `STORAGE_KEY`
 > （如 `v4`→`v5`），否则旧的持久化游标可能落在已不存在的 step 上。
+
+> 脚手架后立即执行「字体可读性铁律」的兜底检查：`src/styles/tokens.css`
+> 命中花体 / `cursive` → 在项目里替换为可读字体栈。
 
 ### 4.3 注入全局字幕层（核心特征，必做）
 
@@ -419,6 +447,9 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 每章**必读** `WVP/references/CHAPTER-CRAFT.md`（单一入口），并遵守：
 
 - 每章必须有视觉演示，禁纯文字。
+- **英文禁花体**：标题 / 正文 / 图表标注 / SVG 文字一律用可读字体
+  （「字体可读性铁律」）；SVG 里用 `var(--font-mono)` / `var(--font-body)`，
+  不写 `cursive` / 手写字体。
 - 清单/列表 1 项 = 1 step，禁一次全展示。
 - 图表按 `SVG-DIAGRAMS.md`（SVG 重绘）与 `PAPER-ASSETS.md`（原图 /
   公式 / 原文）：架构图逐模块点亮、流程图逐节点点亮、结果图逐柱/逐线
@@ -473,7 +504,9 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 **适用**（拿来审）：
 
 - §9 AI tells：紫粉渐变、彩色圆角边框、假插画、emoji、纯黑等；
-- §4.1 字体纪律：有没有无理由的 serif、混排字号问题；
+- §4.1 字体纪律：有没有无理由的 serif、混排字号问题；英文有没有
+  花体 / 手写 / `cursive` 残留（`grep -rn "cursive" presentation/src`
+  必须为空，花体字体名同理）；
 - §4.2 配色校准：单一强调色、饱和度、配色家族是否重复。
 
 **不适用**（明确忽略，固定 16:9 舞台不是响应式落地页）：
