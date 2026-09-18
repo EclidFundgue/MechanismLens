@@ -4,7 +4,10 @@
 #
 # 检查依赖 skill（web-video-presentation / design-taste-frontend，
 # 可选 gpt-image-2 / paper-assist）与运行时工具
-# （node / npm / git / ffmpeg / 浏览器 / pdftotext / python3）。
+# （node / npm / git / pdftotext / python3）。
+#
+# ffmpeg / 浏览器属于「仅录屏需要」的可选项：默认只报告，不阻塞、
+# 不建议安装；用户明确要求录屏时才安装。
 #
 # Usage:
 #   bash check-deps.sh [--skills-dir <dir>]
@@ -118,17 +121,13 @@ fi
 if have_cmd ffmpeg; then
   printf '  [OK]       ffmpeg %s\n' "$(ffmpeg -version 2>/dev/null | head -1 | awk '{print $3}')"
 else
-  printf '  [MISS]     ffmpeg %-26s (录屏裁切需要)\n' ""
-  MISSING_RECOMMENDED+=("ffmpeg")
-  HINTS+=("ffmpeg → apt install ffmpeg / brew install ffmpeg")
+  printf '  [OPT-MISS] ffmpeg %-26s (可选：仅录屏时需要，默认不录屏)\n' ""
 fi
 
 if BROWSER="$(find_cmd chromium chromium-browser google-chrome google-chrome-stable chrome)"; then
   printf '  [OK]       browser %s\n' "$BROWSER"
 else
-  printf '  [MISS]     browser %-26s (录屏需要 Chromium/Chrome)\n' ""
-  MISSING_RECOMMENDED+=("browser")
-  HINTS+=("browser → apt install chromium / 安装 Google Chrome")
+  printf '  [OPT-MISS] browser %-26s (可选：仅录屏时需要，默认不录屏)\n' ""
 fi
 
 if have_cmd pdftotext; then

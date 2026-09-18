@@ -1,18 +1,20 @@
 ---
 name: paper-explainer
 license: MIT
-description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解视频。**用法极简：调用 skill + 论文链接，其他什么都不用输入**（主题 / 语言 / 篇幅 / 封面 / 录屏全部自动决策）。字幕是本 Skill 的核心特征：口播稿的每一句都逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层 → 录屏；架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装；生成时按可扩展性铁律组织产物（真相源链 / 章节独立 / 数据驱动 / step 定位表），交付后支持按用户反馈快速展开或修改某一节（最小改动面 + 增量重录，见 Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频。
+description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本）做成**带全局字幕**的网页讲解演示。**用法极简：调用 skill + 论文链接，其他什么都不用输入**（主题 / 语言 / 篇幅 / 封面全部自动决策）。字幕是本 Skill 的核心特征：口播稿的每一句都逐 step 显示在屏幕底部，与画面同源、可开关、可导出 SRT。全流程一步到位、中途不向用户确认：解析论文（arXiv 有 LaTeX 源码时直接从源码取公式/图/原文）→ 结构化 digest（含主要贡献与创新点，技术含量高的部分自动加大篇幅）→ 口播稿 script → 章节 outline → 套用 web-video-presentation 的脚手架与章节方法论 → 注入全局字幕层。**录屏是可选功能：默认不录屏**，交付可运行、可交互的网页项目；仅当用户明确提出「录屏 / 要视频文件」或配置 `recording.enabled=true` 时才执行录屏（Phase 6）。架构图/流程图优先 SVG 重绘并逐步揭示，允许嵌入论文原图 / 公式 / 原文摘录以保证准确。首次运行自动写入默认配置（也可预先自定义），依赖 skill 缺失时自动安装；生成时按可扩展性铁律组织产物（真相源链 / 章节独立 / 数据驱动 / step 定位表），交付后支持按用户反馈快速展开或修改某一节（最小改动面，见 Phase 8）。触发场景：论文讲解视频、paper explainer video、把论文做成视频、论文精读/拆解视频、论文总结 + 可视化讲解、paper to video、学术论文讲解稿 + 视频、论文网页讲解。
 ---
 
 # Paper Explainer
 
-把一篇论文变成一支**带全局字幕、网页实现、可录屏**的讲解视频。
+把一篇论文变成一份**带全局字幕、网页实现**的讲解演示。
 **字幕是核心特征**：口播稿的每一句都逐 step 显示在屏幕底部，与画面
 同源、可开关（`S` / `?subs=0`）、可导出 SRT。
+**录屏是可选出口**：默认不录屏，交付可运行、可交互的网页项目；
+只有用户明确提出「录屏 / 要视频文件」时才走 Phase 6 出片。
 做完不是终点——产物按「以后要加要改」组织，用户一句「这部分展开讲」
-就能低成本改稿 / 扩章 / 重录（Phase 8）。
+就能低成本改稿 / 扩章 /（录屏过则）重录（Phase 8）。
 
-四条主线：
+五条主线：
 
 - **一步到位**：整条流水线自动跑完，**不在中途向用户确认任何事**
   （原 Checkpoint 已全部移除）；所有自主决定在最终汇报里列明。
@@ -24,6 +26,8 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 - **可扩展 · 可快改**：真相源链固定、章节独立、视觉数据驱动、step 定位
   表齐全；交付后按最小改动面协议快速响应反馈（见
   `references/REVISION.md`）。
+- **录屏可选**：默认不录屏、不装录屏依赖，交付可运行网页项目；只有
+  用户明确提出录屏（或配置 `recording.enabled=true`）才执行 Phase 6。
 
 ## 使用方式（输入 = 论文链接，别的什么都不用输入）
 
@@ -31,14 +35,16 @@ description: 把一篇学术论文（PDF / arXiv 链接 / 网页 / 粘贴文本�
 
 ```
 paper-explainer https://arxiv.org/abs/1706.03762
-把 https://arxiv.org/pdf/1706.03762 做成讲解视频
+把 https://arxiv.org/pdf/1706.03762 做成讲解视频，要 mp4
 ```
 
 - 「论文链接」是唯一必需输入：arXiv `abs` / `pdf`、DOI、任意 PDF / 网页
   URL、本地 PDF 路径、直接粘贴的论文文本都算。
+- **录屏默认关闭**：只给链接 → 交付可运行、可交互的网页项目；
+  明确说「做成视频 / 要 mp4 / 录屏」→ 才在网页项目之外加录屏（Phase 6）。
 - **拿到输入后禁止任何确认 / 提问**：主题、语言、时长、篇幅、封面、
   开发模式、输出目录……全部自动决策，只在最终汇报里列明
-  「我替你做了哪些决定」。
+  「我替你做了哪些决定」。录屏不是需要追问的决策——按上一条判定。
 - **唯一允许的提问**：完全没给论文（无链接、无文件、无文本）时，只问
   一次「论文链接或文件？」，拿到后立刻开工，之后不再交互。
 - 交付汇报末尾附一句：想改哪里直接说（Phase 8）。
@@ -52,7 +58,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 
 本 Skill 自己负责 WVP 没有的部分：**论文结构化 digest**、**论文→章节
 映射（按贡献权重）**、**论文素材提取（原图/公式/原文 + arXiv LaTeX
-源）**、**全局字幕层（核心特征）**、**录屏**，以及**一次性初始化**
+源）**、**全局字幕层（核心特征）**、**录屏（可选）**，以及**一次性初始化**
 （首次自动写默认配置；依赖缺失自动安装，见 `references/INIT.md`）。
 
 > 路径约定：
@@ -73,10 +79,11 @@ bash "$SELF/scripts/check-deps.sh"            # 依赖自检
 ```
 
 - **有配置** → 直接应用（网页主题 / 开发模式 / 封面素材 / 讲解语言 /
-  录屏自动推进），一行汇报「已加载配置：…」后继续。各配置项在哪个
-  Phase 生效见 `references/INIT.md` §3。
+  录屏开关与自动推进），一行汇报「已加载配置：…」后继续。各配置项在
+  哪个 Phase 生效见 `references/INIT.md` §3。
 - **无配置** → **不提问**：直接写入推荐默认值（`theme=auto` /
-  `devMode=B` / `cover=svg` / `lang=auto` / `autoAdvance=true`）并继续。
+  `devMode=B` / `cover=svg` / `lang=auto` / `record=false` /
+  `autoAdvance=true`）并继续。
   用户想自定义 → 预先写 `CONFIG`，或事后说「重配 paper-explainer」。
 - **依赖 skill 缺失**（WVP / DTF）→ **直接自动安装**（不再询问）：
 
@@ -86,24 +93,26 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 
   装完提醒用户**重启 opencode** 才会加载；装不上 → 按 `INIT.md` §2.3
   降级（缺 WVP 不能开工；缺 DTF 可降级并注明）。
-- **系统工具缺失** → 自动尝试安装（按平台选包管理器）；装不上就报告
-  影响并降级继续（Node 缺失除外——必须停下说明）。
+- **系统工具缺失** → 自动尝试安装（按平台选包管理器；录屏工具例外：
+  默认不装，用户要求录屏时才装）；装不上就报告影响并降级继续
+  （Node 缺失除外——必须停下说明）。
 
 > **完整规格**（字段表 / 自动安装 / 降级 / 重配）见
 > [`references/INIT.md`](references/INIT.md)。开工前先读它。
 
-### 运行时工具（缺了先装，不要假装能跑）
+### 运行时工具（缺了先装，不要假装能跑；录屏工具按需）
 
 | 工具 | 用途 | 缺失处理 |
 |---|---|---|
 | Node + npm | WVP 是 Vite + React + TS | 自动装 Node LTS（>= 18）；装不上则终止 |
-| Chromium / Chrome | 录屏 | 自动装；装不上 → 交付可运行项目 + build 通过 |
-| ffmpeg | 裁切 / 可选烧字幕 | 自动装；装不上 → 不裁切并说明 |
+| Chromium / Chrome | 录屏（可选，默认不用） | **仅本次要求录屏时自动装**；装不上 → 跳过录屏，交付可运行项目 |
+| ffmpeg | 录屏裁切（可选，默认不用） | 仅本次要求录屏时自动装；装不上 → 不裁切并说明 |
 | pdftotext 或 pymupdf | 解析 PDF / 抽原图 | 自动装；装不上 → 仅能处理 arXiv 源码 / 网页输入 |
 | curl 或 wget | 拉取 arXiv LaTeX 源码 | 自动装；装不上 → 手动下载源码 |
 | pdftocairo / pdfimages | PDF 图转 SVG / 抽位图 | 随 poppler-utils 一起装 |
 
-`check-deps.sh` 一次性报告以上全部；缺失项按上表自动处理。
+`check-deps.sh` 一次性报告以上全部；缺失项按上表自动处理
+（浏览器 / ffmpeg 默认只报告、不安装，需要录屏时才处理）。
 
 ---
 
@@ -113,14 +122,14 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 |---|---|
 | 用户输入 | **只要论文链接**；主题 / 语言 / 时长 / 篇幅 / 封面 / 目录等一概不要求、不追问（仅完全没给论文时问一次链接） |
 | 初始化配置 | 有则直接用；无则写推荐默认值（不问卷、不确认） |
-| 依赖 skill / 系统工具 | 自动安装；失败按 `INIT.md` §2.3 降级 |
+| 依赖 skill / 系统工具 | 依赖 skill 自动安装；系统工具按需（录屏工具仅在要求录屏时装）；失败按 `INIT.md` §2.3 降级 |
 | 主题 | 按配置；`auto` → 自动挑最匹配并**汇报理由**；配置为 `ask` 时按 `auto` 处理 |
 | 封面素材 | 按配置；`ask` → 按 `svg` 处理；`generate` 缺 gpt-image-2 → 回退 svg |
 | 论文图 / 公式 / 原文 | 按 `PAPER-ASSETS.md` §0 自动决策（重绘 or 原图） |
 | 开发模式 | 按配置；`A`（逐章确认）→ 按 `B`（顺序）执行 |
 | 第 1 章 | **不验收**；作为风格锚点做完直接继续 |
 | 音频 | 不合成配音，跳过；字幕承载全部口播文本 |
-| 录屏 | 默认自动推进一镜到底；环境不支持则交付可运行项目 + build 通过 |
+| 录屏 | **默认不录屏**（可选功能）：交付可运行网页项目（build 通过、进程已清理）；仅当用户明确提出录屏 / 配置 `recording.enabled=true` 时执行 Phase 6 |
 | 后台进程 | 交付前用 `scripts/stop-processes.sh` 全部停止并复查残留；不留 dev server / 浏览器 / 录屏进程 |
 
 原则：**先做完，再汇报**；拿不准时选保守默认，并在最终汇报里列出
@@ -163,7 +172,7 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
   Caveat、Dancing Script、Pacifico、Lobster、Brush Script、Great Vibes。
 - **允许**：可读的无衬线（Inter、IBM Plex Sans、Manrope、Source Sans）
   或正文衬线（Source Serif、IBM Plex Serif、Noto Serif）；中文字体不受限。
-- **判断标准**：录屏压缩后仍能一眼认清每个字母；拿不准就当花体处理，
+- **判断标准**：画面压缩 / 缩放后仍能一眼认清每个字母；拿不准就当花体处理，
   换成可读字体。
 - **例外（保留公式字体）**：KaTeX / LaTeX 数学字体**不在禁令内、必须保留**——
   `KaTeX_Main` / `KaTeX_Math` / `KaTeX_Caligraphic` / `KaTeX_Script` /
@@ -186,7 +195,8 @@ bash "$SELF/scripts/install-deps.sh"          # 装缺失的 WVP / DTF
 ## 进程卫生（交付即清理，零遗留）
 
 **任何由本次运行启动的后台进程，都不许活过本次运行。** 生成完成
-（Phase 6 录屏结束 / Phase 8 重录结束）后，必须先清理再汇报——不允许把
+（每次运行收尾；若执行过 Phase 6 录屏 / Phase 8 重录也包括在内）后，
+必须先清理再汇报——不允许把
 dev server、浏览器、录屏工具、ffmpeg、临时 HTTP 留在后台「方便用户看」。
 
 **启动即登记**（凡是用 `&` 放后台的服务）：
@@ -217,8 +227,9 @@ rm -rf .pe-run
   chromium / ffmpeg；占用过的端口已释放。汇报里写一行：
   `进程 已清理（dev server / 浏览器 / ffmpeg）`。
 
-> 该规则贯穿所有 Phase：4.3 验证、5 开发预览、6 录屏、8 重录，一次都不
-> 例外。进程清理属于交付的一部分——没清理 = 没完成。
+> 该规则贯穿所有 Phase：4.3 验证、5 开发预览、6 录屏（若执行）、
+> 8 重录（若执行），一次都不例外。进程清理属于交付的一部分——
+> 没清理 = 没完成。
 
 ---
 
@@ -234,9 +245,9 @@ Phase 3  开发计划          → outline.md（按技术含量分配篇幅）
 Phase 4  脚手架 + 字幕层 + 素材接入
 Phase 5  逐章实现（技术核心章节自动加篇幅）
    ▼（不合成配音，跳过音频）
-Phase 6  录屏（字幕驱动自动推进 + 进程清理）
+Phase 6  录屏（可选 · 仅用户明确要求时；字幕驱动自动推进 + 进程清理）
 Phase 7  DTF 反 AI 味终审
-Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 增量重录
+Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 同步真相源 → 按需增量重录
 ```
 
 工作目录（在用户当前目录下创建）：
@@ -267,8 +278,8 @@ Phase 8  反馈迭代（按需，用户发起）→ 定位 → 最小改动 → 
 | `outline.md` | WVP `references/OUTLINE-FORMAT.md` 自检 |
 | 素材 | `references/PAPER-ASSETS.md` 第 7 节自检 |
 | 单章 | WVP `references/CHAPTER-CRAFT.md` 完工自检 + 本 Skill `references/SVG-DIAGRAMS.md` 自检 |
-| 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节 |
-| 成片 | DTF §9 AI tells 终审 |
+| 字幕层 | `references/SUBTITLE-AND-RECORDING.md` 第 6 节（录屏项仅在录屏时执行） |
+| 交付终审（网页项目） | DTF §9 AI tells 终审（无论是否录屏都要做） |
 | 字体（全片） | 「字体可读性铁律」：`grep -rn "cursive" presentation/src` 为空，无花体 / 手写字体名（`KaTeX_*` 数学字体除外） |
 | 交付前（全部 Phase 完成后） | 「进程卫生」自检：`stop-processes.sh` exit 0、无本次启动的后台进程、端口已释放 |
 | 修改（Phase 8） | `references/REVISION.md` B4 自检 |
@@ -481,13 +492,25 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 ---
 
-## Phase 6 · 录屏（字幕驱动自动推进）
+## Phase 6 · 录屏（可选 · 默认跳过）
 
+**触发条件（满足其一才执行本节）**：
+
+1. 用户**明确提出**要视频产出（如「录成视频」「帮我录屏」「做成视频」
+   「要 mp4 / 成片」）；
+2. 配置 `recording.enabled=true`（见 `INIT.md` 字段表）。
+
+只给论文链接 / 只说「讲解一下」**不算**明确提出——按默认不录屏处理，
+并在汇报里提示「要出片说一声」。
+
+**不满足 → 整节跳过**：不启动浏览器 / 录屏工具，不为录屏安装 ffmpeg /
+Chromium，不录屏、不裁切。交付物 = 可运行网页项目（`npm run build` +
+`npx tsc --noEmit` 通过、进程已清理），并在汇报里说明「默认未录屏；
+要出片说一声，我按 Phase 6 补录」。**不要**因为「来都来了」顺手录一版。
+
+触发时按 `references/SUBTITLE-AND-RECORDING.md` 第 4 节执行。
 **跳过 WVP 的 Checkpoint Audio 与 Phase 3（音频合成）**；本工作流不合成
-配音，字幕就是全部口播文本。
-
-按 `references/SUBTITLE-AND-RECORDING.md` 第 4 节，走法由配置
-`recording.autoAdvance` 决定：
+配音，字幕就是全部口播文本。走法由配置 `recording.autoAdvance` 决定：
 
 1. `true`（默认）：`?auto=1&reset=1` → `SPACE` 启动 → 按字幕字数
    估时自动推进（`reset=1` 保证从第 1 页开始，不受上次游标影响）；
@@ -506,7 +529,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 ## Phase 7 · DTF 反 AI 味终审
 
-成片前用 `DTF` 做一次终审（**只取适用条款**）：
+交付前用 `DTF` 做一次终审（**只取适用条款**；无论是否录屏都要做）：
 
 **适用**（拿来审）：
 
@@ -533,7 +556,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 首次交付后，产物进入「可快速修改」状态。**首次汇报里主动告诉用户**：
 想改哪里直接说（例：「展开讲 06 算法流程」「把结果图的数字核对一下」），
-不需要重跑全流程。用户看完预览 / 成片提出「这部分展开讲」「XX 改一下」
+不需要重跑全流程。用户看完预览（或成片）提出「这部分展开讲」「XX 改一下」
 「数字不对」等反馈时：
 
 1. **定位**：把反馈映射到章节 id + step 区间 + 改动层（文案 / 内容 /
@@ -545,9 +568,10 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 3. **展开一节**（最高频需求）：digest / paper 取料 → `script.md` 插
    `---` 块 → `outline.md` 插 step 行 → `narrations.ts` 插条目 →
    章节视觉插数据项 / 分支 → bump `STORAGE_KEY`。
-4. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 默认**整片
-   重录**（字幕驱动自动推进，成本低且无接缝）→ 按「进程卫生」清理
-   后台进程并复查 → `revisions.md` 追加记录 → 按 B6 模板汇报。
+4. **收尾**：`npx tsc --noEmit` + `REVISION.md` B4 自检 → 若本项目录过屏
+   或用户要求出片，默认**整片重录**（字幕驱动自动推进，成本低且无
+   接缝）；否则只做预览验证、不出片 → 按「进程卫生」清理后台进程并
+   复查 → `revisions.md` 追加记录 → 按 B6 模板汇报。
 
 **不重跑 Phase 0–7**；只有换论文（回 Phase 0）或换主题（回 Phase 4.1）
 才回到对应阶段。完整协议见
@@ -559,7 +583,7 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 | 事项 | 归谁 |
 |---|---|
-| 内容流程 / 章节 / step / 动效方法论 / 脚手架 / 录屏 | **WVP** |
+| 内容流程 / 章节 / step / 动效方法论 / 脚手架 / 录屏工具（可选） | **WVP** |
 | 论文 digest / 章节映射 / 素材提取（原图/公式/原文/LaTeX 源）/ 全局字幕层（核心特征）/ 无配音自动推进路径 | **本 Skill** |
 | 主题的字体与配色审美、反 AI 味终审 | **DTF（仅这两处）** |
 | 单章代码怎么写 | **WVP 的 CHAPTER-CRAFT**（DTF 不参与） |
@@ -580,15 +604,15 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 | `scripts/install-deps.sh` | 自动安装缺失的 WVP / DTF |
 | `scripts/fetch-arxiv.sh` | Phase 0 下载并解压 arXiv LaTeX 源码 |
 | `references/PAPER-DIGEST.md` | Phase 1 必读；Phase 3 取章节映射与权重 |
-| `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕、Phase 6 录屏 |
-| `references/REVISION.md` | 生成时按可扩展性铁律组织；Phase 8 收到反馈后（定位 / 改动面 / 同步 / 重录） |
+| `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕；Phase 6 录屏（可选，仅用户明确要求时） |
+| `references/REVISION.md` | 生成时按可扩展性铁律组织；Phase 8 收到反馈后（定位 / 改动面 / 同步 / 按需重录） |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构/流程/结果图时 |
 | `WVP/SKILL.md` | 全流程；Checkpoint 模板（本工作流已移除，仅作参考） |
 | `WVP/references/SCRIPT-STYLE.md` | Phase 2 |
 | `WVP/references/OUTLINE-FORMAT.md` | Phase 3 |
 | `WVP/references/CHAPTER-CRAFT.md` | Phase 5 每章单一必读 |
 | `WVP/references/THEMES.md` | Phase 4 造/选主题 |
-| `WVP/references/RECORDING.md` | Phase 6 录屏工具细节 |
+| `WVP/references/RECORDING.md` | Phase 6（可选）录屏工具细节 |
 | `DTF/SKILL.md` | Phase 4 主题审美、Phase 7 终审 |
 | `scripts/install-subtitle.sh` | Phase 4.3 跑一次 |
 | `scripts/stop-processes.sh` | 启动过后台服务后、交付前清理（「进程卫生」） |

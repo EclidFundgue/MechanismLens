@@ -18,7 +18,8 @@
 #   --dev-mode=A|B|C                开发模式：逐章确认（A 已废弃，按 B）/ 顺序 / 并行
 #   --cover=svg|generate|placeholder|ask   封面素材（ask 已废弃，按 svg）
 #   --lang=auto|zh|en               讲解语言
-#   --auto-advance=true|false       录屏时自动推进（否则手动点击）
+#   --record=true|false             是否录屏（默认 false：不录屏，只交付可运行网页项目）
+#   --auto-advance=true|false       录屏时自动推进（否则手动点击；仅 --record=true 时生效）
 #
 # 配置已存在时写入会失败（保护已有配置），要覆盖加 --force。
 # ─────────────────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ THEME_ID=""
 DEV_MODE="B"
 COVER="svg"
 LANG="auto"
+RECORD_ENABLED="false"
 AUTO_ADVANCE="true"
 FORCE=0
 ACTION="write"
@@ -45,6 +47,7 @@ while [[ $# -gt 0 ]]; do
     --dev-mode=*)    DEV_MODE="${1#*=}"; shift ;;
     --cover=*)       COVER="${1#*=}"; shift ;;
     --lang=*)        LANG="${1#*=}"; shift ;;
+    --record=*)      RECORD_ENABLED="${1#*=}"; shift ;;
     --auto-advance=*) AUTO_ADVANCE="${1#*=}"; shift ;;
     --force)         FORCE=1; shift ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
@@ -74,6 +77,7 @@ case "$THEME_MODE" in auto|fixed|ask) ;; *) echo "bad --theme-mode: $THEME_MODE"
 case "$DEV_MODE" in A|B|C) ;; *) echo "bad --dev-mode: $DEV_MODE" >&2; exit 2 ;; esac
 case "$COVER" in svg|generate|placeholder|ask) ;; *) echo "bad --cover: $COVER" >&2; exit 2 ;; esac
 case "$LANG" in auto|zh|en) ;; *) echo "bad --lang: $LANG" >&2; exit 2 ;; esac
+case "$RECORD_ENABLED" in true|false) ;; *) echo "bad --record: $RECORD_ENABLED" >&2; exit 2 ;; esac
 case "$AUTO_ADVANCE" in true|false) ;; *) echo "bad --auto-advance: $AUTO_ADVANCE" >&2; exit 2 ;; esac
 
 if [[ "$THEME_MODE" == "fixed" ]]; then
@@ -97,7 +101,7 @@ cat > "$CONFIG" <<EOF
   "devMode": "$DEV_MODE",
   "materials": { "cover": "$COVER" },
   "narration": { "language": "$LANG" },
-  "recording": { "autoAdvance": $AUTO_ADVANCE },
+  "recording": { "enabled": $RECORD_ENABLED, "autoAdvance": $AUTO_ADVANCE },
   "dependencies": {
     "wvpSource": "https://github.com/ConardLi/garden-skills#skills/web-video-presentation",
     "dtfSource": "https://github.com/Leonxlnx/taste-skill#skills/taste-skill"

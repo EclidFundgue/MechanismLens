@@ -1,12 +1,13 @@
 # Paper Explainer
 
-**把一篇学术论文变成一支「带全局字幕」的网页讲解视频。**
+**把一篇学术论文变成一份「带全局字幕」的网页讲解演示。**
 
 给 AI coding agent 用的 [Agent Skill](https://agentskills.io)：装上之后，
 「skill + 论文链接」即可，**其他什么都不用输入**。链接支持 arXiv / DOI /
-PDF / 网页，也支持本地 PDF 或粘贴文本。输出可录屏的 16:9 网页视频项目
-——每一步独占整屏、视觉随进度逐步揭示、**字幕逐 step 显示在屏幕底部
-（可开关、可导出 SRT）**。
+PDF / 网页，也支持本地 PDF 或粘贴文本。输出可运行、可交互的 16:9 网页
+演示项目——每一步独占整屏、视觉随进度逐步揭示、**字幕逐 step 显示在
+屏幕底部（可开关、可导出 SRT）**。**录屏是可选功能：默认不录屏**，
+只有明确提出「录成视频 / 要 mp4」等视频产出需求时才输出视频文件。
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
@@ -17,11 +18,13 @@ PDF / 网页，也支持本地 PDF 或粘贴文本。输出可录屏的 16:9 网
 - **素材求真**：架构图 / 流程图优先 SVG 重绘并逐步揭示；允许嵌入论文
   原图、KaTeX 公式、原文摘录保证准确（arXiv 论文优先从 LaTeX 源码取公式）。
 - **一步到位**：解析 → digest → 口播稿 → 章节 outline → 网页实现 →
-  字幕层 → 录屏，全流程自动跑完，中途不提问；首次运行自动写默认配置，
+  字幕层，全流程自动跑完，中途不提问；首次运行自动写默认配置，
   交付前自动清理后台进程（不留 dev server / 浏览器 / 录屏进程）。
+- **录屏可选**：默认只交付可运行网页项目，不装录屏工具、不录屏；
+  明确说「做成视频」或配置 `recording.enabled=true` 才执行录屏。
 - **可快速修改**：产物按真相源链组织（digest → script → outline →
   narrations → 章节代码）。交付后说「展开讲 06 算法流程」或「把结果图的
-  数字核对一下」，agent 按最小改动面定位修改并增量重录。
+  数字核对一下」，agent 按最小改动面定位修改并按需重录。
 
 ## 安装
 
@@ -58,16 +61,17 @@ cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
 
 ```
 paper-explainer https://arxiv.org/abs/1706.03762
-把这篇论文做成讲解视频 https://arxiv.org/pdf/1706.03762
+把这篇论文做成讲解视频，要 mp4 https://arxiv.org/pdf/1706.03762
 paper explainer：./attention-is-all-you-need.pdf
 ```
 
 链接可以是 arXiv / DOI / 任意 PDF / 网页，也可以是本地 PDF 路径或直接
 粘贴的论文文本。主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录全部自动
-决策，中途不提问。
+决策，中途不提问。录屏按需：只给链接时交付可运行网页项目；明确说
+「做成视频 / 要 mp4 / 录屏」时才会额外出视频文件。
 
 首次运行会把默认配置写到 `~/.config/paper-explainer/config.json`
-（主题 / 开发模式 / 封面 / 讲解语言 / 录屏自动推进），之后直接复用。
+（主题 / 开发模式 / 封面 / 讲解语言 / 录屏开关与自动推进），之后直接复用。
 想改配置：预先编辑该文件，或事后说「重配 paper-explainer」。
 
 ## 依赖
@@ -77,7 +81,7 @@ paper explainer：./attention-is-all-you-need.pdf
 | [`web-video-presentation`](https://github.com/ConardLi/garden-skills) | 内容流程 / 章节结构 / 脚手架 / 主题 token（工作流骨架） | 自动安装；装不上无法开工 |
 | [`design-taste-frontend`](https://github.com/Leonxlnx/taste-skill) | 主题审美 + 反 AI 味终审 | 自动安装；失败可降级 |
 | Node.js + npm | 网页项目（Vite + React + TS） | 自动安装；失败终止 |
-| Chromium / Chrome、ffmpeg | 录屏与裁切 | 自动安装；失败则交付可运行项目 |
+| Chromium / Chrome、ffmpeg | 录屏与裁切（可选，默认不用） | 仅要求录屏时自动安装；失败则交付可运行项目 |
 | pdftotext / pymupdf、curl | PDF 解析、arXiv LaTeX 源码下载 | 自动安装；失败降级到可用输入 |
 
 ## 工作流
@@ -90,9 +94,9 @@ Phase 2   口播稿 script.md（= 字幕文本）
 Phase 3   开发计划 outline.md（章节 + step + 信息池）
 Phase 4   脚手架 + 字幕层 + 素材接入
 Phase 5   逐章实现（SVG / 原图逐步揭示）
-Phase 6   录屏（字幕驱动自动推进）
+Phase 6   录屏（可选，仅明确提出录屏时执行）
 Phase 7   反 AI 味终审
-Phase 8   反馈迭代（按需：展开 / 修改 → 最小改动面 + 增量重录）
+Phase 8   反馈迭代（按需：展开 / 修改 → 最小改动面 + 按需重录）
 ```
 
 ## 仓库结构

@@ -34,7 +34,8 @@ paper-explainer 的原则：**能配置一次的事，不重复问；不能配�
 | `devMode` | `A` / `B` / `C` | `B` | 开发模式：`A`（逐章确认，已废弃 → 按 `B`）/ 顺序 / 并行（subagent） |
 | `materials.cover` | `svg` / `generate` / `placeholder` / `ask` | `svg` | 封面 / 概念图：SVG 自绘 / `gpt-image-2` 生成 / 占位 /（`ask` 已废弃 → 按 `svg`） |
 | `narration.language` | `auto` / `zh` / `en` | `auto` | 口播语言；`auto` = 中文论文用中文，英文论文默认中文讲解 |
-| `recording.autoAdvance` | `true` / `false` | `true` | 录屏时 `?auto=1` 自动推进 / 手动点击 |
+| `recording.enabled` | `true` / `false` | `false` | **是否录屏**：默认 `false`（不录屏，只交付可运行网页项目）；`true` = 视为用户已明确要求录屏 |
+| `recording.autoAdvance` | `true` / `false` | `true` | 录屏时 `?auto=1` 自动推进 / 手动点击（仅在 `recording.enabled=true` 时生效） |
 | `dependencies.wvpSource` | git URL 或本地路径 | ConardLi/garden-skills | 自动安装 WVP 的来源 |
 | `dependencies.dtfSource` | git URL 或本地路径 | Leonxlnx/taste-skill | 自动安装 DTF 的来源 |
 
@@ -61,8 +62,9 @@ bash "$SELF/scripts/check-deps.sh"
 | 缺失 | 处理 |
 |---|---|
 | 依赖 skill（WVP / DTF） | **直接自动安装**（§2.2），装不上见 §2.3 降级 |
-| Node / npm / git | 自动装（按平台选 `apt` / `brew` / nvm 等）；Node 装不上 → 终止并说明 |
-| ffmpeg / 浏览器 / pdftotext / curl | 自动装；装不上 → 报告影响并降级继续（录屏 / PDF 解析 / arXiv 源码） |
+| Node / npm / git | 自动装（按平台选 `apt` / `brew` / `nvm` 等）；Node 装不上 → 终止并说明 |
+| ffmpeg / 浏览器 | **仅录屏时需要**：默认只报告、不安装；用户明确要求录屏（或配置 `recording.enabled=true`）时才自动装，装不上 → 跳过录屏并说明 |
+| pdftotext / curl | 自动装；装不上 → 报告影响并降级继续（PDF 解析 / arXiv 源码） |
 
 **不再有「是否安装」的确认环节**；失败与降级写进最终汇报。
 
@@ -85,7 +87,7 @@ bash "$SELF/scripts/install-deps.sh" --wvp-src=<url|path> --dtf-src=<url|path>
 |---|---|
 | WVP | **不能降级**（它是骨架）。让用户提供已有路径，或终止并说明原因 |
 | DTF | 降级：主题审美改用 WVP `references/THEMES.md` 自带规范；Phase 7 终审改用 WVP `CHAPTER-CRAFT.md` 的 ANTI-AI 清单。在汇报里注明「本次无 DTF 终审」 |
-| 系统工具 | 按 SKILL.md「运行时工具」表降级：无浏览器 / ffmpeg → 跳过录屏，交付可运行项目 + build 通过；无 PDF 工具 → 仅处理 arXiv 源码 / 网页输入 |
+| 系统工具 | 按 SKILL.md「运行时工具」表降级：无浏览器 / ffmpeg → 跳过录屏，交付可运行项目 + build 通过（默认不录屏时本来就不需要）；无 PDF 工具 → 仅处理 arXiv 源码 / 网页输入 |
 
 ### 2.4 自动写默认配置
 
@@ -96,7 +98,7 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 ```
 
 写入内容：`theme=auto` / `devMode=B` / `cover=svg` / `lang=auto` /
-`autoAdvance=true`。之后每次运行直接读取。
+`recording.enabled=false` / `autoAdvance=true`。之后每次运行直接读取。
 
 ### 2.5 汇报模板
 
@@ -107,7 +109,8 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
   模式    B（顺序开发）
   封面    svg
   语言    auto（英文论文默认中文讲解）
-  依赖    WVP ✓ / DTF ✓ / ffmpeg ✓ / 浏览器 ✗（将跳过录屏）
+  录屏    关闭（默认；想录屏说一声，或配置 recording.enabled=true）
+  依赖    WVP ✓ / DTF ✓ / 录屏工具（ffmpeg / 浏览器）按需安装
 
 想改默认说一声「重配 paper-explainer」。
 ```
@@ -117,7 +120,7 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 ## 3. 之后每次运行
 
 1. **读配置**：`bash "$SELF/scripts/init-config.sh" --show`（或直接读 JSON）。
-   - 有配置 → 一行汇报「已加载配置：主题=… 模式=… 封面=… 语言=…」，继续。
+   - 有配置 → 一行汇报「已加载配置：主题=… 模式=… 封面=… 语言=… 录屏=…」，继续。
    - 无配置 → 自动写默认值（§2.4），继续。
 2. **依赖快速自检**：`bash "$SELF/scripts/check-deps.sh"`；有 `[MISS]`
    就按 §2.1 自动处理（skill 缺失直接装，不确认）。
@@ -129,7 +132,8 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 | `devMode` | Phase 4.5 / Phase 5 —— A（按 B）/ B 顺序 / C subagent 并行 |
 | `materials.cover` | Phase 4.1 —— `svg` 自绘封面；`generate` 用 `gpt-image-2`（没装则回退 svg 并说明）；`placeholder` 占位；`ask` 按 `svg` |
 | `narration.language` | Phase 2 —— `auto` 按原文语言；`zh` / `en` 强制 |
-| `recording.autoAdvance` | Phase 6 —— true 走 `?auto=1&reset=1`；false 手动点击录屏 |
+| `recording.enabled` | Phase 6 —— `false`（默认）整节跳过，不录屏；`true` 视为用户已明确要求录屏 |
+| `recording.autoAdvance` | Phase 6（仅录屏开启时）—— true 走 `?auto=1&reset=1`；false 手动点击录屏 |
 
 > **单次覆盖**：用户当场说「这次用 X 主题 / 这次并行」→ 只影响本次，
 > **不写配置**；除非用户明确说「以后都这样」，才 `init-config.sh --force`
@@ -143,6 +147,7 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 |---|---|
 | 看当前配置 | `init-config.sh --show` |
 | 改某一项 | 直接编辑 `~/.config/paper-explainer/config.json`，或 `init-config.sh --force …` 全量重写 |
+| 开启 / 关闭录屏 | 编辑 `recording.enabled`，或 `init-config.sh --record=true --force`（默认 `false`，不录屏） |
 | 恢复默认 | `init-config.sh --reset`，下次运行自动写默认值 |
 | 用户说「重配」 | 用 `question` 工具问一轮偏好，`--force` 写入（这是唯一允许的提问场景，由用户主动触发） |
 
@@ -154,7 +159,8 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 
 - **输入只需论文链接**；主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录等
   一概不要求，全部自动决策。
-- 任何情况下都**不因缺少确认而停下**；缺依赖自动装，装不上降级并汇报。
+- 任何情况下都**不因缺少确认而停下**；缺依赖自动装（录屏工具仅在
+  要求录屏时装），装不上降级并汇报。
 - 配置存在 → 直接用；不存在 → 写默认值（§2.4），并在最终汇报里列出
   默认值与「我替你做了哪些决定」。
 - 唯一例外：用户**主动**要求重配（§4）；完全没给论文（无链接、无文件、
@@ -170,4 +176,5 @@ bash "$SELF/scripts/init-config.sh"    # 无参数 = 推荐默认值
 - [ ] 装完是否提醒重启 opencode？
 - [ ] 安装失败时是否按 §2.3 降级并在汇报里注明？
 - [ ] 单次覆盖是否没有污染持久配置？
+- [ ] 默认是否没有录屏、没有为录屏安装浏览器 / ffmpeg？（仅当用户明确提出或 `recording.enabled=true` 时才录屏）
 - [ ] `fixed` 主题不存在时是否警告并回退，而不是硬跑？
