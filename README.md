@@ -2,10 +2,11 @@
 
 **把一篇学术论文变成一支「带全局字幕」的网页讲解视频。**
 
-给 AI coding agent 用的 [Agent Skill](https://agentskills.io)：装上之后，直接说
-「把这篇论文做成讲解视频」即可。输入 arXiv 链接 / PDF / 网页 / 粘贴文本，
-输出可录屏的 16:9 网页视频项目——每一步独占整屏、视觉随进度逐步揭示、
-**字幕逐 step 显示在屏幕底部（可开关、可导出 SRT）**。
+给 AI coding agent 用的 [Agent Skill](https://agentskills.io)：装上之后，
+「skill + 论文链接」即可，**其他什么都不用输入**。链接支持 arXiv / DOI /
+PDF / 网页，也支持本地 PDF 或粘贴文本。输出可录屏的 16:9 网页视频项目
+——每一步独占整屏、视觉随进度逐步揭示、**字幕逐 step 显示在屏幕底部
+（可开关、可导出 SRT）**。
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
@@ -52,11 +53,17 @@ cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
 
 ## 使用
 
-直接用自然语言触发，例如：
+**只需要一句话：skill + 论文链接。其他什么都不用输入。**
 
-- 把这篇论文做成讲解视频：`https://arxiv.org/abs/1706.03762`
-- paper explainer：`./attention-is-all-you-need.pdf`
-- 帮我读一下这篇论文，做成带字幕的网页讲解视频
+```
+paper-explainer https://arxiv.org/abs/1706.03762
+把这篇论文做成讲解视频 https://arxiv.org/pdf/1706.03762
+paper explainer：./attention-is-all-you-need.pdf
+```
+
+链接可以是 arXiv / DOI / 任意 PDF / 网页，也可以是本地 PDF 路径或直接
+粘贴的论文文本。主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录全部自动
+决策，中途不提问。
 
 首次运行会把默认配置写到 `~/.config/paper-explainer/config.json`
 （主题 / 开发模式 / 封面 / 讲解语言 / 录屏自动推进），之后直接复用。
