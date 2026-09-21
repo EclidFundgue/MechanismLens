@@ -1,0 +1,44 @@
+/* Visual content lives inside the existing stage; App owns subtitles and timing. */
+.renderer-diagram, .renderer-comparison { width: 100%; height: 100%; min-height: 240px; max-height: 520px; }
+.renderer-edge line { stroke: var(--rule); stroke-width: 2; }
+.renderer-edge text, .renderer-axis-label { fill: var(--muted); font-size: 16px; }
+.renderer-edge.is-active line { stroke: var(--accent); stroke-width: 4; }
+.renderer-node rect { fill: var(--panel-2); stroke: var(--rule); stroke-width: 2; }
+.renderer-node.is-active rect { stroke: var(--accent); stroke-width: 4; }
+.renderer-node-label { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; height: 100%; padding: 3px; overflow-wrap: anywhere; text-align: center; }
+.renderer-node-label small { color: var(--accent); text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+.renderer-node-label strong { font-size: 20px; }
+.renderer-node-label span { color: var(--muted); font-size: 13px; }
+.renderer-error { color: var(--accent); font-size: 16px; }
+.renderer-error code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+.renderer-term { color: var(--accent); font-size: 20px; overflow-x: auto; }
+.renderer-trace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; width: min(100%, 1100px); }
+.renderer-trace.has-state { grid-template-columns: minmax(0, 1.2fr) minmax(230px, .8fr); }
+.renderer-state { min-width: 0; padding: 20px; background: var(--panel-2); border: 1px solid var(--rule); }
+.renderer-state h3 { margin: 0 0 16px; }
+.renderer-state dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-family: "IBM Plex Mono", monospace; overflow-wrap: anywhere; }
+.renderer-state dd { margin: 0; }
+.renderer-state [data-changed="true"] dd, .renderer-state > p { color: var(--accent); }
+.renderer-comparison-wrap { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 4px; width: min(100%, 1150px); height: 100%; min-height: 0; }
+.renderer-metric { margin: 0; color: var(--muted); font-size: 14px; }
+.renderer-axis { stroke: var(--rule); stroke-width: 2; }
+.renderer-bar text { fill: var(--ink); font-size: 20px; }
+.renderer-bar rect { fill: #647987; }
+.renderer-bar.is-active rect { fill: var(--accent); }
+.renderer-bar .renderer-delta { fill: var(--muted); font-size: 18px; }
+.renderer-bar [data-outcome="better"] { fill: var(--accent); }
+.renderer-figure { display: grid; gap: 8px; width: min(100%, 1150px); height: 100%; min-height: 0; margin: 0; }
+.renderer-figure-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; min-height: 0; }
+.renderer-figure-pair > div { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.renderer-figure-pair h3 { margin: 0 0 8px; font-size: 18px; }
+.renderer-figure-pair svg { display: block; flex: 1; width: 100%; min-height: 180px; background: var(--paper); border: 1px solid var(--rule); overflow: hidden; }
+.renderer-region { fill: none; stroke: var(--accent); stroke-width: 3; }
+.renderer-figure figcaption { color: var(--muted); font-size: 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .renderer-node rect, .renderer-edge line, .renderer-bar rect { transition: fill .25s ease, stroke .25s ease; }
+}
+@media (max-width: 800px) {
+  .renderer-trace.has-state, .renderer-figure-pair { grid-template-columns: 1fr; }
+  .renderer-figure-pair svg { min-height: 160px; }
+  .renderer-figure { height: auto; }
+}

@@ -29,18 +29,18 @@
       "claimIds": ["claim.architecture"],
       "evidenceIds": ["evidence.architecture"],
       "steps": [
-        { "id": "step.input", "narration": "The input is encoded into a technical representation.", "focusIds": ["node.input"], "evidenceIds": ["evidence.architecture"] },
-        { "id": "step.output", "narration": "The core module transforms it into the final output.", "focusIds": ["node.core", "node.output"], "evidenceIds": ["evidence.architecture"] }
+        { "id": "step.input", "narration": "The input is encoded into a technical representation.", "focusIds": ["node.input"], "evidenceIds": ["evidence.architecture"], "visual": { "visibleNodeIds": ["node.input"], "activeEdgeIds": [] } },
+        { "id": "step.output", "narration": "The core module transforms it into the final output.", "focusIds": ["node.core", "node.output"], "evidenceIds": ["evidence.architecture"], "visual": { "visibleNodeIds": ["node.input", "node.core", "node.output"], "activeEdgeIds": ["edge.predict"] } }
       ],
       "payload": {
         "nodes": [
-          { "id": "node.input", "label": "Input", "detail": "[B, N, D]", "shape": "tensor" },
-          { "id": "node.core", "label": "Core module", "detail": "paper-specific operator", "shape": "module" },
-          { "id": "node.output", "label": "Output", "detail": "[B, M, D]", "shape": "tensor" }
+          { "id": "node.input", "label": "Input", "detail": "[B, N, D]", "shape": "tensor", "x": 40, "y": 180, "width": 180, "height": 115 },
+          { "id": "node.core", "label": "Core module", "detail": "paper-specific operator", "shape": "module", "x": 390, "y": 180, "width": 180, "height": 115 },
+          { "id": "node.output", "label": "Output", "detail": "[B, M, D]", "shape": "tensor", "x": 740, "y": 180, "width": 180, "height": 115 }
         ],
         "edges": [
-          { "from": "node.input", "to": "node.core", "label": "encode" },
-          { "from": "node.core", "to": "node.output", "label": "predict" }
+          { "id": "edge.encode", "from": "node.input", "to": "node.core", "label": "encode" },
+          { "id": "edge.predict", "from": "node.core", "to": "node.output", "label": "predict" }
         ]
       }
     },
@@ -52,8 +52,8 @@
       "claimIds": ["claim.equation"],
       "evidenceIds": ["evidence.equation"],
       "steps": [
-        { "id": "step.primary-loss", "narration": "The first term captures the primary prediction error.", "focusIds": ["eq.primary"], "evidenceIds": ["evidence.equation"] },
-        { "id": "step.regularizer", "narration": "The weighted second term controls the regularization objective.", "focusIds": ["eq.regularizer"], "evidenceIds": ["evidence.equation"] }
+        { "id": "step.primary-loss", "narration": "The first term captures the primary prediction error.", "focusIds": ["eq.primary"], "evidenceIds": ["evidence.equation"], "visual": { "tex": "\\mathcal{L}=\\mathcal{L}_{main}", "visiblePartIds": ["eq.primary"] } },
+        { "id": "step.regularizer", "narration": "The weighted second term controls the regularization objective.", "focusIds": ["eq.regularizer"], "evidenceIds": ["evidence.equation"], "visual": { "tex": "\\mathcal{L}=\\mathcal{L}_{main}+\\lambda\\mathcal{L}_{reg}", "visiblePartIds": ["eq.primary", "eq.regularizer"] } }
       ],
       "payload": {
         "tex": "\\mathcal{L}=\\mathcal{L}_{main}+\\lambda\\mathcal{L}_{reg}",
@@ -71,8 +71,8 @@
       "claimIds": ["claim.algorithm"],
       "evidenceIds": ["evidence.algorithm"],
       "steps": [
-        { "id": "step.initialize", "narration": "First initialize the state from the current observation.", "focusIds": ["line.initialize"], "evidenceIds": ["evidence.algorithm"] },
-        { "id": "step.update", "narration": "Then update the state until the stopping condition is reached.", "focusIds": ["line.update"], "evidenceIds": ["evidence.algorithm"] }
+        { "id": "step.initialize", "narration": "First initialize the state from the current observation.", "focusIds": ["line.initialize"], "evidenceIds": ["evidence.algorithm"], "visual": { "variables": { "iteration": 0, "ready": false } } },
+        { "id": "step.update", "narration": "Then update the state until the stopping condition is reached.", "focusIds": ["line.update"], "evidenceIds": ["evidence.algorithm"], "visual": { "variables": { "iteration": 1, "ready": true }, "output": "state updated" } }
       ],
       "payload": {
         "lines": [
@@ -90,10 +90,12 @@
       "claimIds": ["claim.ablation"],
       "evidenceIds": ["evidence.ablation"],
       "steps": [
-        { "id": "step.baseline", "narration": "The baseline establishes the comparison point.", "focusIds": ["bar.baseline"], "evidenceIds": ["evidence.ablation"] },
-        { "id": "step.full", "narration": "The full method shows the total reported improvement.", "focusIds": ["bar.full"], "evidenceIds": ["evidence.ablation"] }
+        { "id": "step.baseline", "narration": "The baseline establishes the comparison point.", "focusIds": ["bar.baseline"], "evidenceIds": ["evidence.ablation"], "visual": { "visibleItemIds": ["bar.baseline"] } },
+        { "id": "step.full", "narration": "The full method shows the total reported improvement.", "focusIds": ["bar.full"], "evidenceIds": ["evidence.ablation"], "visual": { "visibleItemIds": ["bar.baseline", "bar.module", "bar.full"] } }
       ],
       "payload": {
+        "metric": { "label": "Demo score", "unit": "%", "direction": "higher", "decimals": 0 },
+        "baselineId": "bar.baseline",
         "items": [
           { "id": "bar.baseline", "label": "Baseline", "value": 62, "displayValue": "62", "note": "replace" },
           { "id": "bar.module", "label": "+ Module", "value": 71, "displayValue": "71", "note": "replace" },
@@ -109,16 +111,15 @@
       "claimIds": ["claim.figure"],
       "evidenceIds": ["evidence.figure"],
       "steps": [
-        { "id": "step.region-a", "narration": "Focus on the first region that supports the qualitative claim.", "focusIds": ["callout.a"], "evidenceIds": ["evidence.figure"] },
-        { "id": "step.region-b", "narration": "Compare it with the second region before accepting the conclusion.", "focusIds": ["callout.b"], "evidenceIds": ["evidence.figure"] }
+        { "id": "step.region-a", "narration": "Focus on the first region that supports the qualitative claim.", "focusIds": ["callout.a"], "evidenceIds": ["evidence.figure"], "visual": { "regionId": "callout.a" } },
+        { "id": "step.region-b", "narration": "Compare it with the second region before accepting the conclusion.", "focusIds": ["callout.b"], "evidenceIds": ["evidence.figure"], "visual": { "regionId": "callout.b" } }
       ],
       "payload": {
-        "src": "",
-        "alt": "Replace with a cropped figure from the paper",
-        "caption": "Replace with the original figure number and caption",
-        "callouts": [
-          { "id": "callout.a", "label": "Region A", "x": 12, "y": 18, "width": 28, "height": 54 },
-          { "id": "callout.b", "label": "Region B", "x": 58, "y": 18, "width": 28, "height": 54 }
+        "image": { "src": "assets/demo-figure.svg", "alt": "Illustrative input and output panels", "width": 800, "height": 480 },
+        "caption": "Illustrative fixture only; replace with the paper's figure and caption",
+        "regions": [
+          { "id": "callout.a", "label": "Input", "x": 0.07, "y": 0.16, "width": 0.36, "height": 0.62 },
+          { "id": "callout.b", "label": "Output", "x": 0.57, "y": 0.16, "width": 0.36, "height": 0.62 }
         ]
       }
     }

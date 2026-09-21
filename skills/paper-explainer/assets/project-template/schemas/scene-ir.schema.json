@@ -25,7 +25,21 @@
         "title": { "type": "string" },
         "narration": { "type": "string", "minLength": 1 },
         "focusIds": { "$ref": "#/$defs/idList" },
-        "evidenceIds": { "$ref": "#/$defs/idList" }
+        "evidenceIds": { "$ref": "#/$defs/idList" },
+        "visual": {
+          "type": "object",
+          "properties": {
+            "visibleNodeIds": { "$ref": "#/$defs/idList" },
+            "activeEdgeIds": { "$ref": "#/$defs/idList" },
+            "tex": { "type": "string", "minLength": 1 },
+            "visiblePartIds": { "$ref": "#/$defs/idList" },
+            "variables": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },
+            "output": { "type": "string" },
+            "visibleItemIds": { "$ref": "#/$defs/idList" },
+            "regionId": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] }
+          },
+          "additionalProperties": false
+        }
       },
       "additionalProperties": true
     },

@@ -148,6 +148,9 @@ node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
 
 每个 scene 必须有至少一个 step；每个 step 必须有 `narration`。关键 scene 和
 step 绑定 `evidenceIds`，视觉元素用 `focusIds` 控制聚焦。
+需要逐步揭示节点、演算状态、公式变化、基线对比或原图放大时，按
+`references/SCENE-IR.md` 的相应类型填写 step `visual`；不要另建章节脚本
+或复制一套字幕数据。
 
 ### Phase 3 · 素材
 

@@ -58,6 +58,17 @@ export interface SceneStep {
   narration: string;
   focusIds?: string[];
   evidenceIds?: string[];
+  /** Optional visual snapshot. Playback and subtitles still use this Scene IR step. */
+  visual?: {
+    visibleNodeIds?: string[];
+    activeEdgeIds?: string[];
+    tex?: string;
+    visiblePartIds?: string[];
+    variables?: Record<string, string | number | boolean>;
+    output?: string;
+    visibleItemIds?: string[];
+    regionId?: string | null;
+  };
 }
 
 export interface Scene {
