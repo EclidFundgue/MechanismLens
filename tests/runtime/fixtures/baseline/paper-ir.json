@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "paper": {
+    "id": "paper.fixture",
+    "title": "Runtime baseline",
+    "originalUrl": ""
+  },
+  "evidence": [
+    { "id": "evidence.fixture", "label": "Fixture" }
+  ],
+  "claims": [
+    { "id": "claim.fixture", "title": "Fixture claim", "evidenceIds": ["evidence.fixture"] }
+  ],
+  "contributions": [
+    { "id": "contribution.fixture", "title": "Fixture contribution", "evidenceIds": ["evidence.fixture"] }
+  ],
+  "concepts": [],
+  "modules": [],
+  "equations": [],
+  "experiments": [],
+  "figures": []
+}

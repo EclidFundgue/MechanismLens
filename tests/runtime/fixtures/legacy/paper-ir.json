@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0",
+  "paper": { "id": "paper.legacy", "title": "Legacy fixture", "originalUrl": "" },
+  "evidence": [{ "id": "evidence.legacy", "label": "Legacy evidence" }],
+  "claims": [{ "id": "claim.legacy", "title": "Legacy claim", "evidenceIds": ["evidence.legacy"] }],
+  "contributions": [{ "id": "contribution.legacy", "title": "Legacy contribution", "evidenceIds": ["evidence.legacy"] }],
+  "concepts": [],
+  "modules": [],
+  "equations": [],
+  "experiments": [],
+  "figures": []
+}
