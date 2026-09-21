@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { paperIR, sceneIR } from "./data";
 import { EvidenceDrawer } from "./components/EvidenceDrawer";
 import { SceneRenderer } from "./components/SceneRenderer";
+import { usePlayerKeyboard } from "./hooks/usePlayerKeyboard";
 import { assetUrl } from "./lib/source";
 
 function unique<T>(items: T[]): T[] {
@@ -58,21 +59,15 @@ export function App() {
     else if (safeSceneIndex > 0) jump(safeSceneIndex - 1, sceneIR.scenes[safeSceneIndex - 1].steps.length - 1);
   }, [jump, safeSceneIndex, safeStepIndex]);
 
+  const home = useCallback(() => jump(0, 0), [jump]);
+  const toggleSubtitles = useCallback(() => setSubtitles((value) => !value), []);
+  const toggleEvidence = useCallback(() => setEvidenceOpen((value) => !value), []);
+
+  usePlayerKeyboard({ next, previous, home, toggleSubtitles, toggleEvidence });
+
   useEffect(() => {
     window.localStorage.setItem(`paper-explainer:${paperIR.paper.id}:cursor`, JSON.stringify({ scene: safeSceneIndex, step: safeStepIndex }));
   }, [safeSceneIndex, safeStepIndex]);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "ArrowRight" || event.key === " ") { event.preventDefault(); next(); }
-      if (event.key === "ArrowLeft") { event.preventDefault(); previous(); }
-      if (event.key === "Home") jump(0, 0);
-      if (event.key.toLowerCase() === "s") setSubtitles((value) => !value);
-      if (event.key.toLowerCase() === "e") setEvidenceOpen((value) => !value);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [jump, next, previous]);
 
   useEffect(() => {
     if (!auto) return;
