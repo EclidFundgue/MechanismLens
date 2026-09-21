@@ -1,128 +1,116 @@
 # Paper Explainer
 
-**把一篇学术论文变成一份「带全局字幕」的网页讲解演示。**
+**粘贴论文链接，直接得到可运行、可追溯到论文原文的交互式技术讲解。**
 
-给 AI coding agent 用的 [Agent Skill](https://agentskills.io)：装上之后，
-「skill + 论文链接」即可，**其他什么都不用输入**。链接支持 arXiv / DOI /
-PDF / 网页，也支持本地 PDF 或粘贴文本。输出可运行、可交互的 16:9 网页
-演示项目——每一步独占整屏、视觉随进度逐步揭示、**字幕逐 step 显示在
-屏幕底部（可开关、可导出 SRT）**。**录屏是可选功能：默认不录屏**，
-只有明确提出「录成视频 / 要 mp4」等视频产出需求时才输出视频文件；且录屏
-永远排在最后——等终审与所有修改定稿后只录一次，避免反复渲染。
+Paper Explainer 是一个自包含的 Agent Skill。它不依赖其它 presentation / design
+skill，也不要求用户先准备脚手架。输入 arXiv、DOI、PDF、论文网页、本地 PDF
+或粘贴文本，Skill 会自动完成论文解析、轻量 Paper IR、Scene IR、交互网页、
+来源审计和静态构建。
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+```text
+paper-explainer https://arxiv.org/abs/1706.03762
+```
 
-## 它能做什么
+默认交付网页；明确说“要 MP4”时才在所有内容定稿后导出视频。
 
-- **贡献优先**：先做结构化 digest（主要贡献与创新点 + 7 个维度），
-  技术含量越高的部分自动获得越多 step / 时长 / 讲解层次。
-- **素材求真**：架构图 / 流程图优先 SVG 重绘并逐步揭示；允许嵌入论文
-  原图、KaTeX 公式、原文摘录保证准确（arXiv 论文优先从 LaTeX 源码取公式）。
-- **一步到位**：解析 → digest → 口播稿 → 章节 outline → 网页实现 →
-  字幕层，全流程自动跑完，中途不提问；首次运行自动写默认配置，
-  交付前自动清理后台进程（不留 dev server / 浏览器 / 录屏进程）。
-- **录屏可选且最后做**：默认只交付可运行网页项目，不装录屏工具、不录屏；
-  明确说「做成视频」或配置 `recording.enabled=true` 才执行录屏，且等
-  反 AI 味终审与所有修改定稿后只录一次——内容还在改时不会反复渲染视频。
-- **可快速修改**：产物按真相源链组织（digest → script → outline →
-  narrations → 章节代码）。交付后说「展开讲 06 算法流程」或「把结果图的
-  数字核对一下」，agent 按最小改动面定位修改；修改期间只做预览验证，
-  全部改完后如需出片再统一重录一次。
+## 核心区别
+
+- **论文原生场景**：架构执行、公式拆解、算法跟踪、消融比较、论文图检视，
+  而不是把论文改写成通用卡片动画。
+- **每一步有依据**：场景、claim、数字和公式都绑定 evidence；网页中的
+  “论文依据”可直接打开在线原文或本地 PDF 对应页。
+- **step-first**：手动浏览、自动播放、字幕和可选 MP4 共用同一份 Scene IR。
+- **自包含**：React/Vite 运行时、场景 renderer、字幕、Evidence Drawer、
+  schema、校验器和启动器全部随 Skill 提供。
+- **一次调用**：除输入不可访问外，中途不询问主题、篇幅、场景或输出目录。
+
+## 产物结构
+
+```text
+<paper-slug>-explainer/
+├── open.cmd                 # Windows 双击
+├── open.command             # macOS 双击
+├── open.sh                  # Linux / macOS 终端
+├── site/                    # 已构建网页，用户查看这一份
+├── content/
+│   ├── paper.md
+│   ├── paper-ir.json        # 论文事实、claim 与 evidence
+│   ├── scene-ir.json        # 场景、step、字幕与 evidence 绑定
+│   ├── script.md
+│   ├── outline.md
+│   └── revisions.md
+├── project/                 # 可继续编辑的 React/TypeScript 源码
+├── runtime/                 # 零依赖本地查看器与数据校验器
+├── schemas/
+└── reports/explanation-audit.md
+```
+
+### 一键打开
+
+- Windows：双击 `open.cmd`
+- macOS：双击 `open.command`
+- Linux：运行 `./open.sh`
+
+启动器优先使用 Node，缺少 Node 时可用 Python 回退；自动选择空闲端口并打开
+浏览器。`npm run dev` 仅用于开发，不再是交付给用户的查看方式。
+
+## 内置场景
+
+| Scene type | 用途 |
+|---|---|
+| `concept` | 问题、贡献、前置概念与结论 |
+| `architecture_execution` | 模块与数据流逐步执行 |
+| `equation_walkthrough` | 公式及符号逐项解释 |
+| `algorithm_trace` | 伪代码、训练或推理过程逐步运行 |
+| `ablation_comparison` | 主结果、消融和 baseline 对比 |
+| `figure_inspector` | 原论文图裁切、放大和区域标注 |
 
 ## 安装
 
-需要 Node.js >= 18；依赖的 `web-video-presentation` / `design-taste-frontend`
-skill 与系统工具（ffmpeg、浏览器、poppler 等）会在首次运行时自动安装。
-
-### opencode
+需要 Node.js >= 18。没有外部 Skill 依赖。
 
 ```bash
 git clone https://github.com/EclidFundgue/paper-explainer.git
-ln -s "$PWD/paper-explainer/skills/paper-explainer" ~/.config/opencode/skills/paper-explainer
-```
 
-或直接拷贝：
-
-```bash
-cp -r paper-explainer/skills/paper-explainer ~/.config/opencode/skills/
-```
-
-### Claude Code / 其他 agent
-
-```bash
 # Claude Code
 cp -r paper-explainer/skills/paper-explainer ~/.claude/skills/
-# 通用 agent（.agents/skills 约定）
+
+# Codex / 通用 Agent Skill 目录
 cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
 ```
 
-装好后重启 agent，让它重新扫描 skills 目录。
-
-## 使用
-
-**只需要一句话：skill + 论文链接。其他什么都不用输入。**
-
-```
-paper-explainer https://arxiv.org/abs/1706.03762
-把这篇论文做成讲解视频，要 mp4 https://arxiv.org/pdf/1706.03762
-paper explainer：./attention-is-all-you-need.pdf
-```
-
-链接可以是 arXiv / DOI / 任意 PDF / 网页，也可以是本地 PDF 路径或直接
-粘贴的论文文本。主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录全部自动
-决策，中途不提问。录屏按需且最后执行：只给链接时交付可运行网页项目；
-明确说「做成视频 / 要 mp4 / 录屏」时，等全部内容定稿后才会额外出视频
-文件（不会在修改过程中反复重录）。
-
-首次运行会把默认配置写到 `~/.config/paper-explainer/config.json`
-（主题 / 开发模式 / 封面 / 讲解语言 / 录屏开关与自动推进），之后直接复用。
-想改配置：预先编辑该文件，或事后说「重配 paper-explainer」。
-
-## 依赖
-
-| 依赖 | 作用 | 缺失时 |
-|---|---|---|
-| [`web-video-presentation`](https://github.com/ConardLi/garden-skills) | 内容流程 / 章节结构 / 脚手架 / 主题 token（工作流骨架） | 自动安装；装不上无法开工 |
-| [`design-taste-frontend`](https://github.com/Leonxlnx/taste-skill) | 主题审美 + 反 AI 味终审 | 自动安装；失败可降级 |
-| Node.js + npm | 网页项目（Vite + React + TS） | 自动安装；失败终止 |
-| Chromium / Chrome、ffmpeg | 录屏与裁切（可选，默认不用） | 仅要求录屏时自动安装；失败则交付可运行项目 |
-| pdftotext / pymupdf、curl | PDF 解析、arXiv LaTeX 源码下载 | 自动安装；失败降级到可用输入 |
+opencode 用户也可以复制到 `~/.config/opencode/skills/`。
 
 ## 工作流
 
-```
-Phase -1  初始化（读配置 / 依赖自检，全自动）
-Phase 0   论文解析 + 素材提取（paper.md / paper-src/ / assets/）
-Phase 1   结构化 digest（贡献与创新点 + 7 维）
-Phase 2   口播稿 script.md（= 字幕文本）
-Phase 3   开发计划 outline.md（章节 + step + 信息池）
-Phase 4   脚手架 + 字幕层 + 素材接入
-Phase 5   逐章实现（SVG / 原图逐步揭示）
-Phase 6   反 AI 味终审
-Phase 7   录屏（可选，最后一步：终审与全部修改定稿后只录一次）
-Phase 8   反馈迭代（按需：展开 / 修改 → 最小改动面；全部改完后再统一录屏）
-```
-
-## 仓库结构
-
-```
-paper-explainer/
-├── README.md                  # 你正在看的文件（给人看）
-├── LICENSE
-└── skills/
-    └── paper-explainer/       # 安装时复制/链接这个目录
-        ├── SKILL.md           # agent 加载的唯一入口
-        ├── references/        # 按需加载的规格文档
-        │   ├── INIT.md
-        │   ├── PAPER-DIGEST.md
-        │   ├── PAPER-ASSETS.md
-        │   ├── SVG-DIAGRAMS.md
-        │   ├── SUBTITLE-AND-RECORDING.md
-        │   └── REVISION.md
-        ├── scripts/           # 初始化 / 依赖 / arXiv / 字幕层安装
-        └── assets/            # 字幕层组件模板
+```text
+论文输入
+  ↓
+原文 / LaTeX / PDF 素材
+  ↓
+Paper IR：claim、贡献、模块、公式、实验、evidence
+  ↓
+Scene IR：场景类型、step、字幕、focus、evidence
+  ↓
+内置 Runtime
+  ↓
+构建 site/ + 数据审计 + 一键启动脚本
 ```
 
-## 许可
+详细执行规范见 [`SKILL.md`](skills/paper-explainer/SKILL.md)。
 
-[MIT](./LICENSE)
+## 开发运行时
+
+```bash
+node skills/paper-explainer/scripts/scaffold-project.mjs ./demo-explainer \
+  --title "Demo paper" --source "https://example.com/paper.pdf"
+
+node skills/paper-explainer/scripts/build-project.mjs ./demo-explainer
+```
+
+生成后双击对应平台的打开脚本。开发运行时本身位于
+`skills/paper-explainer/assets/project-template/`。
+
+## License
+
+[MIT](LICENSE)

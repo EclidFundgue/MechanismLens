@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "1.0",
+  "paperId": "paper.demo",
+  "title": "Interactive paper walkthrough",
+  "scenes": [
+    {
+      "id": "scene.overview",
+      "title": "Start with the paper's real contribution",
+      "eyebrow": "Overview",
+      "type": "concept",
+      "claimIds": ["claim.main"],
+      "evidenceIds": ["evidence.abstract"],
+      "steps": [
+        { "id": "step.problem", "title": "The problem", "narration": "Replace this sentence with the problem the paper actually solves.", "focusIds": ["point.problem"], "evidenceIds": ["evidence.abstract"] },
+        { "id": "step.contribution", "title": "The contribution", "narration": "Replace this sentence with the paper's primary contribution.", "focusIds": ["point.contribution"], "evidenceIds": ["evidence.abstract"] }
+      ],
+      "payload": {
+        "points": [
+          { "id": "point.problem", "label": "Problem", "text": "What existing methods cannot do" },
+          { "id": "point.contribution", "label": "Contribution", "text": "What this paper changes" }
+        ]
+      }
+    },
+    {
+      "id": "scene.architecture",
+      "title": "Run the architecture once",
+      "eyebrow": "Architecture execution",
+      "type": "architecture_execution",
+      "claimIds": ["claim.architecture"],
+      "evidenceIds": ["evidence.architecture"],
+      "steps": [
+        { "id": "step.input", "narration": "The input is encoded into a technical representation.", "focusIds": ["node.input"], "evidenceIds": ["evidence.architecture"] },
+        { "id": "step.output", "narration": "The core module transforms it into the final output.", "focusIds": ["node.core", "node.output"], "evidenceIds": ["evidence.architecture"] }
+      ],
+      "payload": {
+        "nodes": [
+          { "id": "node.input", "label": "Input", "detail": "[B, N, D]", "shape": "tensor" },
+          { "id": "node.core", "label": "Core module", "detail": "paper-specific operator", "shape": "module" },
+          { "id": "node.output", "label": "Output", "detail": "[B, M, D]", "shape": "tensor" }
+        ],
+        "edges": [
+          { "from": "node.input", "to": "node.core", "label": "encode" },
+          { "from": "node.core", "to": "node.output", "label": "predict" }
+        ]
+      }
+    },
+    {
+      "id": "scene.equation",
+      "title": "Unfold the main equation",
+      "eyebrow": "Equation walkthrough",
+      "type": "equation_walkthrough",
+      "claimIds": ["claim.equation"],
+      "evidenceIds": ["evidence.equation"],
+      "steps": [
+        { "id": "step.primary-loss", "narration": "The first term captures the primary prediction error.", "focusIds": ["eq.primary"], "evidenceIds": ["evidence.equation"] },
+        { "id": "step.regularizer", "narration": "The weighted second term controls the regularization objective.", "focusIds": ["eq.regularizer"], "evidenceIds": ["evidence.equation"] }
+      ],
+      "payload": {
+        "tex": "\\mathcal{L}=\\mathcal{L}_{main}+\\lambda\\mathcal{L}_{reg}",
+        "parts": [
+          { "id": "eq.primary", "tex": "\\mathcal{L}_{main}", "explanation": "Primary prediction objective" },
+          { "id": "eq.regularizer", "tex": "\\lambda\\mathcal{L}_{reg}", "explanation": "Weighted regularization term" }
+        ]
+      }
+    },
+    {
+      "id": "scene.algorithm",
+      "title": "Trace the algorithm state",
+      "eyebrow": "Algorithm trace",
+      "type": "algorithm_trace",
+      "claimIds": ["claim.algorithm"],
+      "evidenceIds": ["evidence.algorithm"],
+      "steps": [
+        { "id": "step.initialize", "narration": "First initialize the state from the current observation.", "focusIds": ["line.initialize"], "evidenceIds": ["evidence.algorithm"] },
+        { "id": "step.update", "narration": "Then update the state until the stopping condition is reached.", "focusIds": ["line.update"], "evidenceIds": ["evidence.algorithm"] }
+      ],
+      "payload": {
+        "lines": [
+          { "id": "line.initialize", "code": "state <- encode(input)", "explanation": "Initialize state" },
+          { "id": "line.update", "code": "state <- update(state)", "explanation": "Iterative update" },
+          { "id": "line.return", "code": "return decode(state)", "explanation": "Produce output" }
+        ]
+      }
+    },
+    {
+      "id": "scene.ablation",
+      "title": "Which component actually helps?",
+      "eyebrow": "Ablation comparison",
+      "type": "ablation_comparison",
+      "claimIds": ["claim.ablation"],
+      "evidenceIds": ["evidence.ablation"],
+      "steps": [
+        { "id": "step.baseline", "narration": "The baseline establishes the comparison point.", "focusIds": ["bar.baseline"], "evidenceIds": ["evidence.ablation"] },
+        { "id": "step.full", "narration": "The full method shows the total reported improvement.", "focusIds": ["bar.full"], "evidenceIds": ["evidence.ablation"] }
+      ],
+      "payload": {
+        "items": [
+          { "id": "bar.baseline", "label": "Baseline", "value": 62, "displayValue": "62", "note": "replace" },
+          { "id": "bar.module", "label": "+ Module", "value": 71, "displayValue": "71", "note": "replace" },
+          { "id": "bar.full", "label": "Full", "value": 81, "displayValue": "81", "note": "replace" }
+        ]
+      }
+    },
+    {
+      "id": "scene.figure",
+      "title": "Inspect the paper's qualitative evidence",
+      "eyebrow": "Figure inspector",
+      "type": "figure_inspector",
+      "claimIds": ["claim.figure"],
+      "evidenceIds": ["evidence.figure"],
+      "steps": [
+        { "id": "step.region-a", "narration": "Focus on the first region that supports the qualitative claim.", "focusIds": ["callout.a"], "evidenceIds": ["evidence.figure"] },
+        { "id": "step.region-b", "narration": "Compare it with the second region before accepting the conclusion.", "focusIds": ["callout.b"], "evidenceIds": ["evidence.figure"] }
+      ],
+      "payload": {
+        "src": "",
+        "alt": "Replace with a cropped figure from the paper",
+        "caption": "Replace with the original figure number and caption",
+        "callouts": [
+          { "id": "callout.a", "label": "Region A", "x": 12, "y": 18, "width": 28, "height": 54 },
+          { "id": "callout.b", "label": "Region B", "x": 58, "y": 18, "width": 28, "height": 54 }
+        ]
+      }
+    }
+  ]
+}
