@@ -64,6 +64,8 @@ export function App() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.repeat || event.isComposing) return;
+      if (event.target instanceof HTMLElement && (event.target.isContentEditable || event.target.closest("input,textarea,select,button,a"))) return;
       if (event.key === "ArrowRight" || event.key === " ") { event.preventDefault(); next(); }
       if (event.key === "ArrowLeft") { event.preventDefault(); previous(); }
       if (event.key === "Home") jump(0, 0);

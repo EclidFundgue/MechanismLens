@@ -20,6 +20,8 @@ paper-explainer https://arxiv.org/abs/1706.03762
 - **每一步有依据**：场景、claim、数字和公式都绑定 evidence；网页中的
   “论文依据”可直接打开在线原文或本地 PDF 对应页。
 - **step-first**：手动浏览、自动播放、字幕和可选 MP4 共用同一份 Scene IR。
+- **可回退的 Renderer 状态**：架构路径、公式展开、算法变量、消融基线和原图
+  局部放大都由同一 step 快照驱动，前进、回退与跳转不会积累视觉状态。
 - **自包含**：React/Vite 运行时、场景 renderer、字幕、Evidence Drawer、
   schema、校验器和启动器全部随 Skill 提供。
 - **一次调用**：除输入不可访问外，中途不询问主题、篇幅、场景或输出目录。

@@ -24,6 +24,7 @@ paper.md / 原论文
 | 展开一节 | Paper IR 补对象/evidence → Scene IR 插 step 或 scene → Markdown 副本 |
 | 事实或数字纠错 | 回原论文核对 → Paper IR → Scene IR payload/narration |
 | 调整图中聚焦 | Scene IR `focusIds` / callout，不复制 renderer |
+| 调整 Renderer 状态 | Scene IR 对应 step 的 `state`；算法写完整变量快照，消融保留 baseline，原图改 `zoomRegionId` |
 | 换论文图 | `project/public/assets/` + figure item + Scene IR src |
 | 调整来源跳转 | Paper IR evidence/page/url/anchor |
 | 新增场景能力 | 扩展 schema、types、renderer、示例和文档，然后重新构建 |

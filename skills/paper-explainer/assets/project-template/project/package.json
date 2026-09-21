@@ -6,7 +6,7 @@
   "scripts": {
     "validate": "node ../runtime/validate-data.mjs ../content",
     "dev": "vite",
-    "build": "npm run validate && tsc -b && vite build",
+    "build": "npm run validate && tsc -p tsconfig.app.json && tsc -p tsconfig.node.json && vite build",
     "start": "node ../runtime/serve.mjs ../site --open"
   },
   "dependencies": {

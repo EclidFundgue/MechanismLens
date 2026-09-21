@@ -1,0 +1,13 @@
+{
+  "name": "paper-explainer-dev",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/renderers/*.mjs",
+    "test:renderers": "node --test tests/renderers/*.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

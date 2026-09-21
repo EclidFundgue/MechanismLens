@@ -26,6 +26,7 @@
         "narration": { "type": "string", "minLength": 1 },
         "focusIds": { "$ref": "#/$defs/idList" },
         "evidenceIds": { "$ref": "#/$defs/idList" }
+        ,"state": { "$ref": "#/$defs/rendererState" }
       },
       "additionalProperties": true
     },
@@ -45,6 +46,20 @@
         "payload": { "type": "object" }
       },
       "additionalProperties": true
+    },
+    "rendererState": {
+      "type": "object",
+      "properties": {
+        "visibleNodeIds": { "$ref": "#/$defs/idList" },
+        "activeEdgeIds": { "$ref": "#/$defs/idList" },
+        "tex": { "type": "string", "minLength": 1 },
+        "visiblePartIds": { "$ref": "#/$defs/idList" },
+        "variables": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },
+        "output": { "type": ["string", "number", "boolean"] },
+        "visibleItemIds": { "$ref": "#/$defs/idList" },
+        "zoomRegionId": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

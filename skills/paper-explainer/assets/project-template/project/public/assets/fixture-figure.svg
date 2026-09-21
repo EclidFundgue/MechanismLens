@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <rect width="800" height="480" fill="#ffffff"/>
+  <text x="40" y="45" font-family="sans-serif" font-size="24" fill="#243a47">Illustrative figure — INPUT / OUTPUT</text>
+  <rect x="60" y="95" width="270" height="265" rx="8" fill="#eff5f7" stroke="#516f80" stroke-width="3"/>
+  <text x="90" y="135" font-family="sans-serif" font-size="24" fill="#243a47">INPUT</text>
+  <path d="M95 180h180 M95 225h120 M95 270h155 M95 315h100" stroke="#516f80" stroke-width="14"/>
+  <path d="M350 220h65 M400 205l18 15-18 15" fill="none" stroke="#243a47" stroke-width="4"/>
+  <rect x="445" y="95" width="305" height="265" rx="8" fill="#eef6f2" stroke="#176c58" stroke-width="3"/>
+  <text x="475" y="135" font-family="sans-serif" font-size="24" fill="#243a47">OUTPUT</text>
+  <rect x="480" y="200" width="48" height="130" fill="#176c58"/>
+  <rect x="563" y="175" width="48" height="155" fill="#176c58"/>
+  <rect x="646" y="240" width="48" height="90" fill="#176c58"/>
+  <text x="40" y="440" font-family="sans-serif" font-size="20" fill="#516f80">Synthetic data for renderer demonstration only.</text>
+</svg>

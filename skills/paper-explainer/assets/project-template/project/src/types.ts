@@ -58,6 +58,17 @@ export interface SceneStep {
   narration: string;
   focusIds?: string[];
   evidenceIds?: string[];
+  /** Renderer-specific, complete visual snapshot for this step. */
+  state?: {
+    visibleNodeIds?: string[];
+    activeEdgeIds?: string[];
+    tex?: string;
+    visiblePartIds?: string[];
+    variables?: Record<string, string | number | boolean>;
+    output?: string | number | boolean;
+    visibleItemIds?: string[];
+    zoomRegionId?: string | null;
+  };
 }
 
 export interface Scene {

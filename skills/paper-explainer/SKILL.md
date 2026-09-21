@@ -147,7 +147,9 @@ node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
 | `figure_inspector` | 定性图、复杂架构原图、局部观察 |
 
 每个 scene 必须有至少一个 step；每个 step 必须有 `narration`。关键 scene 和
-step 绑定 `evidenceIds`，视觉元素用 `focusIds` 控制聚焦。
+step 绑定 `evidenceIds`，视觉元素用 `focusIds` 控制聚焦。需要逐步显隐、变量
+快照、公式快照、变体加入或原图放大时，在同一 step 写 `state`；它是完整画面
+快照，不另建播放器、字幕数组或章节状态。
 
 ### Phase 3 · 素材
 
