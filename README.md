@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="docs/assets/readme-hero.svg" alt="Paper Explainer：从原文，到逐步讲解，再回到证据。" width="100%" />
+  <img src="docs/assets/readme-hero.svg" alt="Paper Explainer：从文档，到逐步讲解，再回到证据。" width="100%" />
 </p>
 
 <h1 align="center">Paper Explainer</h1>
-<p align="center"><strong>把复杂论文，变成看得懂、点得动、查得到出处的视觉讲解。</strong></p>
+<p align="center"><strong>把复杂文档，变成看得懂、点得动、查得到出处的视觉讲解。</strong></p>
 <p align="center">一个自包含的 Agent Skill · 输入链接或文件 · 交付交互式网页</p>
 
 <p align="center">
@@ -22,7 +22,7 @@
 
 ---
 
-读论文时，最难的往往是把公式、架构图和实验结果连起来。Paper Explainer 让 Agent 读取原文，把关键内容组织成可以逐步探索的讲解：看数据如何流动，拆开一个公式，跟踪一次算法执行，再点开对应的原文依据。
+阅读复杂文档时，最难的往往是把概念、结构、流程和数据连起来。Paper Explainer 让 Agent 读取原文，把关键内容组织成可以逐步探索的讲解：看数据如何流动，拆开一个公式，跟踪一次算法执行，再点开对应的原文依据。
 
 在支持本地 Skill 的 Agent 对话中输入：
 
@@ -30,18 +30,18 @@
 paper-explainer https://arxiv.org/abs/1706.03762
 ```
 
-**从原文解析到网页构建，一次调用完成。** 支持 arXiv、DOI、PDF、网页、本地 PDF 和粘贴文本。以学术论文为主要场景，也可以输入技术报告等文档；讲解深度取决于原文可提取的信息。
+**从原文解析到网页构建，一次调用完成。** 支持论文、技术报告、产品文档、教程、文章、网页、PDF、本地文件和粘贴文本；讲解深度取决于原文可提取的信息。
 
 <a id="experience"></a>
 ## 你会得到什么
 
 | 读懂内容 | 掌握节奏 | 核对依据 |
 | :--- | :--- | :--- |
-| 用架构、公式、算法和图表解释技术细节 | 手动前后切换，或开启自动播放 | 从当前步骤打开「论文依据」 |
+| 用架构、公式、算法和图表解释复杂内容 | 手动前后切换，或开启自动播放 | 从当前步骤打开「来源依据」 |
 | 一步聚焦一个逻辑动作 | 字幕跟随当前步骤变化 | 查看摘录，跳转原网页或 PDF 页 |
-| 将实验对比与对应结论放在一起 | 按章节浏览，回看难点 | 区分原文直接陈述与推导性解读 |
+| 将数据、方案对比与对应结论放在一起 | 按章节浏览，回看难点 | 区分原文直接陈述与推导性解读 |
 
-适合个人精读、读书会、组会分享，以及需要反复核对来源的技术讲解。网页、内容数据和可编辑源码一起交付，后续可以继续让 Agent 修改。
+适合个人学习、技术评审、培训和分享，以及需要反复核对来源的内容讲解。网页、内容数据和可编辑源码一起交付，后续可以继续让 Agent 修改。
 
 > **默认交付网页。** 明确要求「MP4 / 视频 / 录屏」时，才在内容定稿后安排视频导出；需要额外的录屏环境与 ffmpeg。
 
@@ -89,7 +89,7 @@ Claude Code 用户将目标目录改为 `.claude/skills`。以上命令用于首
 
 </details>
 
-### 2. 给它一份原文
+### 2. 给它一份文档
 
 安装后，在 Agent 的新会话里使用以下任一提示。**这些是对话提示，不是终端命令。**
 
@@ -102,7 +102,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 ```
 
 ```text
-用 paper-explainer 讲解这篇论文，内容定稿后再导出 MP4：<论文链接>
+用 paper-explainer 讲解这份文档，内容定稿后再导出 MP4：<文档链接>
 ```
 
 不必先指定主题、篇幅、场景或输出目录。输入需要登录或无法解析时，Agent 会请求可访问的文件或正文。
@@ -124,12 +124,12 @@ paper-explainer https://arxiv.org/abs/1706.03762
 
 | 场景 | 适合解释 | 你可以看到 |
 | :--- | :--- | :--- |
-| **概念讲解** | 问题、前置知识、贡献与结论 | 围绕当前步骤聚焦关键概念 |
+| **概念讲解** | 问题、前置知识、关键观点与结论 | 围绕当前步骤聚焦关键概念 |
 | **架构执行** | 模型模块、数据流、训练与推理管线 | 模块与连接随步骤高亮 |
 | **公式拆解** | 核心公式、符号含义、数学关系 | LaTeX 公式与当前解释对应 |
 | **算法跟踪** | 伪代码、循环、状态更新 | 当前代码行与状态逐步变化 |
-| **实验对比** | 主结果、baseline、消融实验 | 指标与比较对象随步骤聚焦 |
-| **原图检视** | 架构原图、定性结果、复杂图表 | 原图区域标注、局部放大与解读 |
+| **对比分析** | 数据、方案、baseline、消融结果 | 指标与比较对象随步骤聚焦 |
+| **原图检视** | 架构图、定性结果、复杂图表 | 原图区域标注、局部放大与解读 |
 
 Agent 根据原文选择场景。每个关键结论、数字和公式解释都要求绑定来源；基于原文的推导性解读单独标记，交付前生成来源审计报告。
 
@@ -152,8 +152,8 @@ flowchart LR
 ├── open.cmd / open.command / open.sh  # 本地打开入口
 ├── site/                             # 构建好的静态网页
 ├── sources/                          # 下载原件统一归档
-│   ├── original.pdf                  # 论文 PDF（获取成功时）
-│   ├── arxiv/                        # LaTeX 源码包与解压素材（获取成功时）
+│   ├── original.pdf                  # 原始 PDF（获取成功时）
+│   ├── arxiv/                        # LaTeX 源码包与解压素材（适用于论文）
 │   ├── supplements/                  # 相关补充材料（按需）
 │   └── manifest.md                   # 来源、相对路径与获取状态
 ├── content/                          # 原文、结构化内容与讲解稿
@@ -174,9 +174,9 @@ flowchart LR
 
 它是供 Agent 使用的 Skill。Agent 负责阅读与编排内容，附带的运行时负责呈现讲解。
 
-**只能处理论文吗？**
+**只能处理论文或技术文档吗？**
 
-主要针对论文设计，也接受技术文档、网页或正文。公式、实验、图表等场景需要原文提供相应材料。
+可以处理论文、技术报告、产品文档、教程、文章、网页或正文。公式、流程、数据、图表等场景需要原文提供相应材料。
 
 **需要配置其它设计或演示 Skill 吗？**
 
@@ -199,7 +199,7 @@ flowchart LR
 | :--- | :--- |
 | [执行规范](skills/paper-explainer/SKILL.md) | 输入约定、生成流程与交付要求 |
 | [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖、配置与项目脚手架 |
-| [论文内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
+| [文档内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
 | [场景与步骤](skills/paper-explainer/references/SCENE-IR.md) | 六类场景的数据结构 |
 | [运行时与交付](skills/paper-explainer/references/RUNTIME-AND-DELIVERY.md) | 构建、验证与打开方式 |
 | [修改已有讲解](skills/paper-explainer/references/REVISION.md) | 内容更新与重新构建 |
@@ -211,11 +211,11 @@ flowchart LR
 在仓库根目录执行；`demo-explainer` 必须不存在或为空：
 
 ```bash
-node skills/paper-explainer/scripts/scaffold-project.mjs ./demo-explainer --title "Demo paper" --source "https://example.com/paper.pdf"
+node skills/paper-explainer/scripts/scaffold-project.mjs ./demo-explainer --title "Demo document" --source "https://example.com/document.pdf"
 node skills/paper-explainer/scripts/build-project.mjs ./demo-explainer
 ```
 
-脚手架包含演示数据，以上命令用于验证运行时，不会自动读取示例 URL 并生成真实论文讲解。正式内容由 Agent 按 Skill 流程写入。
+脚手架包含演示数据，以上命令用于验证运行时，不会自动读取示例 URL 并生成真实文档讲解。正式内容由 Agent 按 Skill 流程写入。
 
 运行时源码位于 [`assets/project-template/`](skills/paper-explainer/assets/project-template/)。欢迎通过 [Issues](https://github.com/EclidFundgue/paper-explainer/issues) 提交问题和改进建议。
 
