@@ -52,6 +52,7 @@ await mkdir(targetDir, { recursive: true });
 // consistent on every platform. Individual template files still never exist at
 // this point because assertEmptyOrMissing rejected non-empty targets.
 await cp(templateDir, targetDir, { recursive: true, force: false });
+await mkdir(path.join(targetDir, "sources"), { recursive: true });
 
 const paperIrPath = path.join(targetDir, "content", "paper-ir.json");
 const paperIr = JSON.parse(await readFile(paperIrPath, "utf8"));
@@ -70,6 +71,7 @@ if (process.platform !== "win32") {
 
 console.log(`Created: ${targetDir}`);
 console.log("Next:");
+console.log(`  Save downloaded originals under: ${path.join(targetDir, "sources")}`);
 console.log("  1. Replace content/paper-ir.json and content/scene-ir.json");
 console.log(`  2. node "${path.join(scriptDir, "build-project.mjs")}" "${targetDir}"`);
 console.log("  3. Double-click open.cmd (Windows) or open.command (macOS), or run ./open.sh (Linux)");

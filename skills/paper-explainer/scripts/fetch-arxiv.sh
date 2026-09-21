@@ -3,7 +3,7 @@
 # fetch-arxiv.sh — 下载并解压 arXiv LaTeX 源码（paper-explainer 素材源）
 #
 # Usage:
-#   bash fetch-arxiv.sh <arxiv-url-or-id> [outdir]     # 默认 outdir=paper-src
+#   bash fetch-arxiv.sh <arxiv-url-or-id> <project-root>
 #   bash fetch-arxiv.sh --help
 #
 # 支持的输入：
@@ -12,7 +12,7 @@
 #   https://arxiv.org/e-print/2301.12345
 #   arxiv:2301.12345 / 2301.12345v1 / hep-th/9901001
 #
-# 产出（outdir/）：
+# project-root 必须是已初始化的讲解项目；产出固定在 sources/arxiv/：
 #   source.tar.gz   原始下载包
 #   src/            解压后的源码（.tex / .bbl / figures/ ...）
 #   MAIN_TEX        识别到的主 .tex 相对路径（若有）
@@ -29,7 +29,25 @@ usage() {
 [[ $# -eq 0 || "${1:-}" == "-h" || "${1:-}" == "--help" ]] && usage
 
 INPUT="$1"
-OUT="${2:-paper-src}"
+if [[ $# -ne 2 ]]; then
+  echo "✗ 必须指定已初始化的项目根目录；不再默认下载到 ./paper-src。" >&2
+  exit 2
+fi
+ROOT="$(cd "$2" && pwd -P)"
+if [[ ! -f "$ROOT/content/paper-ir.json" || ! -f "$ROOT/project/package.json" ]]; then
+  echo "✗ 请先运行 scaffold-project.mjs，再将项目根目录作为第二个参数。" >&2
+  exit 2
+fi
+# Reject redirected source directories before creating or downloading anything.
+if [[ -L "$ROOT/sources" || -L "$ROOT/sources/arxiv" ]]; then
+  echo "✗ sources/ 和 sources/arxiv/ 不能是符号链接。" >&2
+  exit 2
+fi
+OUT="$ROOT/sources/arxiv"
+if [[ -e "$OUT" ]]; then
+  echo "✗ 素材目录已存在，保留已有下载：$OUT" >&2
+  exit 2
+fi
 
 # ── 从 URL / ID 中提取 arXiv ID ──
 ID="$(printf '%s' "$INPUT" | sed -E \
@@ -64,7 +82,6 @@ else
 fi
 
 # ── 解包：tar.gz / 单文件 gzip / 单文件 tex ──
-rm -rf "$OUT/src"
 mkdir -p "$OUT/src"
 
 echo "▸ 解包"

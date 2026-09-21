@@ -151,6 +151,11 @@ flowchart LR
 <paper-slug>-explainer/
 ├── open.cmd / open.command / open.sh  # 本地打开入口
 ├── site/                             # 构建好的静态网页
+├── sources/                          # 下载原件统一归档
+│   ├── original.pdf                  # 论文 PDF（获取成功时）
+│   ├── arxiv/                        # LaTeX 源码包与解压素材（获取成功时）
+│   ├── supplements/                  # 相关补充材料（按需）
+│   └── manifest.md                   # 来源、相对路径与获取状态
 ├── content/                          # 原文、结构化内容与讲解稿
 ├── project/                          # 可编辑的 React / TypeScript 源码
 ├── runtime/                          # 本地查看器与数据校验器
@@ -159,6 +164,8 @@ flowchart LR
 ```
 
 分享给他人时，可以打包整个输出目录，通过启动脚本打开；也可以将 `site/` 部署到静态网站托管服务。网页所需的素材随构建产物提供，跳转外部原文时仍需联网。
+
+默认在任务开始时的工作目录下创建项目，先初始化再下载。可下载的原文与相关素材统一保存在项目内的 `sources/`，不会散落到旁边的文件夹或默认下载目录。网页所需 PDF 和图片复制或提取到 `project/public/` 后参与构建，完整素材归档随整个项目保留。
 
 <details>
 <summary><strong>常见问题</strong></summary>

@@ -81,6 +81,11 @@ site/                         构建产物
 ├── open.command
 ├── open.sh
 ├── site/
+├── sources/                    # 下载的原始素材集中归档，按实际获取情况创建
+│   ├── original.pdf
+│   ├── arxiv/                  # source.tar.gz、src/、MAIN_TEX
+│   ├── supplements/            # 补充材料、作者提供的原图等
+│   └── manifest.md             # 来源 URL、本地相对路径、获取状态
 ├── content/
 │   ├── paper.md
 │   ├── paper-ir.json
@@ -110,14 +115,28 @@ node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
 
 目标目录必须不存在或为空。不要覆盖已有项目；修改已有项目走 Phase 8。
 
+下载前先完成初始化：以任务开始时的工作目录为 `WORKSPACE`，默认项目根目录
+`ROOT = WORKSPACE/<paper-slug>-explainer`；用户已指定位置时遵从该位置。
+将 `ROOT` 和 `SELF` 解析为绝对路径，后续所有下载、解压、抽取命令显式使用
+`ROOT` 下的目标路径。不要因切换工作目录而改变输出位置，也不要把素材写到
+Skill 安装目录、工作区同级目录、系统下载文件夹或临时目录。
+标题未知时可用论文 ID 命名，不要先在外部下载再决定项目位置。
+
 ### Phase 0 · 获取论文与原始素材
 
-- arXiv：优先下载 LaTeX 源，再获取 PDF；可用 `scripts/fetch-arxiv.sh`。
-- PDF：保存或复制到 `project/public/paper/original.pdf`，抽取正文到
-  `content/paper.md`。
-- 网页：保存正文到 `paper.md`；记录原始 URL，能找到 PDF 时也保存 PDF URL。
-- 粘贴文本：写入 `paper.md`；若没有在线原文，Evidence Drawer 仍显示摘录，
+- arXiv：先用 `bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> "$ROOT"`
+  将 LaTeX 源归档到 `sources/arxiv/`，再获取 PDF；源不可用时继续用 PDF 或网页。
+- PDF：下载或复制到 `sources/original.pdf`，再复制一份到
+  `project/public/paper/original.pdf` 供网页使用；抽取正文到 `content/paper.md`。
+- 网页：可下载的原文保存到 `sources/original.html`，正文整理到
+  `content/paper.md`；记录原始 URL，能获取 PDF 时也归档 PDF。
+- 补充材料、源码包、原图：可获取且与解读相关时保存在 `sources/` 对应子目录，
+  不仅保留远程链接。详见 `references/PAPER-ASSETS.md`。
+- 粘贴文本：写入 `content/paper.md`；若没有在线原文，Evidence Drawer 仍显示摘录，
   但不要伪造跳转链接。
+
+以上文件路径均相对 `ROOT`。在 `sources/manifest.md` 记录已获取素材的来源、
+项目内相对路径，以及不可下载素材的原因。用户提供的外部文件只复制，不移动。
 
 写入 `paper-ir.json.paper`：
 
@@ -215,6 +234,8 @@ npm run dev
 ### Phase 7 · 交付
 
 确认 `site/index.html` 存在，三个启动脚本存在，且没有遗留 dev server。
+按 `sources/manifest.md` 检查下载原件均在项目内，PDF 发布副本与原件一致；
+整个项目文件夹可带走，`site/` 单独发布时只包含网页需要的文件。
 
 最终汇报只保留用户需要的信息：目录、章节/step 数、来源覆盖率、如何打开、
 是否导出 MP4。不要输出安装流水账。
