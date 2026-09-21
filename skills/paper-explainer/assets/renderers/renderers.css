@@ -1,0 +1,63 @@
+/* Scoped to chapter content. The host owns stage scaling, playback and subtitles. */
+.pe-renderer {
+  color: var(--text); font-family: var(--font-body, sans-serif);
+  width: 100%; height: 100%; min-height: 0; box-sizing: border-box;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: var(--renderer-padding, 36px 48px 190px);
+}
+.pe-renderer * { box-sizing: border-box; }
+.pe-renderer-header { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; }
+.pe-renderer-header h2 { font-size: clamp(24px, 2.8vw, 44px); margin: 0; }
+.pe-renderer-header span, .pe-source, .pe-metric, .pe-components { color: var(--text-mute); }
+.pe-renderer-content { flex: 1; min-height: 0; overflow: auto; }
+.pe-renderer h3 { margin: 0 0 16px; font-size: 24px; }
+.pe-explanation { margin: 0; font-size: clamp(18px, 1.6vw, 28px); line-height: 1.5; }
+.pe-source { font-size: 16px; }
+.pe-diagram, .pe-comparison { display: block; width: 100%; height: 100%; min-height: 200px; max-height: 490px; }
+.pe-edge line { stroke: var(--rule); stroke-width: 2; }
+.pe-edge text { fill: var(--text-mute); font: 16px var(--font-mono, monospace); }
+.pe-edge.pe-active line { stroke: var(--accent); stroke-width: 4; }
+.pe-node rect { fill: var(--surface-2); stroke: var(--rule); stroke-width: 2; }
+.pe-node.pe-active rect { stroke: var(--accent); stroke-width: 4; }
+.pe-node-label { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 6px; text-align: center; overflow-wrap: anywhere; }
+.pe-node-label strong { font-size: 22px; font-weight: 600; }
+.pe-node-label small { font-size: 15px; color: var(--text-mute); }
+.pe-equation { padding: 28px 12px; overflow-x: auto; font-size: 32px; border-bottom: 1px solid var(--rule); }
+.pe-terms { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; padding: 12px 0; }
+.pe-terms > div { padding: 20px; border: 1px solid var(--rule); background: var(--surface-2); }
+.pe-terms > div[data-active=true] { border-color: var(--accent); box-shadow: inset 4px 0 var(--accent); }
+.pe-terms dt { font-size: 25px; color: var(--accent); }
+.pe-terms dd { margin: 16px 0 0; font-size: 20px; }
+.pe-math-error { color: var(--accent); font-size: 20px; }
+.pe-math-error code { display: block; white-space: pre-wrap; }
+.pe-trace { display: grid; grid-template-columns: 1.2fr 1fr; gap: 28px; padding-top: 20px; }
+.pe-code { padding: 0 0 0 48px; margin: 0; font-size: 22px; line-height: 1.8; }
+.pe-code li { padding: 8px 14px; border-left: 3px solid transparent; }
+.pe-code li[data-active=true] { color: var(--accent); background: var(--surface-2); border-color: var(--accent); }
+.pe-code code { white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--font-mono, monospace); }
+.pe-state { background: var(--surface-2); padding: 24px; }
+.pe-state dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font: 22px var(--font-mono, monospace); overflow-wrap: anywhere; }
+.pe-state dd { margin: 0; }
+.pe-state [data-changed=true] dd, .pe-output { color: var(--accent); }
+.pe-output { font-size: 24px; }
+.pe-metric, .pe-components { font-size: 18px; margin: 8px 0; }
+.pe-comparison { height: calc(100% - 85px); }
+.pe-axis { stroke: var(--rule); stroke-width: 1; }
+.pe-axis-label { fill: var(--text-mute); font-size: 16px; }
+.pe-bar-row text { fill: var(--text); font: 20px var(--font-body, sans-serif); }
+.pe-bar-row rect { fill: var(--rule); }
+.pe-bar-row[data-active=true] rect { fill: var(--accent); }
+.pe-bar-row .pe-delta { font-size: 18px; fill: var(--text-mute); }
+.pe-bar-row [data-outcome=better] { fill: var(--accent); }
+.pe-figure-pair { height: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 20px; }
+.pe-figure { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.pe-figure svg { display: block; flex: 1; width: 100%; min-height: 180px; background: var(--paper-surface, white); border: 1px solid var(--rule); overflow: hidden; }
+.pe-region { fill: none; stroke: var(--accent); stroke-width: 3; }
+@media (prefers-reduced-motion: no-preference) {
+  .pe-node rect, .pe-edge line, .pe-bar-row rect { transition: fill 250ms ease, stroke 250ms ease; }
+}
+@media (max-width: 640px) {
+  .pe-renderer { padding: var(--renderer-padding, 20px 20px 120px); }
+  .pe-trace, .pe-figure-pair { grid-template-columns: 1fr; }
+  .pe-code, .pe-state dl > div { font-size: 17px; }
+}

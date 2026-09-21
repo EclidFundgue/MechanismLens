@@ -1,0 +1,29 @@
+{
+  "name": "paper-explainer-renderer-dev",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev:renderers": "vite --config examples/renderers/vite.config.ts",
+    "typecheck": "tsc -p tsconfig.renderers.json",
+    "build:renderers": "npm run typecheck && vite build --config examples/renderers/vite.config.ts",
+    "test": "vitest run --config vitest.config.ts",
+    "test:browser": "node tests/renderers/browser.mjs"
+  },
+  "dependencies": {
+    "katex": "^0.18.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/katex": "^0.16.7",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

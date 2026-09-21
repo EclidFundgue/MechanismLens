@@ -31,6 +31,9 @@ paper.md ──> digest.md ──> script.md ──> outline.md ──> narratio
 - 每层只做一件事；下游可以引用上游，**禁止**在上游没改时先改下游。
 - `narrations.ts` 是 step 数的**唯一**来源（WVP 铁律）：章节代码不得
   写死总步数，一律用 `narrations.length` 或数据数组长度。
+- 使用内置 Renderer 时，outline 后增加章节 `scene.ts` 数据层：其 `steps`
+  同时保存画面快照和与 script 对齐的 narration，`narrations.ts` 通过
+  `getNarrations(scene)` 派生。修改 script 后同步 scene，禁止另存一份字幕列表。
 - `script.md` 的每个 `---` 块 = 一个 step；顺序与 `narrations.ts` 严格
   一致。只改 `narrations.ts` 会让稿子与成片漂移；只改 `script.md`
   则成片没变——**必须同改**。

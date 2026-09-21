@@ -18,6 +18,8 @@ PDF / 网页，也支持本地 PDF 或粘贴文本。输出可运行、可交互
   内容越重要、理解难度越高的部分自动获得越多 step / 时长 / 讲解层次。
 - **素材求真**：架构图 / 流程图优先 SVG 重绘并逐步揭示；允许嵌入文档
   原图、KaTeX 公式、原文摘录保证准确（arXiv 论文优先从 LaTeX 源码取公式）。
+- **五种讲解组件**：架构执行、公式推导、算法跟踪、消融对比、原图检查，
+  共用 step 与字幕，支持前进、回退和跳转；[接入说明](skills/paper-explainer/references/RENDERERS.md)。
 - **一步到位**：解析 → digest → 口播稿 → 章节 outline → 网页实现 →
   字幕层，全流程自动跑完，中途不提问；首次运行自动写默认配置，
   交付前自动清理后台进程（不留 dev server / 浏览器 / 录屏进程）。
@@ -103,12 +105,32 @@ Phase 7   录屏（可选，最后一步：终审与全部修改定稿后只录�
 Phase 8   反馈迭代（按需：展开 / 修改 → 最小改动面；全部改完后再统一录屏）
 ```
 
+## Renderer 示例预览
+
+在仓库根目录运行（开发示例需要 Node.js >= 22.12）：
+
+```sh
+npm ci
+npm run dev:renderers
+```
+
+打开终端显示的本地地址（通常为 `http://127.0.0.1:5173`），可切换五种场景、
+逐步播放、切换字幕和深浅主题。示例使用教学数据，源码在 `examples/renderers/`。
+组件模板随 skill 分发，生成章节的安装方式见 [RENDERERS.md](skills/paper-explainer/references/RENDERERS.md)。
+
+开发验证：`npm test`、`npm run build:renderers`，构建后可运行
+`npm run test:browser` 检查真实浏览器中的显示和交互。浏览器测试会寻找本机
+Chrome / Edge / Chromium；也可设置 `PE_BROWSER_EXECUTABLE` 指定路径，
+或执行 `npx playwright install chromium` 安装测试浏览器。
+
 ## 仓库结构
 
 ```
 paper-explainer/
 ├── README.md                  # 你正在看的文件（给人看）
 ├── LICENSE
+├── examples/renderers/        # 五种 Renderer 的可运行交互示例
+├── tests/renderers/           # 组件、安装脚本与浏览器验证
 └── skills/
     └── paper-explainer/       # 安装时复制/链接这个目录
         ├── SKILL.md           # agent 加载的唯一入口
@@ -117,10 +139,11 @@ paper-explainer/
         │   ├── PAPER-DIGEST.md
         │   ├── PAPER-ASSETS.md
         │   ├── SVG-DIAGRAMS.md
+        │   ├── RENDERERS.md
         │   ├── SUBTITLE-AND-RECORDING.md
         │   └── REVISION.md
-        ├── scripts/           # 初始化 / 依赖 / arXiv / 字幕层安装
-        └── assets/            # 字幕层组件模板
+        ├── scripts/           # 初始化 / 依赖 / arXiv / 字幕层与 Renderer 安装
+        └── assets/            # subtitle/ 字幕层、renderers/ 讲解组件模板
 ```
 
 ## 许可

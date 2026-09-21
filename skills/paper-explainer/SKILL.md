@@ -306,6 +306,9 @@ bash "$SELF/scripts/check-deps.sh"             # 依赖自检
   从 `digest.md` + `paper.md` 抽。
 - **每步标注素材策略**：`SVG 重绘` / `原图 Fig.X` / `公式 eq.N` /
   `原文引用`（素材已由 Phase 0 落盘）。
+- **选择场景组件**：读 `references/RENDERERS.md`，适合的章节标注
+  `architecture_execution` / `equation_walkthrough` / `algorithm_trace` /
+  `ablation_comparison` / `figure_inspector` 及数据来源；其他章节保留自定义实现。
 - outline **只写节奏与信息密度，不写动画**（WVP 铁律）。
 - **outline 同时是修改定位表**：每章 id / step 行 / 总步数保持可对照；
   实现时 step 数变了回写这里；Phase 8 收到反馈先在这里定位。
@@ -361,6 +364,19 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 `PAPER-ASSETS.md` §3 装 KaTeX 或走图片；原图按「纸面卡片」适配暗色主题。
 路径与命名规范见 `PAPER-ASSETS.md` §5。
 
+outline 选用了内置 Renderer 时，安装可复用组件：
+
+```bash
+node "$SELF/scripts/install-renderers.mjs" ./presentation
+cd presentation
+npm install katex
+npm install -D @types/katex
+cd ..
+```
+
+脚本复制到 `src/renderers/`，已有修改不会被静默覆盖。接入示例与字段约定见
+`references/RENDERERS.md`；只使用仓库示例预览时无需执行安装脚本。
+
 ### 4.5 第 1 章（不验收，作为风格锚点）
 
 按 `WVP/references/CHAPTER-CRAFT.md` 做第 1 章（通常是「开场钩子」），做完
@@ -371,6 +387,9 @@ bash "$SELF/scripts/install-subtitle.sh" ./presentation
 
 每章**必读** `WVP/references/CHAPTER-CRAFT.md`（单一入口），并遵守：
 
+- 已选 Renderer 的章节按 `RENDERERS.md` 编写 `scene.ts`，用 `defineScene`
+  校验数据并传给 `SceneRenderer`。`narrations.ts` 用 `getNarrations(scene)`
+  派生字幕，章节总步数仍取 `narrations.length`；宿主统一驱动 step 与字幕。
 - 每章必须有视觉演示，禁纯文字；清单 / 列表 1 项 = 1 step，禁一次全展示。
 - 图表按 `SVG-DIAGRAMS.md`（SVG 重绘）与 `PAPER-ASSETS.md`（原图 / 公式 /
   原文）：架构图逐模块点亮、流程图逐节点点亮、结果图逐柱 / 逐线揭示；
@@ -483,11 +502,13 @@ hero/nav/CTA 规则、§3.E 响应式与 `dvh`、§4.5 的 CTA/表单、§6.C �
 | `references/SUBTITLE-AND-RECORDING.md` | Phase 4.3 注入字幕；Phase 7 录屏（可选 · 最后一步） |
 | `references/REVISION.md` | **生成前读 Part A**（可扩展性）；Phase 8 读 Part B（修改协议） |
 | `references/SVG-DIAGRAMS.md` | Phase 5 画架构 / 流程 / 结果图时 |
+| `references/RENDERERS.md` | Phase 3 选场景、Phase 4 安装、Phase 5 接入五种逐步讲解组件 |
 | `scripts/init-config.sh` | 首次运行写默认配置；之后 `--show` 读配置 |
 | `scripts/check-deps.sh` | 每次开工前依赖自检 |
 | `scripts/install-deps.sh` | 自动安装缺失的 WVP / DTF |
 | `scripts/fetch-arxiv.sh` | Phase 0 下载并解压 arXiv LaTeX 源码 |
 | `scripts/install-subtitle.sh` | Phase 4.3 跑一次 |
+| `scripts/install-renderers.mjs` | Phase 4 按 outline 安装组件到 presentation/src/renderers |
 | `scripts/stop-processes.sh` | 启动过后台服务后、交付前清理（「进程卫生」） |
 
 **依赖 Skill**
