@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/**/*.test.mjs",
-    "test:runtime": "node --test tests/runtime/**/*.test.mjs"
+    "test:runtime": "node --test tests/runtime/**/*.test.mjs",
+    "test:delivery": "node --test tests/runtime/delivery.integration.mjs"
   },
   "engines": {
     "node": ">=18"

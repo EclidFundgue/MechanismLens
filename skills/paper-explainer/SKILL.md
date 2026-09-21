@@ -51,6 +51,9 @@ paper-explainer ./paper.pdf
 5. 使用论文图或公式时读 `references/PAPER-ASSETS.md`；
 6. 修改已有产物时读 `references/REVISION.md`。
 
+维护内置 runtime 或校验器时另读 `references/DEVELOPMENT.md`；普通论文生成流程
+不需要加载该开发说明。
+
 ## 真相源
 
 ```text
