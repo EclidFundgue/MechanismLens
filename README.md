@@ -1,26 +1,27 @@
 # Paper Explainer
 
-**粘贴论文链接，直接得到可运行、可追溯到论文原文的交互式技术讲解。**
+**输入复杂文档，直接得到可运行、可追溯到原文的交互式视觉讲解。**
 
 Paper Explainer 是一个自包含的 Agent Skill。它不依赖其它 presentation / design
-skill，也不要求用户先准备脚手架。输入 arXiv、DOI、PDF、论文网页、本地 PDF
-或粘贴文本，Skill 会自动完成论文解析、轻量 Paper IR、Scene IR、交互网页、
-来源审计和静态构建。
+skill，也不要求用户先准备脚手架。输入论文、技术报告、产品文档、教程或文章的
+链接、PDF、本地文件或粘贴文本，Skill 会自动完成内容解析、轻量 Paper IR、
+Scene IR、交互网页、来源审计和静态构建。
 
 ```text
 paper-explainer https://arxiv.org/abs/1706.03762
+paper-explainer ./report.pdf
 ```
 
 默认交付网页；明确说“要 MP4”时才在所有内容定稿后导出视频。
 
 ## 核心区别
 
-- **论文原生场景**：架构执行、公式拆解、算法跟踪、消融比较、论文图检视，
-  而不是把论文改写成通用卡片动画。
+- **文档视觉讲解场景**：架构执行、公式拆解、算法跟踪、对照比较、原图检视，
+  根据内容逐步解释，而不是把文档改写成通用卡片动画。
 - **每一步有依据**：场景、claim、数字和公式都绑定 evidence；网页中的
-  “论文依据”可直接打开在线原文或本地 PDF 对应页。
+  来源入口可直接打开在线原文或本地 PDF 对应页。
 - **step-first**：手动浏览、自动播放、字幕和可选 MP4 共用同一份 Scene IR。
-- **可回退的 Renderer 状态**：架构路径、公式展开、算法变量、消融基线和原图
+- **可回退的 Renderer 状态**：架构路径、公式展开、算法变量、对比基线和原图
   局部放大都由同一 step 快照驱动，前进、回退与跳转不会积累视觉状态。
 - **自包含**：React/Vite 运行时、场景 renderer、字幕、Evidence Drawer、
   schema、校验器和启动器全部随 Skill 提供。
@@ -36,7 +37,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 ├── site/                    # 已构建网页，用户查看这一份
 ├── content/
 │   ├── paper.md
-│   ├── paper-ir.json        # 论文事实、claim 与 evidence
+│   ├── paper-ir.json        # 文档事实、claim 与 evidence
 │   ├── scene-ir.json        # 场景、step、字幕与 evidence 绑定
 │   ├── script.md
 │   ├── outline.md
@@ -60,12 +61,12 @@ paper-explainer https://arxiv.org/abs/1706.03762
 
 | Scene type | 用途 |
 |---|---|
-| `concept` | 问题、贡献、前置概念与结论 |
+| `concept` | 问题、关键观点、前置概念与结论 |
 | `architecture_execution` | 模块与数据流逐步执行 |
 | `equation_walkthrough` | 公式及符号逐项解释 |
-| `algorithm_trace` | 伪代码、训练或推理过程逐步运行 |
-| `ablation_comparison` | 主结果、消融和 baseline 对比 |
-| `figure_inspector` | 原论文图裁切、放大和区域标注 |
+| `algorithm_trace` | 伪代码、操作或推理过程逐步运行 |
+| `ablation_comparison` | 结果、方案、消融和 baseline 对比 |
+| `figure_inspector` | 原文图表裁切、放大和区域标注 |
 
 ## 安装
 
@@ -86,11 +87,11 @@ opencode 用户也可以复制到 `~/.config/opencode/skills/`。
 ## 工作流
 
 ```text
-论文输入
+文档输入
   ↓
-原文 / LaTeX / PDF 素材
+原文 / 网页 / PDF 素材
   ↓
-Paper IR：claim、贡献、模块、公式、实验、evidence
+Paper IR：claim、关键观点、结构、概念、数据、evidence
   ↓
 Scene IR：场景类型、step、字幕、focus、evidence
   ↓
@@ -105,7 +106,7 @@ Scene IR：场景类型、step、字幕、focus、evidence
 
 ```bash
 node skills/paper-explainer/scripts/scaffold-project.mjs ./demo-explainer \
-  --title "Demo paper" --source "https://example.com/paper.pdf"
+  --title "Demo document" --source "https://example.com/document.pdf"
 
 node skills/paper-explainer/scripts/build-project.mjs ./demo-explainer
 ```
