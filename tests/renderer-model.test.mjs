@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { comparisonDelta, comparisonDomain, edgeEndpoints, regionViewBox } from '../skills/paper-explainer/assets/project-template/project/src/components/renderer-model.ts';
+import {
+  architectureLayout,
+  comparisonDelta,
+  comparisonDomain,
+  edgeEndpoints,
+  regionViewBox,
+  resolveRegionId,
+  visibleIds,
+} from '../skills/paper-explainer/assets/project-template/project/src/components/renderer-model.ts';
 
 test('connects diagram edges at node boundaries', () => {
   assert.deepEqual(
@@ -20,4 +28,26 @@ test('keeps one zero-based scale and respects lower-is-better metrics', () => {
 test('maps normalized figure regions to source-image coordinates', () => {
   assert.equal(regionViewBox({ x: .06, y: .15, width: .38, height: .65 }, 800, 480), '48 72 304 312');
   assert.equal(regionViewBox(undefined, 800, 480), '0 0 800 480');
+});
+
+test('keeps the default five-node architecture inside the canvas', () => {
+  const nodes = architectureLayout(['a', 'b', 'c', 'd', 'e'].map((id) => ({ id })));
+  assert.equal(nodes.length, 5);
+  for (const node of nodes) {
+    assert.ok(node.x >= 0 && node.y >= 0);
+    assert.ok(node.x + node.width <= 960);
+    assert.ok(node.y + node.height <= 480);
+  }
+});
+
+test('distinguishes omitted and explicitly empty visibility lists', () => {
+  assert.deepEqual([...visibleIds(undefined, ['a', 'b'])], ['a', 'b']);
+  assert.deepEqual([...visibleIds([], ['a', 'b'])], []);
+});
+
+test('distinguishes inferred, full-image, and explicit figure regions', () => {
+  const known = new Set(['region.a', 'region.b']);
+  assert.equal(resolveRegionId(undefined, ['line.x', 'region.b'], known), 'region.b');
+  assert.equal(resolveRegionId(null, ['region.b'], known), undefined);
+  assert.equal(resolveRegionId('region.a', ['region.b'], known), 'region.a');
 });

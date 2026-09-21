@@ -1,5 +1,37 @@
 export interface DiagramBox { x: number; y: number; width: number; height: number }
 export interface FigureRegion { x: number; y: number; width: number; height: number }
+export interface LayoutNode {
+  id: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+}
+export type PositionedNode<T extends LayoutNode = LayoutNode> = T & DiagramBox;
+
+export function architectureLayout<T extends LayoutNode>(nodes: T[]): PositionedNode<T>[] {
+  return nodes.map((node, index) => ({
+    ...node,
+    x: node.x ?? 30 + index * (900 / nodes.length),
+    y: node.y ?? 190,
+    width: node.width ?? Math.min(170, 850 / nodes.length),
+    height: node.height ?? 110,
+  }));
+}
+
+export function visibleIds(ids: string[] | undefined, fallback: string[]): Set<string> {
+  return new Set(ids ?? fallback);
+}
+
+export function resolveRegionId(
+  regionId: string | null | undefined,
+  focusIds: string[] | undefined,
+  knownRegionIds: Set<string>,
+): string | undefined {
+  if (regionId === null) return undefined;
+  if (regionId !== undefined) return regionId;
+  return focusIds?.find((id) => knownRegionIds.has(id));
+}
 
 export function edgeEndpoints(from: DiagramBox, to: DiagramBox) {
   const ax = from.x + from.width / 2, ay = from.y + from.height / 2;
