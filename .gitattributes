@@ -1,0 +1,8 @@
+* text=auto
+
+# Keep Unix launchers executable by POSIX shells after checkout on any host.
+*.sh text eol=lf
+*.command text eol=lf
+
+# Native Windows launchers use the platform line ending.
+*.cmd text eol=crlf

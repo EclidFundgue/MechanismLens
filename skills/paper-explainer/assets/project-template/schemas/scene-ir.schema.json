@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paper-explainer.local/schema/scene-ir.schema.json",
+  "title": "Paper Explainer Scene IR",
+  "type": "object",
+  "required": ["schemaVersion", "paperId", "scenes"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "paperId": { "$ref": "#/$defs/id" },
+    "title": { "type": "string" },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/scene" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "idList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "edgeId": {
+      "anyOf": [
+        { "$ref": "#/$defs/id" },
+        { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*->[A-Za-z0-9][A-Za-z0-9._-]*$" }
+      ]
+    },
+    "edgeIdList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/edgeId" } },
+    "step": {
+      "type": "object",
+      "required": ["id", "narration"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string" },
+        "narration": { "type": "string", "minLength": 1 },
+        "focusIds": { "$ref": "#/$defs/idList" },
+        "evidenceIds": { "$ref": "#/$defs/idList" },
+        "state": false,
+        "visual": {
+          "type": "object",
+          "properties": {
+            "visibleNodeIds": { "$ref": "#/$defs/idList" },
+            "activeEdgeIds": { "$ref": "#/$defs/edgeIdList" },
+            "tex": { "type": "string", "minLength": 1 },
+            "visiblePartIds": { "$ref": "#/$defs/idList" },
+            "variables": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },
+            "output": { "type": "string" },
+            "visibleItemIds": { "$ref": "#/$defs/idList" },
+            "regionId": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "scene": {
+      "type": "object",
+      "required": ["id", "title", "type", "steps", "payload"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "eyebrow": { "type": "string" },
+        "type": {
+          "enum": ["concept", "architecture_execution", "equation_walkthrough", "algorithm_trace", "ablation_comparison", "figure_inspector"]
+        },
+        "claimIds": { "$ref": "#/$defs/idList" },
+        "evidenceIds": { "$ref": "#/$defs/idList" },
+        "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/step" } },
+        "payload": { "type": "object" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

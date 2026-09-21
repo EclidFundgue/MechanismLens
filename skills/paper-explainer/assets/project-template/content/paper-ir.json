@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0",
+  "paper": {
+    "id": "paper.demo",
+    "title": "Untitled paper",
+    "authors": [],
+    "year": null,
+    "venue": "",
+    "summary": "Replace this demo with the paper's central problem and contribution.",
+    "originalUrl": "",
+    "pdfUrl": "",
+    "localPdfPath": ""
+  },
+  "evidence": [
+    { "id": "evidence.abstract", "label": "Abstract", "kind": "section", "section": "Abstract", "excerpt": "Replace this excerpt with the paper's main claim.", "confidence": "direct" },
+    { "id": "evidence.architecture", "label": "Method architecture", "kind": "figure", "section": "Method", "page": 3, "excerpt": "Replace this with the sentence introducing the architecture.", "confidence": "direct" },
+    { "id": "evidence.equation", "label": "Main objective", "kind": "equation", "section": "Method", "page": 4, "excerpt": "Replace this with the exact equation and symbol definitions.", "confidence": "direct" },
+    { "id": "evidence.algorithm", "label": "Algorithm 1", "kind": "section", "section": "Algorithm 1", "page": 5, "excerpt": "Replace this with the algorithm description.", "confidence": "direct" },
+    { "id": "evidence.ablation", "label": "Ablation results", "kind": "table", "section": "Experiments", "page": 7, "excerpt": "Replace this with the values from the ablation table.", "confidence": "direct" },
+    { "id": "evidence.figure", "label": "Qualitative result", "kind": "figure", "section": "Results", "page": 8, "excerpt": "Replace this with the qualitative result caption.", "confidence": "direct" }
+  ],
+  "claims": [
+    { "id": "claim.main", "title": "Main claim", "text": "Replace this with the paper's primary grounded claim.", "evidenceIds": ["evidence.abstract"] },
+    { "id": "claim.architecture", "title": "Architecture claim", "text": "Replace this with the key data-flow claim.", "evidenceIds": ["evidence.architecture"] },
+    { "id": "claim.equation", "title": "Objective claim", "text": "Replace this with what the objective optimizes.", "evidenceIds": ["evidence.equation"] },
+    { "id": "claim.algorithm", "title": "Algorithm claim", "text": "Replace this with the state update claim.", "evidenceIds": ["evidence.algorithm"] },
+    { "id": "claim.ablation", "title": "Ablation claim", "text": "Replace this with the observed component contribution.", "evidenceIds": ["evidence.ablation"] },
+    { "id": "claim.figure", "title": "Qualitative claim", "text": "Replace this with the observation supported by the figure.", "evidenceIds": ["evidence.figure"] }
+  ],
+  "contributions": [
+    { "id": "contribution.main", "title": "Primary contribution", "summary": "Replace this with the main contribution.", "weight": "high", "evidenceIds": ["evidence.abstract"] }
+  ],
+  "concepts": [],
+  "modules": [],
+  "equations": [],
+  "experiments": [],
+  "figures": []
+}

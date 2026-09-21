@@ -1,0 +1,121 @@
+{
+  "schemaVersion": "1.0",
+  "paperId": "paper.fixture",
+  "scenes": [
+    {
+      "id": "scene.concept",
+      "title": "Concept",
+      "type": "concept",
+      "claimIds": ["claim.fixture"],
+      "steps": [
+        { "id": "step.concept", "narration": "Concept step", "focusIds": ["point.one"] }
+      ],
+      "payload": { "points": [{ "id": "point.one", "label": "One", "text": "First point" }] }
+    },
+    {
+      "id": "scene.architecture",
+      "title": "Architecture",
+      "type": "architecture_execution",
+      "steps": [
+        {
+          "id": "step.architecture",
+          "narration": "Architecture step",
+          "focusIds": ["node.c"],
+          "visual": {
+            "visibleNodeIds": ["node.a", "node.b", "node.c", "node.d", "node.e"],
+            "activeEdgeIds": ["node.b->node.c"]
+          }
+        }
+      ],
+      "payload": {
+        "nodes": [
+          { "id": "node.a", "label": "A" },
+          { "id": "node.b", "label": "B" },
+          { "id": "node.c", "label": "C" },
+          { "id": "node.d", "label": "D" },
+          { "id": "node.e", "label": "E" }
+        ],
+        "edges": [
+          { "from": "node.a", "to": "node.b" },
+          { "from": "node.b", "to": "node.c" },
+          { "from": "node.c", "to": "node.d" },
+          { "from": "node.d", "to": "node.e" }
+        ]
+      }
+    },
+    {
+      "id": "scene.equation",
+      "title": "Equation",
+      "type": "equation_walkthrough",
+      "steps": [
+        {
+          "id": "step.equation",
+          "narration": "Equation step",
+          "focusIds": ["part.x"],
+          "visual": { "tex": "x + y", "visiblePartIds": ["part.x"] }
+        }
+      ],
+      "payload": {
+        "tex": "x + y",
+        "parts": [
+          { "id": "part.x", "tex": "x" },
+          { "id": "part.y", "tex": "y" }
+        ]
+      }
+    },
+    {
+      "id": "scene.algorithm",
+      "title": "Algorithm",
+      "type": "algorithm_trace",
+      "steps": [
+        {
+          "id": "step.algorithm",
+          "narration": "Algorithm step",
+          "focusIds": ["line.one"],
+          "visual": { "variables": { "iteration": 1, "ready": true } }
+        }
+      ],
+      "payload": { "lines": [{ "id": "line.one", "code": "return value" }] }
+    },
+    {
+      "id": "scene.comparison",
+      "title": "Comparison",
+      "type": "ablation_comparison",
+      "steps": [
+        {
+          "id": "step.comparison",
+          "narration": "Comparison step",
+          "focusIds": ["item.full"],
+          "visual": { "visibleItemIds": ["item.base", "item.full"] }
+        }
+      ],
+      "payload": {
+        "metric": { "label": "Error", "unit": "%", "direction": "lower", "decimals": 1 },
+        "baselineId": "item.base",
+        "items": [
+          { "id": "item.base", "label": "Base", "value": 2 },
+          { "id": "item.full", "label": "Full", "value": -1 }
+        ]
+      }
+    },
+    {
+      "id": "scene.figure",
+      "title": "Figure",
+      "type": "figure_inspector",
+      "steps": [
+        {
+          "id": "step.figure",
+          "narration": "Show the whole figure",
+          "focusIds": ["region.one"],
+          "visual": { "regionId": null }
+        }
+      ],
+      "payload": {
+        "image": { "src": "assets/fixture.svg", "alt": "Fixture", "width": 800, "height": 480 },
+        "regions": [
+          { "id": "region.one", "label": "One", "x": 0.1, "y": 0.2, "width": 0.3, "height": 0.4 }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">Paper Explainer</title>
+  <desc id="desc">From paper to understanding. From source paper through step-by-step explanation to evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101c34"/><stop offset="1" stop-color="#111827"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#67e8f9"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#26344c" stroke-opacity=".38"/></pattern>
+  </defs>
+  <rect width="1280" height="420" rx="24" fill="url(#bg)"/>
+  <rect width="1280" height="420" rx="24" fill="url(#grid)"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <rect x="56" y="49" width="8" height="20" rx="4" fill="#67e8f9"/>
+    <text x="78" y="65" fill="#a7f3d0" font-size="15" letter-spacing="3">PAPER EXPLAINER</text>
+    <text x="56" y="139" fill="#f1f5f9" font-size="48" font-weight="700">From paper</text>
+    <text x="56" y="199" fill="url(#accent)" font-size="48" font-weight="700">to understanding.</text>
+    <text x="58" y="248" fill="#b8c8dc" font-size="18">Read the idea. Follow the steps.</text>
+    <text x="58" y="277" fill="#b8c8dc" font-size="18">Trace it back to the source.</text>
+    <rect x="56" y="325" width="342" height="38" rx="19" fill="#20354b"/>
+    <text x="77" y="350" fill="#d8e8f7" font-size="13" letter-spacing="1">ONE INPUT / SIX SCENES / EVIDENCE</text>
+    <path d="M706 210H752M992 210H1033" stroke="#67e8f9" stroke-width="2"/>
+    <path d="m745 205 7 5-7 5m281-10 7 5-7 5" fill="none" stroke="#67e8f9" stroke-width="2"/>
+    <rect x="536" y="113" width="170" height="195" rx="14" fill="#1d2b41" stroke="#40516b"/>
+    <text x="556" y="145" fill="#b8c8dc" font-size="12" letter-spacing="2">01 / SOURCE</text>
+    <rect x="565" y="164" width="110" height="118" rx="5" fill="#e6edf5"/>
+    <path d="M580 185h65m-65 12h80m-80 12h72" stroke="#879bb2" stroke-width="4"/>
+    <rect x="580" y="225" width="34" height="38" rx="3" fill="#a5b7cd"/>
+    <path d="M624 230h36m-36 12h29m-29 12h34" stroke="#879bb2" stroke-width="3"/>
+    <rect x="752" y="81" width="240" height="259" rx="14" fill="#1a3045" stroke="#67e8f9"/>
+    <text x="773" y="115" fill="#a7f3d0" font-size="12" letter-spacing="2">02 / EXPLAIN</text>
+    <text x="773" y="150" fill="#f1f5f9" font-size="20" font-weight="600">One step at a time.</text>
+    <rect x="774" y="179" width="50" height="44" rx="8" fill="#33465e"/>
+    <rect x="847" y="179" width="50" height="44" rx="8" fill="#67e8f9"/>
+    <rect x="920" y="179" width="50" height="44" rx="8" fill="#33465e"/>
+    <path d="M824 201h23m50 0h23" stroke="#9cb3d1" stroke-width="2"/>
+    <text x="792" y="207" fill="#cbd5e1" font-size="16">x</text>
+    <text x="866" y="207" fill="#102334" font-size="16">f</text>
+    <text x="938" y="207" fill="#cbd5e1" font-size="16">y</text>
+    <rect x="774" y="247" width="196" height="37" rx="6" fill="#111f32"/>
+    <text x="787" y="271" fill="#b8c8dc" font-size="13">Focus. Explain. Advance.</text>
+    <path d="M774 308h196" stroke="#33465e" stroke-width="4" stroke-linecap="round"/>
+    <path d="M774 308h87" stroke="#67e8f9" stroke-width="4" stroke-linecap="round"/>
+    <rect x="1033" y="113" width="191" height="195" rx="14" fill="#1d2b41" stroke="#40516b"/>
+    <text x="1053" y="145" fill="#b8c8dc" font-size="12" letter-spacing="2">03 / EVIDENCE</text>
+    <circle cx="1069" cy="187" r="15" fill="#264d4b"/>
+    <path d="m1062 187 5 5 9-10" fill="none" stroke="#a7f3d0" stroke-width="2"/>
+    <text x="1094" y="193" fill="#eef5fa" font-size="15">Source linked</text>
+    <path d="M1053 224h149m-149 13h126" stroke="#627991" stroke-width="3"/>
+    <text x="1053" y="276" fill="#a7f3d0" font-size="14">Back to the paper ↗</text>
+  </g>
+</svg>

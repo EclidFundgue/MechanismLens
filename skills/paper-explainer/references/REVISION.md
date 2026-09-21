@@ -1,214 +1,68 @@
-# REVISION.md — 可扩展性铁律 + 反馈迭代协议
+# 修改已有讲解
 
-本工作流默认「一步到位」把视频做完；但**做完不是终点**。用户看完预览 /
-成片后最常提两类需求：
+修改遵循一个简单链路：
 
-1. **展开**——「算法流程那部分太快，展开讲」；
-2. **修改**——「开头那句改一下」「结果图的数字核对一下」「换个主题」。
-
-本文件规定两件事：
-
-- **Part A · 生成时的可扩展性铁律**：从写 digest 的第一行起，就把
-  「以后要插入 / 修改」的成本压到最低。
-- **Part B · 交付后的快速修改工作流**：收到反馈后如何定位、按最小改动
-  面修改、同步真相源、**全部修改定稿后按需统一录一次**（录屏为可选功能，
-  默认不出片；**永远最后执行**，修改期间不录，避免反复渲染）。
-
-> 「一步到位」只约束**首次生成**（不向用户确认）。修改是用户**主动**
-> 发起的，属于 Phase 8，允许先定位、必要时最多问一个澄清问题。
-
----
-
-## Part A · 生成时的可扩展性铁律
-
-### A1. 真相源链固定，永不绕过
-
-```
-paper.md ──> digest.md ──> script.md ──> outline.md ──> narrations.ts ──> 章节 tsx ──> chapters.ts ──> 预览 / 录屏（可选）
-（原文）     （内容底账）   （文案/节拍）  （step 定位表）  （step 数 SSOT）  （视觉）      （注册顺序）
+```text
+paper.md / 原论文
+  → paper-ir.json
+  → scene-ir.json
+  → npm run build
+  → site/
 ```
 
-- 每层只做一件事；下游可以引用上游，**禁止**在上游没改时先改下游。
-- `narrations.ts` 是 step 数的**唯一**来源（WVP 铁律）：章节代码不得
-  写死总步数，一律用 `narrations.length` 或数据数组长度。
-- `script.md` 的每个 `---` 块 = 一个 step；顺序与 `narrations.ts` 严格
-  一致。只改 `narrations.ts` 会让稿子与成片漂移；只改 `script.md`
-  则成片没变——**必须同改**。
-- **录屏（可选）永远在链的末端**：等 DTF 终审与所有修改定稿后才录一次；
-  内容改动只到「预览」为止，不触发录屏（避免反复渲染）。
+## 稳定 ID
 
-### A2. 章节 = 独立可替换单元
+已经交付的 Paper IR 对象、scene 和 step ID 非必要不改。插入新 step 时创建
+新的语义 ID；不要根据当前位置重排成 `step1`、`step2`，否则游标、审计和用户
+反馈定位都会失效。
 
-- 一章一目录、独立 CSS 前缀、不跨章 import（WVP 已要求）。
-- 章节 id / 目录名 / 组件名**生成后不再改名**——改名会让素材路径、
-  预览 / 录屏游标、`revisions.md` 记录全部失效。
-- 文件夹编号只表示创建顺序，**允许留空隙**（如 `10-case-study/`）；
-  播放顺序由 `chapters.ts` 注册顺序决定。中间插入新章不重命名旧章。
+## 修改类型
 
-### A3. step 是唯一的动画时钟，也是唯一的定位坐标
-
-- 每步画面是 `step` 的纯函数；揭示索引用 `activeIndex = step` 推出，
-  禁止 `setInterval` / 定时器（WVP 铁律，同时保证插入 step 后自动对齐）。
-- 视觉元素**数据驱动**：节点 / 柱 / 线 / 列表项写成数组
-  （`NODES` / `BARS` / `LINES` / `ITEMS`），`step` 映射到数组下标。
-  **插入一步 ≈ 数组插一项 + `narrations.ts` 插一条**，而不是重排
-  一大段手写 JSX。
-- 步数边界优先由 `narrations.length` / 数组长度推出，避免散落的魔法数
-  （WVP 要求的 `if (step === N)` 仍要满足，但 N 的语义尽量来自数据）。
-
-### A4. 三份文件互为定位表
-
-| 想知道 | 查 |
+| 需求 | 最小改动 |
 |---|---|
-| 某一步屏幕上是什么 | `outline.md` 该章「开发计划」第 N 行 |
-| 某一步字幕文本 | `script.md` 第 N 个 `---` 块 / `narrations.ts` 第 N 项 |
-| 某个数字 / 素材从哪来 | `digest.md` 对应维度 +「图表 / 素材清单」 |
-| 之前改过什么 | `revisions.md` |
+| 改字幕措辞 | Scene IR 对应 step narration + `script.md` |
+| 展开一节 | Paper IR 补对象/evidence → Scene IR 插 step 或 scene → Markdown 副本 |
+| 事实或数字纠错 | 回原论文核对 → Paper IR → Scene IR payload/narration |
+| 调整图中聚焦 | Scene IR `focusIds` / callout，不复制 renderer |
+| 换论文图 | `project/public/assets/` + figure item + Scene IR src |
+| 调整来源跳转 | Paper IR evidence/page/url/anchor |
+| 新增场景能力 | 扩展 schema、types、renderer、示例和文档，然后重新构建 |
 
-`outline.md` 的每章 step 列表 = 从「用户反馈里的说法」到「代码位置」的
-翻译表：**先在这里定位，再动文件**。
+## 展开某一节
 
-### A5. 素材可复现
+1. 从用户说法定位 scene ID 和 step ID；
+2. 回 Paper IR 找可用 claim、module、equation、experiment；
+3. 内容不足时回原文补 evidence；
+4. 在 Scene IR 同一 scene 插 step，或在语义改变时插新 scene；
+5. 更新 script/outline 的人类可读副本；
+6. 运行 `npm run validate` 和 `npm run build`；
+7. 从插入点前一个 step 连续播放到后一个 step；
+8. 在 `revisions.md` 追加记录。
 
-- `assets/` 命名与 digest 素材清单编号一致（`fig1.png` / `eq3.tex`）。
-- digest 素材清单记录**取图参数**（PDF 页码 / bbox / dpi / LaTeX 源文件），
-  换裁切 / 换分辨率时按参数重跑（命令见 `PAPER-ASSETS.md`）。
-- 章节代码只引用 `public/assets/<稳定文件名>`，不内联 base64。
+## 重建与缓存
 
-### A6. 留插入点，不提前实现
+运行时游标按 `paper.id` 存储。只增删 step 不必手动修改缓存版本；被删除的
+游标越界时 App 会自动收敛到有效范围。想强制从头验证，使用：
 
-可扩展 ≠ 预留空章 / 引入配置系统。**只做两件事**：结构分层清晰 +
-数据驱动。不要为「以后可能加」预先写没人看的代码或空 step。
+```text
+?reset=1
+```
 
-### A7. 改动留痕
-
-工作目录维护 `revisions.md`（追加式，**不删旧记录**；首次修改时创建）：
+## 修改记录
 
 ```markdown
-# Revisions
-
-## 2026-09-18 · 算法流程展开
-- 反馈原话：「06 算法流程太快，展开讲训练循环」
-- 改动：digest §5 补 2 条 → script 插 2 个节拍 → outline 06: 6→8 step
-  → narrations.ts 插 2 条 → AlgorithmFlow.tsx NODES 插 2 节点 → STORAGE_KEY v5
-- 重录：整片（00:00–12:40）
+## 2026-09-21 · 展开算法循环
+- 反馈：算法部分太快
+- Paper IR：新增 evidence.algorithm-loop / claim.iterative-update
+- Scene IR：scene.algorithm 插入 step.update-state
+- 构建：validate ✓ / build ✓ / source link ✓
 ```
 
----
+## 完成标准
 
-## Part B · 交付后的快速修改工作流
-
-### B0. 触发与原则
-
-- 触发：用户看完预览 / 成片，提出展开、修改、纠错、换素材、换主题等。
-- 原则：**先定位，再动手；改最小面；沿链同步；改完自检 + 汇报**。
-- 反馈模糊时（「实验部分有点赶」）：先给出你的定位判断，再动手；
-  确实无法判断时最多问**一个**澄清问题。
-
-### B1. 四步定位
-
-1. **哪一章**：把用户说法映射到 `outline.md` 的章节（id + 标题）。
-2. **哪几步**：在该章「开发计划」里找到 step 区间。
-3. **哪一层**：文案（script）/ 内容（digest）/ 结构（章节或 step 增删）/
-   视觉（tsx / css）/ 素材（assets）/ 主题（tokens）。
-4. **历史**：翻 `revisions.md`，确认这次反馈是不是之前改过的地方
-   （避免回归 / 冲突）。
-
-### B2. 按需求类型走最小改动面
-
-| 用户想要 | 修改顺序（先上游后下游） | bump STORAGE_KEY | 录屏范围（仅曾录屏 / 要求出片；**整轮改完统一执行**） |
-|---|---|---|---|
-| 改一句话 / 语气 | `script.md` 对应 `---` 块 → `narrations.ts` 同索引 | 否 | 该章 |
-| **展开某一节（加 step）** | digest 取料 → script 插 `---` → outline 插 step 行 → narrations 插条目 → 章节视觉插数据项 / 分支 | 是 | 该章起 |
-| 压缩 / 删 step | 反向执行上一行 | 是 | 该章起 |
-| 某一步太快 / 太慢 | 拆 step（展开）或调动画时长；**禁止**加 per-step hold | 拆 step 才 bump | 该章起 |
-| 拆章 / 合章 / 加章 / 换序 | outline 章节表 → 新目录或 `chapters.ts` 注册顺序 | 是 | 受影响起 |
-| 纯画面调整（布局 / 动效 / 配色微调） | 章节 `tsx` / `css`（走 token） | 否 | 该章 |
-| 换图 / 换裁切 / 补素材 | `assets/` 重取 → `public/assets/` → digest 素材清单 | 否 | 该章 |
-| 数字 / 事实纠错 | 回 `paper.md` 核对 → digest → script → narrations → 画面数字 | 否 | 该章 |
-| 换主题 | 按 Phase 4.1 重选主题（避开手写 / 花体）→ 换 `tokens.css` → **按「字体可读性铁律」查 `cursive` / 花体并替换** → 各章抽查 token 合规 + 纸面卡片 | 否 | 全部 |
-| 节奏整体偏快 / 偏慢 | `App.tsx` 的 `estimateMs` 系数（字幕层唯一旋钮） | 否 | 全部 |
-
-> **文案层铁律**：`script.md` 与 `narrations.ts` 必须同改。改完检查
-> 三处 step 数一致：`script.md` 节拍数 == `outline.md` step 数 ==
-> `narrations.length`（被改章）。
->
-> **修改期间不录屏**：表中「录屏范围」只在最后统一录时用来决定录哪一段；
-> 单次修改完成后**只做预览验证，不启动录屏工具**。一轮反馈可能连续改
-> 多处，每改一次录一版会非常慢——全部改完、用户确认没有后续改动后，再按
-> B5 统一录一次。
->
-> **未录屏的项目**：表中「录屏范围」一列整体忽略——改完只做预览验证，
-> 不出片（录屏是可选功能，默认关闭）。
-
-### B3. 展开一节的标准动作（最高频需求）
-
-以「06 算法流程太快，展开讲」为例：
-
-1. **定位**：`outline.md` 06 章，当前 6 step；对应 `digest.md` §5。
-2. **取料**：从 digest §5（步骤序列 / 训练 vs 推理 / 复杂度 / 伪代码）
-   和 `paper.md` Algorithm 1 选 2–3 个新 step 的内容。
-3. **扩稿**：在 `script.md` 该章节拍之间插入 2–3 个 `---` 块
-   （一 step 一句，≤ 40 字；叙事顺序不变）。
-4. **更新 outline**：06 章 step 列表插入对应行，更新章末 step 数与
-   顶部总步数。
-5. **更新 narrations**：在 `narrations.ts` **同索引位置**插入字符串。
-6. **更新视觉**：流程图为 `NODES` 数组时插入节点；伪代码高亮为行数组
-   时插入行；`activeIndex = step` 映射自动顺延——**不要重写整章**。
-7. **收尾**：bump `STORAGE_KEY` → `npx tsc --noEmit` →
-   `?auto=1&reset=1` 全片过一遍（重点看插入点前后）→ **不录屏**（等本轮
-   反馈全部改完后按 B5 统一录一次）→ **按「进程卫生」清理后台进程并复查**。
-8. **留痕**：`revisions.md` 追加一条。
-
-**判定标准**：展开后该章仍「一 step 一句」，动画时长 ≤ 字幕停留时长；
-新 step 的信息来自 digest / paper，不是即兴发挥。
-
-### B4. 修改后自检
-
-- [ ] `npx tsc --noEmit` 通过？
-- [ ] `narrations.length` == 章节代码用到的最大 step + 1？（全章）
-- [ ] `script.md` 节拍数 == `narrations.ts` 长度 == `outline.md` step 数？（被改章）
-- [ ] step 数 / 章节结构变化时 bump 了 `STORAGE_KEY`？
-- [ ] `?auto=1&reset=1` 从第 1 页连续推进到底、字幕不空条？
-- [ ] 被改章走一遍 CHAPTER-CRAFT 完工自检（视觉 / token / 反 AI 味）？
-- [ ] 英文无花体 / 手写字体残留（`grep -rn "cursive" presentation/src` 为空，`KaTeX_*` 数学字体除外）？
-- [ ] 后台进程已清理（`stop-processes.sh` exit 0；无 dev server / 浏览器 /
-      ffmpeg 残留，端口已释放）？
-- [ ] `revisions.md` 已记录？
-
-### B5. 录屏策略（仅录屏过的项目 / 用户要求出片时）
-
-**总原则：录屏是整条流水线的最后一步（SKILL.md Phase 7），修改期间不录屏。**
-一轮反馈里可能连续改多处；正确节奏是「全部修改完成 + 自检通过 + 用户确认
-没有后续改动」之后，才统一录一次。
-
-- **未录屏的项目（默认）**：改完只做预览验证，不出片、不启动录屏工具；
-  汇报里说明「改完未出片，要出片说一声」。
-- **已录屏 / 用户要求出片**：等本轮反馈全部改完后整片重录——本工作流不
-  合成配音，字幕驱动自动推进（`?auto=1&reset=1` + Space），无人值守、
-  无接缝，重录成本低。
-- 只有片长很长且**最终确认**只改了一章时，才考虑分段录：切到 `manual`
-  模式录该章，或临时注释 `App.tsx` 里 `autoStarted` 的重置 effect 并在
-  录完后恢复；注意分段录的字幕节奏可能与原片有细微差异。
-- 换主题 / 改 `estimateMs` / 改章节顺序 → **必须整片重录**。
-- **每次重录结束都要清理进程**（SKILL.md「进程卫生」）：dev server /
-  浏览器 / 录屏工具 / ffmpeg 用完即停，不留后台、不裸 `kill`。
-
-### B6. 汇报模板
-
-```
-修改完成：<用户反馈一句话>
-  定位    06 算法流程（6 → 8 step）
-  改动    script +2 节拍 / outline 更新 / narrations +2 / NODES +2 / STORAGE_KEY v5
-  自检    tsc ✓ / step 数一致 ✓ / 自动播放全片 ✓
-  进程    已清理（dev server / 浏览器 / ffmpeg）
-  录屏    未执行（修改期间不录；要出片说一声，最后统一录）
-          / 或：本轮已全部改完，整片已重录
-  产物    预览：npm run dev；录屏（可选，最后一步）：?auto=1&reset=1
-```
-
----
-
-## Part C · 自检（每次修改后强制）
-
-见 B4。**任一未过 → 先改完再汇报**；不允许「看起来没问题」放行。
+- IR 引用无断链；
+- 上屏数字来源覆盖率仍为 100%；
+- 新 step 有 narration 和正确 focus；
+- 来源按钮打开正确原文位置；
+- `site/` 已重新构建；
+- `revisions.md` 已追加。

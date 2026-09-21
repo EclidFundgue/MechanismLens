@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="800" height="480">
+  <rect width="800" height="480" fill="#f3f0e8"/>
+  <text x="38" y="48" font-family="sans-serif" font-size="20" fill="#273842">Illustrative figure — replace with paper source</text>
+  <rect x="56" y="78" width="288" height="300" fill="#e2edf2" stroke="#648496" stroke-width="3"/>
+  <text x="88" y="128" font-family="sans-serif" font-size="26" fill="#273842">INPUT</text>
+  <path d="M90 185h220 M90 230h168 M90 275h204" stroke="#648496" stroke-width="12"/>
+  <path d="M365 228h64m-21-20 21 20-21 20" fill="none" stroke="#273842" stroke-width="5"/>
+  <rect x="456" y="78" width="288" height="300" fill="#e3f5ee" stroke="#4b9a7c" stroke-width="3"/>
+  <text x="488" y="128" font-family="sans-serif" font-size="26" fill="#273842">OUTPUT</text>
+  <path d="M500 335v-90h42v90m30 0V190h42v145m30 0v-65h42v65" fill="#4b9a7c"/>
+</svg>

@@ -1,3 +1,7 @@
 .DS_Store
 *.log
 node_modules/
+skills/paper-explainer/assets/project-template/site/
+skills/paper-explainer/assets/project-template/project/*.tsbuildinfo
+skills/paper-explainer/assets/project-template/project/vite.config.js
+skills/paper-explainer/assets/project-template/project/vite.config.d.ts
