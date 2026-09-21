@@ -16,7 +16,10 @@
       ],
       "payload": {
         "tex": "x + y",
-        "parts": [{ "id": "part.focus", "tex": "x" }, { "id": "part.other", "tex": "y" }]
+        "parts": [
+          { "id": "part.focus", "tex": "x", "explanation": "Focused term" },
+          { "id": "part.other", "tex": "y", "explanation": "Other term" }
+        ]
       }
     }
   ]

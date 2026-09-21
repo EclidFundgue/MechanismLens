@@ -16,7 +16,14 @@
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
-    "idList": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+    "idList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "edgeId": {
+      "anyOf": [
+        { "$ref": "#/$defs/id" },
+        { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*->[A-Za-z0-9][A-Za-z0-9._-]*$" }
+      ]
+    },
+    "edgeIdList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/edgeId" } },
     "step": {
       "type": "object",
       "required": ["id", "narration"],
@@ -26,11 +33,12 @@
         "narration": { "type": "string", "minLength": 1 },
         "focusIds": { "$ref": "#/$defs/idList" },
         "evidenceIds": { "$ref": "#/$defs/idList" },
+        "state": false,
         "visual": {
           "type": "object",
           "properties": {
             "visibleNodeIds": { "$ref": "#/$defs/idList" },
-            "activeEdgeIds": { "$ref": "#/$defs/idList" },
+            "activeEdgeIds": { "$ref": "#/$defs/edgeIdList" },
             "tex": { "type": "string", "minLength": 1 },
             "visiblePartIds": { "$ref": "#/$defs/idList" },
             "variables": { "type": "object", "additionalProperties": { "type": ["string", "number", "boolean"] } },

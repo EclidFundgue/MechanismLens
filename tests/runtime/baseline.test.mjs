@@ -42,7 +42,7 @@ test("pure validation returns structured issues without CLI side effects", () =>
   assert.deepEqual(report.errors[0], {
     code: "FOCUS_HIDDEN",
     path: "/scenes/0/steps/0/focusIds/0",
-    message: "scene.scene.equation.step.step.hidden.focus part.focus is hidden",
+    message: "scene.scene.equation.step.step.hidden.focus part.focus is hidden by visiblePartIds",
     sceneId: "scene.equation",
     stepId: "step.hidden",
   });

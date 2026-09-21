@@ -60,13 +60,17 @@ export interface SceneStep {
   evidenceIds?: string[];
   /** Optional visual snapshot. Playback and subtitles still use this Scene IR step. */
   visual?: {
+    /** Omitted means all scene nodes; an explicit empty array means none. */
     visibleNodeIds?: string[];
     activeEdgeIds?: string[];
     tex?: string;
+    /** Omitted means all equation parts; an explicit empty array means none. */
     visiblePartIds?: string[];
     variables?: Record<string, string | number | boolean>;
     output?: string;
+    /** Omitted means all comparison items; an explicit empty array means none. */
     visibleItemIds?: string[];
+    /** Omitted infers from focusIds, null selects the full image, and a string selects that region. */
     regionId?: string | null;
   };
 }

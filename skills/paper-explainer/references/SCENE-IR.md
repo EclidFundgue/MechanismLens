@@ -159,6 +159,14 @@ Schema：`schemas/scene-ir.schema.json`。
 - transition step 可以不带 evidence，其余技术解释应绑定 evidence；
 - step ID 一旦交付，不因增删前后 step 而重命名。
 
+### `visual` 默认值与兼容边界
+
+- `visibleNodeIds`、`visiblePartIds`、`visibleItemIds` 省略时，显示对应场景的全部对象；显式写成 `[]` 表示不显示任何对象，不会回退为全部对象；
+- `regionId` 省略时，从 `focusIds` 中选择第一个有效 region；`null` 明确表示全图；字符串表示指定 region；
+- 架构边可以省略 `id`。此时运行时和校验器都使用 `from->to` 作为派生引用，例如 `node.input->node.encoder`；
+- `visual` 是 Scene IR 1.0 唯一的 step 画面快照字段。`state` 属于不兼容方言，校验器会提示改用 `visual`，不会静默转换；
+- step 仍允许其它扩展属性；校验器只对已知不兼容的 `state` 做针对性拒绝。
+
 ## 降级
 
 找不到合适的专属场景时可使用 `concept`，但必须在 audit 中记录
