@@ -1,9 +1,9 @@
 # Paper Explainer
 
-**把一篇学术论文变成一份「带全局字幕」的网页讲解演示。**
+**把复杂文档编译成可交互的视觉讲解。**
 
 给 AI coding agent 用的 [Agent Skill](https://agentskills.io)：装上之后，
-「skill + 论文链接」即可，**其他什么都不用输入**。链接支持 arXiv / DOI /
+「skill + 文档(链接)」即可，**其他什么都不用输入**。链接支持 arXiv / DOI /
 PDF / 网页，也支持本地 PDF 或粘贴文本。输出可运行、可交互的 16:9 网页
 演示项目——每一步独占整屏、视觉随进度逐步揭示、**字幕逐 step 显示在
 屏幕底部（可开关、可导出 SRT）**。**录屏是可选功能：默认不录屏**，
@@ -14,9 +14,9 @@ PDF / 网页，也支持本地 PDF 或粘贴文本。输出可运行、可交互
 
 ## 它能做什么
 
-- **贡献优先**：先做结构化 digest（主要贡献与创新点 + 7 个维度），
-  技术含量越高的部分自动获得越多 step / 时长 / 讲解层次。
-- **素材求真**：架构图 / 流程图优先 SVG 重绘并逐步揭示；允许嵌入论文
+- **讲解规划**：先做结构化 digest（核心观点与关键概念 + 多维分析），
+  内容越重要、理解难度越高的部分自动获得越多 step / 时长 / 讲解层次。
+- **素材求真**：架构图 / 流程图优先 SVG 重绘并逐步揭示；允许嵌入文档
   原图、KaTeX 公式、原文摘录保证准确（arXiv 论文优先从 LaTeX 源码取公式）。
 - **一步到位**：解析 → digest → 口播稿 → 章节 outline → 网页实现 →
   字幕层，全流程自动跑完，中途不提问；首次运行自动写默认配置，
@@ -60,16 +60,16 @@ cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
 
 ## 使用
 
-**只需要一句话：skill + 论文链接。其他什么都不用输入。**
+**只需要一句话：skill + 文档链接。其他什么都不用输入。**
 
 ```
 paper-explainer https://arxiv.org/abs/1706.03762
 把这篇论文做成讲解视频，要 mp4 https://arxiv.org/pdf/1706.03762
-paper explainer：./attention-is-all-you-need.pdf
+paper explainer：./technical-report.pdf
 ```
 
 链接可以是 arXiv / DOI / 任意 PDF / 网页，也可以是本地 PDF 路径或直接
-粘贴的论文文本。主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录全部自动
+粘贴的文档文本。主题 / 语言 / 时长 / 篇幅 / 封面 / 输出目录全部自动
 决策，中途不提问。录屏按需且最后执行：只给链接时交付可运行网页项目；
 明确说「做成视频 / 要 mp4 / 录屏」时，等全部内容定稿后才会额外出视频
 文件（不会在修改过程中反复重录）。
@@ -92,10 +92,10 @@ paper explainer：./attention-is-all-you-need.pdf
 
 ```
 Phase -1  初始化（读配置 / 依赖自检，全自动）
-Phase 0   论文解析 + 素材提取（paper.md / paper-src/ / assets/）
-Phase 1   结构化 digest（贡献与创新点 + 7 维）
+Phase 0   文档解析 + 素材提取（paper.md / paper-src/ / assets/）
+Phase 1   结构化 digest（核心观点与关键概念 + 多维分析）
 Phase 2   口播稿 script.md（= 字幕文本）
-Phase 3   开发计划 outline.md（章节 + step + 信息池）
+Phase 3   讲解计划 outline.md（章节 + step + 信息池）
 Phase 4   脚手架 + 字幕层 + 素材接入
 Phase 5   逐章实现（SVG / 原图逐步揭示）
 Phase 6   反 AI 味终审
