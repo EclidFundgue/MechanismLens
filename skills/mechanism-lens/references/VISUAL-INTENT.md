@@ -1,18 +1,18 @@
-# Visual Intent
+# 视觉意图
 
-Visual Intent decides how a validated mechanism is taught. It does not restate source evidence or describe repository structure.
+视觉意图决定如何讲解已经校验的机制，不复述来源证据，也不描述仓库结构。
 
-## Contract
+## 合同
 
-- `mechanismId` identifies the Mechanism IR.
-- Each world selects a template and declares reusable visual objects, relations, fixed frames and optional detail views.
-- Objects and relations use `mechanismRef` when they represent a mechanism item.
-- Every scene step uses `mechanismStepIds`; the compiler derives evidence bindings.
-- Steps control visibility, emphasis, active relations, readable targets, state, transition and hold time.
-- Do not add coordinates. The compiler owns layout and geometry.
+- `mechanismId` 用于标识机制 IR。
+- 每个世界选择一个模板，并声明可复用的视觉对象、关系、固定画框和可选详情视图。
+- 对象和关系在表示机制条目时使用 `mechanismRef`。
+- 每个场景步骤使用 `mechanismStepIds`；证据绑定由编译器派生。
+- 步骤控制可见性、强调状态、活跃关系、可读目标、状态、转场和停留时间。
+- 不得添加坐标；布局和几何结构由编译器负责。
 
-Use `cameraPolicy: "static_first"`. A scene has one default frame. Change frame only when required content is unreadable, source detail must be inspected or spatial context must be restored. Emphasis alone must not move the camera.
+使用 `cameraPolicy: "static_first"`。一个场景只有一个默认画框。仅当必读内容无法辨认、必须检查来源细节或必须恢复空间上下文时才切换画框。单纯的强调不得移动相机。
 
-Available primitives are `group`, `node`, `card`, `annotation`, `equation`, `code`, `chart` and `image`. The `code` primitive is for pseudocode or local algorithm state. Real repository evidence appears in Code Spotlight through compiled evidence bindings.
+可用原语包括 `group`、`node`、`card`、`annotation`、`equation`、`code`、`chart` 和 `image`。`code` 原语用于伪代码或局部算法状态。真实仓库证据通过编译后的证据绑定显示在代码聚焦视图中。
 
-One step should introduce or emphasize one logical action. Reuse object identity and geometry across steps. Use detail views for meaningful internal expansion instead of moving the entire world.
+一个步骤只应引入或强调一个逻辑动作。不同步骤之间应复用对象身份和几何结构。需要展开有意义的内部细节时使用详情视图，而不是移动整个世界。

@@ -1,33 +1,33 @@
-# Evidence
+# 证据
 
-Evidence connects explanation steps to original paper passages or source code.
+证据将讲解步骤连接到论文原文或源代码。
 
-## Paper evidence
+## 论文证据
 
-Paper evidence can identify a section, page, figure, table, equation, quotation, appendix, URL and excerpt. Preserve the original wording and page location.
+论文证据可以标识章节、页码、图片、表格、公式、引文、附录、URL 和摘录。原文措辞和页码位置必须保留。
 
-## Code evidence
+## 代码证据
 
-Code evidence contains:
+代码证据包含：
 
 ```text
 id
 label
 kind: code
 path
-symbol (optional)
+symbol（可选）
 lineStart
 lineEnd
 excerpt
 basis
 ```
 
-It deliberately contains no commit, branch, snapshot, modification status, file inventory or hash. It means “this is what Code Intake read while generating the explanation,” not “this repository can never change.”
+其中刻意不包含提交、分支、快照、修改状态、文件清单或哈希。它表达的是“这是代码采集在生成讲解时读到的内容”，而不是“这个仓库永远不会变化”。
 
-The complete URL repository remains in `sources/code/repository/`. The website receives only evidence excerpts selected by compiled mechanism steps.
+从 URL 获取的完整仓库保留在 `sources/code/repository/` 中。网页只接收编译后的机制步骤所选中的证据摘录。
 
-## Binding
+## 绑定关系
 
-Mechanism steps reference evidence as `{sourceId, evidenceId}`. Visual Intent references mechanism steps. The compiler produces namespaced `step.evidenceIds` and a filtered `source-bundle.json`. Source Drawer and Code Spotlight consume only that derived bundle.
+机制步骤通过 `{sourceId, evidenceId}` 引用证据，视觉意图引用机制步骤。编译器生成带命名空间的 `step.evidenceIds` 和经过筛选的 `source-bundle.json`。来源抽屉与代码聚焦视图只读取这份派生数据包。
 
-Structural validation proves that references exist. It does not prove that a natural-language explanation is semantically correct; audit important claims manually.
+结构校验只能证明引用存在，不能证明自然语言解释在语义上正确；重要论断仍须人工核查。

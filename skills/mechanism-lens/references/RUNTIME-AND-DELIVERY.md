@@ -1,28 +1,28 @@
-# Runtime and delivery
+# 运行时与交付
 
-The generated project is self-contained:
+生成的项目是自包含的：
 
 ```text
-content/      source IR, Mechanism IR, Visual Intent, generated Scene IR and source bundle
-sources/      original papers and retained URL repositories
-engine/       compiler, layout and validation
-project/      React/Vite player
-runtime/      compile, validate and serve commands
-site/         built offline website
+content/      来源 IR、机制 IR、视觉意图、生成的场景 IR 和来源数据包
+sources/      论文原件和保留的 URL 仓库
+engine/       编译器、布局和校验
+project/      React/Vite 播放器
+runtime/      编译、校验和服务命令
+site/         构建完成的离线网站
 ```
 
-Build with:
+使用以下命令构建：
 
 ```bash
-node "$SELF/scripts/build-project.mjs" "<generated-project>"
+node "$SELF/scripts/build-project.mjs" "<生成项目>"
 ```
 
-The build validates source IR, Mechanism IR and Visual Intent, compiles Scene IR and `source-bundle.json`, validates geometry and references, then runs TypeScript and Vite.
+构建流程会校验来源 IR、机制 IR 和视觉意图，编译场景 IR 与 `source-bundle.json`，校验几何结构和引用，随后运行 TypeScript 与 Vite。
 
-Scene IR and the source bundle are generated. Never edit them to hide a problem in source facts, mechanism reasoning or visual intent.
+场景 IR 和来源数据包都是派生产物。不得通过手动修改它们来掩盖来源事实、机制推理或视觉意图中的问题。
 
-Verify every scene and step by sequential playback and direct navigation. Confirm subtitles, evidence, Code Spotlight, detail panels, reduced motion and narrow layout. A direct jump must restore the same complete target state as sequential playback.
+必须通过顺序播放和直接跳转验证每个场景与步骤。检查字幕、证据、代码聚焦视图、详情面板、减少动态效果模式和窄屏布局。直接跳转后恢复的完整目标状态必须与顺序播放一致。
 
-Only selected code evidence excerpts enter `site/`. A cloned repository stays under `sources/code/repository/`, including its shallow `.git`, and must not be copied into public assets.
+只有被选中的代码证据摘录可以进入 `site/`。克隆的仓库及其浅层 `.git` 必须保留在 `sources/code/repository/` 下，不得复制到公开资源中。
 
-Delivery includes `site/index.html`, launchers, editable content, engine, runtime and sources. Confirm that the complete generated directory can be moved and still built and opened. Stop any development server or recorder started during generation.
+交付内容包括 `site/index.html`、启动器、可编辑内容、引擎、运行时和来源材料。确认完整生成目录移动后仍可构建并打开。生成过程中启动的开发服务器或录制进程必须停止。

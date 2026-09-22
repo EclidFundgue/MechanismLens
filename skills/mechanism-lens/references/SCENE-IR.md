@@ -1,9 +1,9 @@
-# Generated Scene IR
+# 生成的场景 IR
 
-Scene IR is the generated execution contract consumed by the web runtime. It contains `subjectId`, compiled worlds and scenes. Each step contains its mechanism-step IDs, namespaced evidence IDs, complete visual state, camera target, transition and timing.
+场景 IR 是供网页运行时读取的生成执行合同。它包含 `subjectId`、编译后的世界和场景。每个步骤包含对应的机制步骤 ID、带命名空间的证据 ID、完整视觉状态、相机目标、转场和时序。
 
-Scene IR contains no version or build metadata. It is regenerated from Mechanism IR and Visual Intent on every build and must not be edited by hand.
+场景 IR 不包含版本或构建元数据。每次构建都会根据机制 IR 和视觉意图重新生成，禁止手动修改。
 
-`step.visual` is the target truth for visible objects, emphasis, active relations, readable targets, detail view and content state. Direct navigation must restore this complete target without depending on prior animation history.
+`step.visual` 是可见对象、强调状态、活跃关系、可读目标、详情视图和内容状态的目标真相源。直接跳转必须恢复这份完整目标状态，不能依赖之前的动画历史。
 
-World geometry, anchors, relation paths, frames and camera bounds are compiler output. Layout and camera defects are fixed in the engine or Visual Intent, never by patching Scene IR.
+世界几何结构、锚点、关系路径、画框和相机边界都是编译器输出。布局与相机缺陷应在引擎或视觉意图中修复，绝不能通过修补场景 IR 处理。

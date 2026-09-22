@@ -1,31 +1,31 @@
 # 初始化与项目脚手架
 
-MechanismLens 是自包含 Skill。构建网页需要 Node.js 18 或更高版本与 npm；Code Intake 需要 Python 3，URL 输入还需要 Git。
+MechanismLens 是自包含技能。构建网页需要 Node.js 18 或更高版本与 npm；代码采集需要 Python 3，URL 输入还需要 Git。
 
 ## 创建项目
 
-将 Skill 目录记为 `SELF`，生成目录记为 `ROOT`。目标必须不存在或为空，脚手架不会覆盖已有文件。
+将技能目录记为 `SELF`，生成目录记为 `ROOT`。目标必须不存在或为空，脚手架不会覆盖已有文件。
 
-Paper Lens：
+论文讲解：
 
 ```bash
-node "$SELF/scripts/scaffold-project.mjs" "./<slug>-explainer" \
-  --mode paper --title "<title>" --source "<paper-url>" --question "<question>"
+node "$SELF/scripts/scaffold-project.mjs" "./<短标识>-explainer" \
+  --mode paper --title "<标题>" --source "<论文网址>" --question "<问题>"
 ```
 
-Code Lens：
+代码讲解：
 
 ```bash
-node "$SELF/scripts/scaffold-project.mjs" "./<slug>-explainer" \
-  --mode code --title "<repository>" --source "<path-or-url>" --question "<question>"
+node "$SELF/scripts/scaffold-project.mjs" "./<短标识>-explainer" \
+  --mode code --title "<仓库名称>" --source "<路径或网址>" --question "<问题>"
 ```
 
-Paper ↔ Code：
+论文与代码联动：
 
 ```bash
-node "$SELF/scripts/scaffold-project.mjs" "./<slug>-explainer" \
-  --mode paper-code --title "<title>" --source "<paper-url>" \
-  --repository "<path-or-url>" --question "<question>"
+node "$SELF/scripts/scaffold-project.mjs" "./<短标识>-explainer" \
+  --mode paper-code --title "<标题>" --source "<论文网址>" \
+  --repository "<路径或网址>" --question "<问题>"
 ```
 
 ## 来源目录
@@ -36,7 +36,7 @@ sources/
 ├── original.html
 ├── arxiv/
 ├── supplements/
-├── code/repository/       # URL 输入的 depth-one clone，保留 .git
+├── code/repository/       # URL 输入的浅层克隆，保留 .git
 └── manifest.md
 ```
 
@@ -44,11 +44,11 @@ URL 仓库不会进入 `project/public/` 或 `site/`。本地仓库默认不复�
 
 ## 内容与派生产物
 
-Agent 维护：
+自动化代理维护：
 
 ```text
-content/paper-ir.json      # Paper 模式
-content/code-ir.json       # Code 模式
+content/paper-ir.json      # 论文模式
+content/code-ir.json       # 代码模式
 content/mechanism-ir.json
 content/visual-intent.json
 ```
@@ -63,4 +63,4 @@ content/outline.md
 site/
 ```
 
-不要手改派生产物。事实错误改来源 IR，机制错误改 Mechanism IR，讲法或镜头错误改 Visual Intent，跨项目都会出现的能力问题才改 engine/runtime。
+不要手改派生产物。事实错误改来源 IR，机制错误改机制 IR，讲法或镜头错误改视觉意图，跨项目都会出现的能力问题才改 `engine/` 或 `runtime/`。

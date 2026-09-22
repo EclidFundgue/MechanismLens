@@ -1,16 +1,16 @@
-# Development
+# 开发维护
 
-MechanismLens keeps one current contract for Paper IR, Code IR, Mechanism IR, Visual Intent and Scene IR. A contract change must update schemas, compiler, validation, template content, TypeScript types, documentation and tests together. Do not add version branches, migration scripts, hashes or compatibility readers.
+MechanismLens 只维护一套当前有效的论文 IR、代码 IR、机制 IR、视觉意图和场景 IR 合同。修改合同时，必须同步更新模式定义、编译器、校验、模板内容、TypeScript 类型、文档和测试。不得增加版本分支、迁移脚本、哈希或兼容性读取器。
 
-The compiler pipeline is:
+编译器流水线如下：
 
 ```text
-validate sources → validate mechanism → validate intent → layout worlds
-→ compile complete step targets → build source bundle → validate scene graph
+校验来源 → 校验机制 → 校验意图 → 布局世界
+→ 编译完整步骤目标 → 构建来源数据包 → 校验场景图
 ```
 
-Keep engine and validation modules as pure ESM where possible. WorldStage, camera and player consume generated Scene IR and must not read Paper IR or Code IR directly. Source Drawer and Code Spotlight read only the filtered source bundle.
+引擎和校验模块应尽量保持为纯 ESM。世界舞台、相机和播放器读取生成的场景 IR，不得直接读取论文 IR 或代码 IR。来源抽屉与代码聚焦视图只读取经过筛选的来源数据包。
 
-Code Intake is a separate generation tool. URL clones remain in `sources/code/repository/`; local repositories are read in place. Intake must never run target code or inspect Git history for IR metadata.
+代码采集是独立的生成工具。URL 克隆保留在 `sources/code/repository/` 中；本地仓库原地读取。采集工具不得运行目标代码，也不得检查 Git 历史来生成 IR 元数据。
 
-Run `npm test`, `npm run test:runtime` and `npm run test:delivery`. Delivery tests must cover generated projects outside the repository, paths with spaces and Chinese characters, compile/validate/build/serve, process cleanup and movable output.
+运行 `npm test`、`npm run test:runtime` 和 `npm run test:delivery`。交付测试必须覆盖仓库外的生成项目、包含空格和中文字符的路径、编译/校验/构建/服务、进程清理以及可移动输出。

@@ -1,43 +1,43 @@
-# Mechanism IR
+# 机制 IR
 
-Mechanism IR is the source-neutral explanation model shared by Paper Lens and Code Lens.
+机制 IR 是论文讲解与代码讲解共用的来源中立解释模型。
 
-Paper IR says what a paper states. Code IR says what code was read. Mechanism IR says how the mechanism works for the user's question.
+论文 IR 记录论文陈述了什么，代码 IR 记录读取了哪些代码，机制 IR 则回答面向用户问题时机制如何运作。
 
-## Structure
+## 结构
 
 ```json
 {
   "id": "mechanism.cache-miss",
-  "title": "Cache miss path",
-  "question": "What happens when the cache misses?",
+  "title": "缓存未命中路径",
+  "question": "缓存未命中时会发生什么？",
   "sources": [{ "id": "code.cache", "kind": "code" }],
   "participants": [],
   "states": [],
   "scenarios": [{
     "id": "scenario.cache-miss",
-    "title": "Cache miss",
+    "title": "缓存未命中",
     "basis": "static_inference",
-    "assumptions": ["The cache lookup misses."],
+    "assumptions": ["缓存查找未命中。"],
     "steps": [{
       "id": "step.lookup",
-      "explanation": "Look up the key.",
+      "explanation": "查找键。",
       "basis": "source_fact",
       "participantIds": ["participant.cache"],
       "evidenceRefs": [{ "sourceId": "code.cache", "evidenceId": "evidence.lookup" }]
     }],
     "branches": [],
-    "unresolved": ["Concurrent duplicate computation is not confirmed."]
+    "unresolved": ["尚未确认是否会发生并发重复计算。"]
   }]
 }
 ```
 
-Every displayed mechanism step must have at least one evidence reference. Use:
+每个上屏的机制步骤都必须至少有一个证据引用。依据类型如下：
 
-- `source_fact`: directly present in the selected document or code.
-- `static_inference`: inferred from source with explicit assumptions.
-- `runtime_observation`: observed in an actual recorded execution.
+- `source_fact`：直接出现在所选文档或代码中的事实。
+- `static_inference`：基于来源并结合明确假设得出的静态推断。
+- `runtime_observation`：在真实且有记录的运行中观察到的事实。
 
-Do not use runtime observation without a real execution record. Keep assumptions and unresolved items visible instead of inventing certainty.
+没有真实运行记录时，不得使用运行时观察。应明确保留假设和未解决项，不能虚构确定性。
 
-Mechanism IDs provide stable semantic targets for Visual Intent. They do not carry layout, coordinates, camera positions or animation timing.
+机制 ID 为视觉意图提供稳定的语义目标，不承载布局、坐标、相机位置或动画时序。

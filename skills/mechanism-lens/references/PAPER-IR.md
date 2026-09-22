@@ -1,16 +1,16 @@
-# Paper IR
+# 论文 IR
 
-Paper IR records only what the paper or technical document states. It does not contain camera, layout, animation or inferred code behavior.
+论文 IR 只记录论文或技术文档陈述的内容，不包含相机、布局、动画或推断出的代码行为。
 
-## Required structure
+## 必需结构
 
 ```json
 {
   "paper": {
     "id": "paper.example",
-    "title": "Example",
+    "title": "示例",
     "originalUrl": "https://example.org/paper",
-    "summary": "One sentence grounded in the source."
+    "summary": "一句有来源依据的摘要。"
   },
   "evidence": [],
   "claims": [],
@@ -25,8 +25,8 @@ Paper IR records only what the paper or technical document states. It does not c
 }
 ```
 
-Do not add version, hash, commit or snapshot fields.
+不得添加版本、哈希、提交或快照字段。
 
-Create evidence before the objects that cite it. Claims and contributions require `evidenceIds`; other grounded objects should cite the evidence that supports their displayed facts. Direct quotations and page references remain verbatim. Derived interpretation is marked with `confidence: "derived"`.
+先创建证据，再创建引用它的对象。论断和贡献必须包含 `evidenceIds`；其他有依据的对象应引用支撑其上屏事实的证据。直接引文和页码引用保留原样。派生解释使用 `confidence: "derived"` 标记。
 
-Paper IR answers “what does the document say?” Mechanism IR separately answers “how does the mechanism work for this explanation?”
+论文 IR 回答“文档说了什么？”，机制 IR 则单独回答“在本次讲解中，这个机制如何运作？”

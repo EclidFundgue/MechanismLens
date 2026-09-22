@@ -19,20 +19,20 @@
 
 | 内容 | 首选 |
 |---|---|
-| 简单架构 / 数据流 | Visual Intent 的 `group/node/relation`，选择合适结构模板 |
-| 复杂架构总览 | `image` primitive + region，必要时加 detail view |
-| 定性结果 / 照片 / 渲染 | `figure_region_exploration` + 原图 region |
-| 小型结果 / 消融表 | `compare_variant` + `chart` primitive |
-| 大型密集表格 | 原图裁切 + callout |
-| 公式 | `equation_derivation` + `equation` primitive + KaTeX |
-| 作者定义 / 结论 | Evidence Drawer excerpt |
+| 简单架构 / 数据流 | 视觉意图的 `group/node/relation`，选择合适结构模板 |
+| 复杂架构总览 | `image` 原语 + 区域，必要时增加详情视图 |
+| 定性结果 / 照片 / 渲染 | `figure_region_exploration` + 原图区域 |
+| 小型结果 / 消融表 | `compare_variant` + `chart` 原语 |
+| 大型密集表格 | 原图裁切 + 标注 |
+| 公式 | `equation_derivation` + `equation` 原语 + KaTeX |
+| 作者定义 / 结论 | 证据抽屉中的摘录 |
 
 禁止用图像生成模型重画技术结构或实验结果。
 
-## arXiv LaTeX
+## arXiv LaTeX 源码
 
 ```bash
-bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> "$ROOT"
+bash "$SELF/scripts/fetch-arxiv.sh" <网址或编号> "$ROOT"
 ```
 
 第二个参数是已初始化的项目根目录，必须提供。脚本固定写入
@@ -42,14 +42,14 @@ bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> "$ROOT"
 
 从源码优先提取：
 
-- equation / align 环境；
+- `equation` / `align` 环境；
 - `\newcommand` 自定义宏；
 - `\includegraphics` 文件；
-- caption；
-- table 数字；
-- abstract、定义和作者贡献原句。
+- 图片说明；
+- 表格数字；
+- 摘要、定义和作者贡献原句。
 
-## PDF
+## PDF 处理
 
 正文：
 
@@ -70,12 +70,12 @@ pdftocairo -png -r 300 -f 5 -l 5 "$ROOT/sources/original.pdf" "$ROOT/project/pub
 pdftocairo -svg -f 5 -l 5 "$ROOT/sources/original.pdf" "$ROOT/project/public/assets/page5.svg"
 ```
 
-只使用需要解释的区域，不把整页论文当图片贴进场景。取图参数（页码、bbox、
-dpi、LaTeX 文件）记录在对应 figure grounded item 的扩展字段中。
+只使用需要解释的区域，不把整页论文当图片贴进场景。取图参数（页码、边界框、
+分辨率、LaTeX 文件）记录在对应图片依据项的扩展字段中。
 
 ## 路径
 
-Scene IR 使用构建后相对路径：
+场景 IR 使用构建后相对路径：
 
 ```json
 {
@@ -97,14 +97,14 @@ Scene IR 使用构建后相对路径：
 }
 ```
 
-Evidence 中的 `page` 会跳到构建后的 `site/paper/original.pdf#page=N`。抽查
-页码时以浏览器 PDF viewer 显示页序为准。
+证据中的 `page` 会跳到构建后的 `site/paper/original.pdf#page=N`。抽查
+页码时以浏览器 PDF 查看器显示页序为准。
 
 ## 公式
 
-运行时自带 KaTeX。公式放进 equation object 的 `tex`，分解项放 `parts`。复杂宏
-先展开成 KaTeX 可识别写法；不能可靠重建时使用论文公式截图，并在 evidence
-中保留 equation 编号和页码。
+运行时自带 KaTeX。公式放进公式对象的 `tex`，分解项放 `parts`。复杂宏
+先展开成 KaTeX 可识别写法；不能可靠重建时使用论文公式截图，并在证据
+中保留公式编号和页码。
 
 不要给 `.katex` 或其子元素覆盖 `font-family`。
 
@@ -113,8 +113,8 @@ Evidence 中的 `page` 会跳到构建后的 `site/paper/original.pdf#page=N`。
 - 图像清晰度至少为显示尺寸的两倍；
 - 原图没有反色或生成式修改；
 - 数字与表格逐项核对；
-- alt、caption、figure 编号齐全；
-- 每份素材有 Paper IR evidence；
+- 替代文本、图片说明、图片编号齐全；
+- 每份素材都有论文 IR 证据；
 - 构建后的路径可打开。
-- 下载原件及解压文件都在 `ROOT/sources/` 中，manifest 路径可定位；
+- 下载原件及解压文件都在 `ROOT/sources/` 中，清单路径可定位；
 - PDF 原件与发布副本一致，源码包和无关补充材料没有进入 `site/`。
