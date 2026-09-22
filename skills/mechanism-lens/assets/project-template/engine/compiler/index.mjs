@@ -1,12 +1,11 @@
-import { createHash } from "node:crypto";
 import { layoutWorld, targetBounds } from "./layout.mjs";
 
-export const compilerVersion = "2.1.0";
+function unique(items) {
+  return [...new Set(items)];
+}
 
-function sourceHash(paper, intent, catalog) {
-  return createHash("sha256")
-    .update(JSON.stringify({ paper, intent, catalog }))
-    .digest("hex");
+function evidenceKey(sourceId, evidenceId) {
+  return `${sourceId}::${evidenceId}`;
 }
 
 function compileDetailView(detail) {
@@ -29,49 +28,45 @@ function compileWorld(world) {
   };
 }
 
-function compileLegacyStep(step, world) {
-  const focusIds = step.focusIds ?? [];
-  const mode = step.viewMode === "overview" ? "fit" : (step.focusMode ?? "contextual");
-  const cameraIds = step.viewMode === "overview" ? [] : focusIds;
-  return { focusIds, mode, cameraIds, frameId: null, requestReason: null };
+function mechanismIndex(mechanism) {
+  const items = [
+    ...(mechanism.participants ?? []),
+    ...(mechanism.states ?? []),
+    ...(mechanism.scenarios ?? []),
+    ...(mechanism.scenarios ?? []).flatMap((scenario) => scenario.steps ?? []),
+  ];
+  return new Map(items.map((item) => [item.id, item]));
 }
 
-function compileStaticStep(step, world, scene) {
-  const frameId = step.frameId ?? scene.presentation?.defaultFrameId;
+function refsToEvidenceIds(refs = []) {
+  return refs.map((ref) => evidenceKey(ref.sourceId, ref.evidenceId));
+}
+
+function compileStep(step, world, scene, mechanismItems) {
+  const frameId = step.frameId ?? scene.presentation.defaultFrameId;
   const frame = world.frames.find((item) => item.id === frameId);
-  return {
-    focusIds: [],
-    mode: frame?.mode ?? "fit",
-    cameraIds: frame?.targetIds ?? [],
-    frameId: frame?.id ?? null,
-    requestReason: frame?.requestReason ?? null,
-    requiredReadableIds: frame?.requiredReadableIds ?? [],
-    bounds: frame?.bounds ?? world.bounds,
-  };
-}
-
-function compileStep(step, world, scene, intentVersion) {
-  const camera = intentVersion === "2.1" ? compileStaticStep(step, world, scene) : compileLegacyStep(step, world);
+  const evidenceIds = unique((step.mechanismStepIds ?? []).flatMap((id) => refsToEvidenceIds(mechanismItems.get(id)?.evidenceRefs)));
   return {
     id: step.id,
     title: step.title,
     narration: step.narration,
     goal: step.goal,
-    evidenceIds: step.evidenceIds ?? [],
+    mechanismStepIds: step.mechanismStepIds ?? [],
+    evidenceIds,
     visual: {
       visibleIds: step.visibleIds ?? world.objects.map((object) => object.id),
-      emphasisIds: step.emphasisIds ?? camera.focusIds,
+      emphasisIds: step.emphasisIds ?? [],
       activeRelationIds: step.activeRelationIds ?? [],
-      requiredReadableIds: step.requiredReadableIds ?? camera.requiredReadableIds ?? [],
+      requiredReadableIds: step.requiredReadableIds ?? frame?.requiredReadableIds ?? [],
       detailViewId: step.detailViewId ?? null,
       state: step.state ?? {},
     },
     camera: {
-      frameId: camera.frameId,
-      requestReason: camera.requestReason,
-      targetIds: camera.cameraIds,
-      mode: camera.mode,
-      bounds: camera.bounds ?? targetBounds(world, camera.cameraIds, camera.mode),
+      frameId,
+      requestReason: frame?.requestReason ?? null,
+      targetIds: frame?.targetIds ?? [],
+      mode: frame?.mode ?? "fit",
+      bounds: frame?.bounds ?? world.bounds,
     },
     transition: {
       strategy: step.transition?.strategy ?? "direct",
@@ -84,34 +79,78 @@ function compileStep(step, world, scene, intentVersion) {
   };
 }
 
-export function compileContent(paper, intent, catalog) {
-  const intentVersion = intent.schemaVersion === "2.1" ? "2.1" : "2.0";
+export function compileContent(mechanism, intent, catalog) {
   const worlds = intent.worlds.map(compileWorld);
   const worldMap = new Map(worlds.map((world) => [world.id, world]));
+  const mechanismItems = mechanismIndex(mechanism);
   const scenes = intent.scenes.map((scene) => {
     const world = worldMap.get(scene.worldId);
+    const steps = scene.steps.map((step) => compileStep(step, world, scene, mechanismItems));
     return {
       id: scene.id,
       title: scene.title,
       eyebrow: scene.eyebrow,
       contentKind: scene.contentKind,
       worldId: scene.worldId,
-      claimIds: scene.claimIds ?? [],
-      evidenceIds: scene.evidenceIds ?? [],
-      ...(intentVersion === "2.1" ? { presentation: structuredClone(scene.presentation) } : {}),
-      steps: scene.steps.map((step) => compileStep(step, world, scene, intentVersion)),
+      presentation: structuredClone(scene.presentation),
+      evidenceIds: unique(steps.flatMap((step) => step.evidenceIds)),
+      steps,
     };
   });
   return {
-    schemaVersion: intentVersion,
-    paperId: paper.paper.id,
-    title: intent.title,
-    build: {
-      compilerVersion,
-      templateCatalogVersion: catalog.version,
-      sourceHash: sourceHash(paper, intent, catalog),
-    },
+    subjectId: mechanism.id,
+    title: intent.title ?? mechanism.title,
     worlds,
     scenes,
   };
 }
+
+function normalizePaperEvidence(paper) {
+  if (!paper) return [];
+  return paper.evidence.map((item) => ({
+    ...item,
+    id: evidenceKey(paper.paper.id, item.id),
+    sourceId: paper.paper.id,
+    sourceKind: "paper",
+    basis: item.confidence === "derived" ? "static_inference" : "source_fact",
+  }));
+}
+
+function normalizeCodeEvidence(code) {
+  if (!code) return [];
+  return code.evidence.map((item) => ({
+    ...item,
+    id: evidenceKey(code.repository.id, item.id),
+    sourceId: code.repository.id,
+    sourceKind: "code",
+  }));
+}
+
+export function compileSourceBundle({ paper = null, code = null }, mechanism, scene) {
+  const usedEvidence = new Set(scene.scenes.flatMap((item) => item.evidenceIds));
+  const sources = [];
+  if (paper) sources.push({
+    id: paper.paper.id,
+    kind: "paper",
+    title: paper.paper.title,
+    summary: paper.paper.summary ?? "",
+    url: paper.paper.originalUrl,
+    pdfUrl: paper.paper.pdfUrl,
+    localPath: paper.paper.localPdfPath,
+  });
+  if (code) sources.push({
+    id: code.repository.id,
+    kind: "code",
+    title: code.repository.title,
+    summary: code.question,
+    location: code.repository.location,
+    sourceType: code.repository.sourceType,
+  });
+  return {
+    subject: { id: mechanism.id, title: mechanism.title, summary: mechanism.summary ?? mechanism.question },
+    sources,
+    evidence: [...normalizePaperEvidence(paper), ...normalizeCodeEvidence(code)].filter((item) => usedEvidence.has(item.id)),
+  };
+}
+
+export { evidenceKey };

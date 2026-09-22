@@ -1,4 +1,4 @@
-import type { Evidence, PaperIR } from "../types";
+import type { Evidence, SourceInfo } from "../types";
 
 export function assetUrl(value: string): string {
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
@@ -6,20 +6,22 @@ export function assetUrl(value: string): string {
 }
 
 function withFragment(url: string, fragment: string): string {
-  const clean = url.split("#")[0];
-  return `${clean}#${fragment}`;
+  return `${url.split("#")[0]}#${fragment}`;
 }
 
-export function evidenceUrl(evidence: Evidence, paper: PaperIR["paper"]): string | null {
-  if (evidence.url) return evidence.url;
+export function sourceHome(source: SourceInfo): string | null {
+  if (source.kind === "code") return source.sourceType === "git" && /^https?:/i.test(source.location ?? "") ? source.location ?? null : null;
+  return source.localPath ? assetUrl(source.localPath) : source.url || source.pdfUrl || null;
+}
 
-  const localPdf = paper.localPdfPath ? assetUrl(paper.localPdfPath) : "";
+export function evidenceUrl(evidence: Evidence, source?: SourceInfo): string | null {
+  if (evidence.url) return evidence.url;
+  if (!source || source.kind === "code") return sourceHome(source ?? { id: "", kind: "code", title: "" });
+  const localPdf = source.localPath ? assetUrl(source.localPath) : "";
   if (evidence.page) {
-    const pdf = localPdf || paper.pdfUrl || paper.originalUrl;
+    const pdf = localPdf || source.pdfUrl || source.url || "";
     return pdf ? withFragment(pdf, `page=${evidence.page}`) : null;
   }
-
-  const base = localPdf || paper.originalUrl || paper.pdfUrl || "";
-  if (!base) return null;
-  return evidence.anchor ? withFragment(base, evidence.anchor) : base;
+  const base = localPdf || source.url || source.pdfUrl || "";
+  return base ? (evidence.anchor ? withFragment(base, evidence.anchor) : base) : null;
 }

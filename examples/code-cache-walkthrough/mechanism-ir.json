@@ -1,0 +1,31 @@
+{
+  "id": "mechanism.cache-miss",
+  "title": "Cache miss path",
+  "question": "What happens when the cache misses?",
+  "summary": "A miss loads the value, stores it, then returns it.",
+  "sources": [{ "id": "code.cache-example", "kind": "code" }],
+  "participants": [
+    { "id": "participant.request", "title": "Request" },
+    { "id": "participant.cache", "title": "Cache", "sourceRefs": [{ "sourceId": "code.cache-example", "objectId": "entity.get-or-load" }], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.lookup" }] },
+    { "id": "participant.loader", "title": "Loader", "sourceRefs": [{ "sourceId": "code.cache-example", "objectId": "entity.load" }], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.load" }] },
+    { "id": "participant.result", "title": "Result" }
+  ],
+  "states": [
+    { "id": "state.cache-miss", "title": "Cache miss" },
+    { "id": "state.cache-filled", "title": "Cache contains value" }
+  ],
+  "scenarios": [{
+    "id": "scenario.cache-miss",
+    "title": "Cache miss",
+    "basis": "static_inference",
+    "assumptions": ["The key is not already in the cache.", "The loader returns normally."],
+    "steps": [
+      { "id": "step.lookup", "explanation": "Look up the key and take the miss path.", "basis": "source_fact", "participantIds": ["participant.request", "participant.cache"], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.lookup" }] },
+      { "id": "step.load", "explanation": "Call the loader to produce the value.", "basis": "source_fact", "participantIds": ["participant.loader"], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.call" }, { "sourceId": "code.cache-example", "evidenceId": "evidence.load" }] },
+      { "id": "step.store", "explanation": "Store the loaded value in the cache.", "basis": "source_fact", "participantIds": ["participant.cache", "participant.result"], "stateChanges": ["state.cache-miss -> state.cache-filled"], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.store" }] },
+      { "id": "step.return", "explanation": "Return the stored value.", "basis": "static_inference", "participantIds": ["participant.result"], "evidenceRefs": [{ "sourceId": "code.cache-example", "evidenceId": "evidence.store" }] }
+    ],
+    "branches": [{ "condition": "key in cache", "description": "Return the cached value without loading." }],
+    "unresolved": ["Concurrent duplicate computation is not established by the selected function."]
+  }]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "mechanism.demo",
+  "title": "MechanismLens demonstration",
+  "question": "How do the paper's problem, architecture, objective, algorithm and evidence fit together?",
+  "summary": "A source-grounded walkthrough assembled from the demonstration paper input.",
+  "sources": [
+    { "id": "paper.demo", "kind": "paper" }
+  ],
+  "participants": [
+    { "id": "concept.problem", "title": "Problem", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "concept.problem" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.abstract" }] },
+    { "id": "concept.solution", "title": "Contribution", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "concept.solution" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.abstract" }] },
+    { "id": "module.input", "title": "Input", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "module.input" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "module.encoder", "title": "Encoder", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "module.encoder" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "module.fusion", "title": "Fusion", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "module.fusion" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "module.decoder", "title": "Decoder", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "module.decoder" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "module.output", "title": "Output", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "module.output" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "relation.encode", "title": "Encode", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "relation.encode" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "relation.fuse", "title": "Fuse", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "relation.fuse" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "relation.decode", "title": "Decode", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "relation.decode" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "relation.predict", "title": "Predict", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "relation.predict" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+    { "id": "equation.objective", "title": "Objective", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "equation.objective" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.equation" }] },
+    { "id": "algorithm.main", "title": "Algorithm", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "algorithm.main" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.algorithm" }] },
+    { "id": "experiment.ablation", "title": "Ablation", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "experiment.ablation" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.ablation" }] },
+    { "id": "figure.qualitative", "title": "Qualitative figure", "sourceRefs": [{ "sourceId": "paper.demo", "objectId": "figure.qualitative" }], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.figure" }] }
+  ],
+  "states": [],
+  "scenarios": [
+    {
+      "id": "scenario.paper-walkthrough",
+      "title": "Paper mechanism walkthrough",
+      "basis": "source_fact",
+      "assumptions": ["The demonstration content must be replaced with facts from the selected paper."],
+      "steps": [
+        { "id": "step.problem", "explanation": "Establish the problem.", "basis": "source_fact", "participantIds": ["concept.problem"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.abstract" }] },
+        { "id": "step.contribution", "explanation": "Introduce the primary contribution.", "basis": "source_fact", "participantIds": ["concept.solution"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.abstract" }] },
+        { "id": "step.encoder-input", "explanation": "Show the input entering the encoder.", "basis": "source_fact", "participantIds": ["module.input", "module.encoder"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.encoder-context", "explanation": "Follow the encoder transformation.", "basis": "source_fact", "participantIds": ["module.encoder"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.fusion-inputs", "explanation": "Bring the source streams into the fusion mechanism.", "basis": "source_fact", "participantIds": ["module.encoder", "module.fusion"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.fusion-output", "explanation": "Produce the fused state.", "basis": "source_fact", "participantIds": ["module.fusion"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.decoder", "explanation": "Decode the fused representation.", "basis": "source_fact", "participantIds": ["module.decoder", "module.output"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.architecture-summary", "explanation": "Reconnect the complete architecture.", "basis": "source_fact", "participantIds": ["module.input", "module.encoder", "module.fusion", "module.decoder", "module.output"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.architecture" }] },
+        { "id": "step.primary-loss", "explanation": "Explain the primary objective term.", "basis": "source_fact", "participantIds": ["equation.objective"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.equation" }] },
+        { "id": "step.regularizer", "explanation": "Explain the regularization term.", "basis": "source_fact", "participantIds": ["equation.objective"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.equation" }] },
+        { "id": "step.initialize", "explanation": "Initialize the algorithm state.", "basis": "source_fact", "participantIds": ["algorithm.main"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.algorithm" }] },
+        { "id": "step.update", "explanation": "Update the algorithm state.", "basis": "source_fact", "participantIds": ["algorithm.main"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.algorithm" }] },
+        { "id": "step.baseline", "explanation": "Establish the experimental baseline.", "basis": "source_fact", "participantIds": ["experiment.ablation"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.ablation" }] },
+        { "id": "step.full", "explanation": "Compare the full method with the baseline.", "basis": "source_fact", "participantIds": ["experiment.ablation"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.ablation" }] },
+        { "id": "step.region-input", "explanation": "Inspect the input region.", "basis": "source_fact", "participantIds": ["figure.qualitative"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.figure" }] },
+        { "id": "step.region-output", "explanation": "Inspect the output region.", "basis": "source_fact", "participantIds": ["figure.qualitative"], "evidenceRefs": [{ "sourceId": "paper.demo", "evidenceId": "evidence.figure" }] }
+      ],
+      "branches": [],
+      "unresolved": []
+    }
+  ]
+}

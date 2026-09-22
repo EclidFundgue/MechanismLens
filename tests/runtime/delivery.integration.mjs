@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, renameSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { get } from "node:http";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -105,15 +105,23 @@ test("scaffolded delivery validates, builds, and serves outside the repository",
   try {
     await run(process.execPath, [scaffold, staging, "--title", "Delivery fixture"], repositoryRoot);
     renameSync(staging, delivered);
+    const retainedRepository = join(delivered, "sources/code/repository");
+    mkdirSync(join(retainedRepository, ".git"), { recursive: true });
+    writeFileSync(join(retainedRepository, "private-source.py"), "SECRET = 'must stay outside site'\n");
+    writeFileSync(join(retainedRepository, ".git/shallow"), "retained shallow repository marker\n");
 
     const generatedValidator = join(delivered, "runtime/validate-data.mjs");
     assert.equal(existsSync(join(delivered, "engine/compiler/index.mjs")), true);
     assert.equal(existsSync(join(delivered, "engine/validation/index.mjs")), true);
+    assert.equal(existsSync(join(delivered, "content/mechanism-ir.json")), true);
     assert.equal(existsSync(join(delivered, "content/visual-intent.json")), true);
+    assert.equal(existsSync(join(delivered, "content/source-bundle.json")), true);
     await run(process.execPath, [generatedValidator, join(delivered, "content")], delivered);
     await run(process.execPath, [build, delivered], repositoryRoot);
 
     assert.equal(existsSync(join(delivered, "site/index.html")), true);
+    assert.equal(existsSync(join(delivered, "site/sources/code/repository")), false, "retained repositories must not be published");
+    assert.equal(existsSync(join(delivered, "site/private-source.py")), false, "repository files must not leak into the site root");
     for (const launcher of ["open.cmd", "open.command", "open.sh"]) assert.equal(existsSync(join(delivered, launcher)), true, launcher);
 
     server = await startServer(delivered);

@@ -1,12 +1,6 @@
 {
-  "schemaVersion": "2.1",
-  "paperId": "paper.demo",
+  "subjectId": "mechanism.demo",
   "title": "Interactive paper walkthrough",
-  "build": {
-    "compilerVersion": "2.1.0",
-    "templateCatalogVersion": "2.2.0",
-    "sourceHash": "97932a3c9e41d67f321c286782e93428d568f6ef4ec2fb2ee4dc68d9c2df0c7d"
-  },
   "worlds": [
     {
       "id": "world.overview",
@@ -23,10 +17,7 @@
           "kind": "card",
           "label": "Problem",
           "text": "What existing methods cannot do",
-          "paperRef": "concept.problem",
-          "evidenceIds": [
-            "evidence.abstract"
-          ],
+          "mechanismRef": "concept.problem",
           "x": 80,
           "y": 80,
           "width": 280,
@@ -37,10 +28,7 @@
           "kind": "card",
           "label": "Contribution",
           "text": "What this paper changes",
-          "paperRef": "concept.solution",
-          "evidenceIds": [
-            "evidence.abstract"
-          ],
+          "mechanismRef": "concept.solution",
           "x": 394,
           "y": 80,
           "width": 280,
@@ -93,10 +81,7 @@
           "label": "Input",
           "detail": "[B, N, D]",
           "role": "tensor",
-          "paperRef": "module.input",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.input",
           "x": 80,
           "y": 80
         },
@@ -107,10 +92,7 @@
           "height": 100,
           "label": "Embedding",
           "detail": "project input",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 300,
           "y": 80
         },
@@ -121,10 +103,7 @@
           "height": 100,
           "label": "Context blocks",
           "detail": "build representation",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 520,
           "y": 80
         },
@@ -135,10 +114,7 @@
           "height": 100,
           "label": "Encoded state",
           "detail": "contextual features",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 740,
           "y": 80
         }
@@ -149,10 +125,7 @@
           "from": "encoder.input",
           "to": "encoder.embed",
           "label": "project",
-          "paperRef": "relation.encode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.encode",
           "x1": 220,
           "y1": 130,
           "x2": 300,
@@ -164,10 +137,7 @@
           "from": "encoder.embed",
           "to": "encoder.context",
           "label": "context",
-          "paperRef": "relation.encode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.encode",
           "x1": 440,
           "y1": 130,
           "x2": 520,
@@ -179,10 +149,7 @@
           "from": "encoder.context",
           "to": "encoder.output",
           "label": "encode",
-          "paperRef": "relation.encode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.encode",
           "x1": 660,
           "y1": 130,
           "x2": 740,
@@ -237,10 +204,7 @@
           "height": 100,
           "label": "Context A",
           "detail": "source stream",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 80,
           "y": 80
         },
@@ -251,10 +215,7 @@
           "height": 100,
           "label": "Context B",
           "detail": "complementary stream",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 80,
           "y": 210
         },
@@ -265,10 +226,7 @@
           "height": 100,
           "label": "Fusion",
           "detail": "combine evidence",
-          "paperRef": "module.fusion",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.fusion",
           "x": 310,
           "y": 145
         },
@@ -279,10 +237,7 @@
           "height": 100,
           "label": "Fused state",
           "detail": "joint representation",
-          "paperRef": "module.fusion",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.fusion",
           "x": 540,
           "y": 145
         }
@@ -292,10 +247,7 @@
           "id": "fusion.edge-a",
           "from": "fusion.context-a",
           "to": "fusion.operation",
-          "paperRef": "relation.fuse",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.fuse",
           "x1": 230,
           "y1": 130,
           "x2": 310,
@@ -306,10 +258,7 @@
           "id": "fusion.edge-b",
           "from": "fusion.context-b",
           "to": "fusion.operation",
-          "paperRef": "relation.fuse",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.fuse",
           "x1": 230,
           "y1": 260,
           "x2": 310,
@@ -321,10 +270,7 @@
           "from": "fusion.operation",
           "to": "fusion.output",
           "label": "fuse",
-          "paperRef": "relation.fuse",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.fuse",
           "x1": 460,
           "y1": 195,
           "x2": 540,
@@ -364,7 +310,7 @@
               "kind": "node",
               "label": "Context A",
               "detail": "source stream",
-              "paperRef": "module.encoder",
+              "mechanismRef": "module.encoder",
               "width": 190,
               "height": 108,
               "x": 80,
@@ -375,7 +321,7 @@
               "kind": "node",
               "label": "Context B",
               "detail": "complementary stream",
-              "paperRef": "module.encoder",
+              "mechanismRef": "module.encoder",
               "width": 190,
               "height": 108,
               "x": 80,
@@ -386,7 +332,7 @@
               "kind": "node",
               "label": "Merge",
               "detail": "fusion rule",
-              "paperRef": "module.fusion",
+              "mechanismRef": "module.fusion",
               "width": 190,
               "height": 108,
               "x": 350,
@@ -448,10 +394,7 @@
           "kind": "node",
           "label": "Fused state",
           "detail": "decoder input",
-          "paperRef": "module.fusion",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.fusion",
           "width": 190,
           "height": 108,
           "x": 80,
@@ -462,10 +405,7 @@
           "kind": "node",
           "label": "Decode blocks",
           "detail": "recover output",
-          "paperRef": "module.decoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.decoder",
           "width": 190,
           "height": 108,
           "x": 350,
@@ -477,10 +417,7 @@
           "label": "Output",
           "detail": "[B, M, D]",
           "role": "tensor",
-          "paperRef": "module.output",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.output",
           "width": 190,
           "height": 108,
           "x": 620,
@@ -493,10 +430,7 @@
           "from": "decoder.input",
           "to": "decoder.blocks",
           "label": "decode",
-          "paperRef": "relation.decode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.decode",
           "x1": 270,
           "y1": 134,
           "x2": 350,
@@ -508,10 +442,7 @@
           "from": "decoder.blocks",
           "to": "decoder.output",
           "label": "predict",
-          "paperRef": "relation.predict",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.predict",
           "x1": 540,
           "y1": 134,
           "x2": 620,
@@ -577,10 +508,7 @@
           "width": 140,
           "height": 100,
           "label": "Input",
-          "paperRef": "module.input",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.input",
           "x": 80,
           "y": 80
         },
@@ -590,10 +518,7 @@
           "width": 140,
           "height": 100,
           "label": "Encoder",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.encoder",
           "x": 284,
           "y": 80
         },
@@ -603,10 +528,7 @@
           "width": 140,
           "height": 100,
           "label": "Fusion",
-          "paperRef": "module.fusion",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.fusion",
           "x": 488,
           "y": 80
         },
@@ -616,10 +538,7 @@
           "width": 140,
           "height": 100,
           "label": "Decoder",
-          "paperRef": "module.decoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.decoder",
           "x": 692,
           "y": 80
         },
@@ -629,10 +548,7 @@
           "width": 140,
           "height": 100,
           "label": "Output",
-          "paperRef": "module.output",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "module.output",
           "x": 896,
           "y": 80
         }
@@ -642,10 +558,7 @@
           "id": "summary.edge-encode",
           "from": "summary.input",
           "to": "summary.encoder",
-          "paperRef": "relation.encode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.encode",
           "x1": 220,
           "y1": 130,
           "x2": 284,
@@ -656,10 +569,7 @@
           "id": "summary.edge-fuse",
           "from": "summary.encoder",
           "to": "summary.fusion",
-          "paperRef": "relation.fuse",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.fuse",
           "x1": 424,
           "y1": 130,
           "x2": 488,
@@ -670,10 +580,7 @@
           "id": "summary.edge-decode",
           "from": "summary.fusion",
           "to": "summary.decoder",
-          "paperRef": "relation.decode",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.decode",
           "x1": 628,
           "y1": 130,
           "x2": 692,
@@ -684,10 +591,7 @@
           "id": "summary.edge-predict",
           "from": "summary.decoder",
           "to": "summary.output",
-          "paperRef": "relation.predict",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
+          "mechanismRef": "relation.predict",
           "x1": 832,
           "y1": 130,
           "x2": 896,
@@ -740,10 +644,6 @@
           "kind": "equation",
           "label": "Main objective",
           "tex": "\\mathcal{L}=\\mathcal{L}_{main}+\\lambda\\mathcal{L}_{reg}",
-          "paperRef": "equation.objective",
-          "evidenceIds": [
-            "evidence.equation"
-          ],
           "parts": [
             {
               "id": "term.primary",
@@ -756,6 +656,7 @@
               "explanation": "Weighted regularization term"
             }
           ],
+          "mechanismRef": "equation.objective",
           "x": 80,
           "y": 80,
           "width": 920,
@@ -825,10 +726,6 @@
           "id": "code.algorithm",
           "kind": "code",
           "label": "Algorithm 1",
-          "paperRef": "algorithm.main",
-          "evidenceIds": [
-            "evidence.algorithm"
-          ],
           "lines": [
             {
               "id": "line.initialize",
@@ -846,6 +743,7 @@
               "explanation": "Produce output"
             }
           ],
+          "mechanismRef": "algorithm.main",
           "x": 80,
           "y": 80,
           "width": 940,
@@ -927,10 +825,6 @@
           "id": "chart.ablation",
           "kind": "chart",
           "label": "Ablation results",
-          "paperRef": "experiment.ablation",
-          "evidenceIds": [
-            "evidence.ablation"
-          ],
           "metric": {
             "label": "Demo score",
             "unit": "%",
@@ -958,6 +852,7 @@
               "displayValue": "81"
             }
           ],
+          "mechanismRef": "experiment.ablation",
           "x": 80,
           "y": 80,
           "width": 940,
@@ -1042,10 +937,6 @@
           "src": "assets/demo-figure.svg",
           "alt": "Illustrative input and output panels",
           "caption": "Illustrative fixture only; replace with the paper's figure and caption",
-          "paperRef": "figure.qualitative",
-          "evidenceIds": [
-            "evidence.figure"
-          ],
           "regions": [
             {
               "id": "region.input",
@@ -1064,6 +955,7 @@
               "height": 0.62
             }
           ],
+          "mechanismRef": "figure.qualitative",
           "x": 80,
           "y": 80,
           "width": 940,
@@ -1145,25 +1037,25 @@
       "eyebrow": "Overview",
       "contentKind": "concept",
       "worldId": "world.overview",
-      "claimIds": [
-        "claim.main"
-      ],
-      "evidenceIds": [
-        "evidence.abstract"
-      ],
       "presentation": {
         "treatment": "static_emphasis",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.overview"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.abstract"
+      ],
       "steps": [
         {
           "id": "step.problem",
           "title": "The problem",
           "narration": "Replace this sentence with the problem the paper actually solves.",
           "goal": "Establish the gap",
+          "mechanismStepIds": [
+            "step.problem"
+          ],
           "evidenceIds": [
-            "evidence.abstract"
+            "paper.demo::evidence.abstract"
           ],
           "visual": {
             "visibleIds": [
@@ -1206,8 +1098,11 @@
           "title": "The contribution",
           "narration": "Replace this sentence with the paper's primary contribution.",
           "goal": "State the change",
+          "mechanismStepIds": [
+            "step.contribution"
+          ],
           "evidenceIds": [
-            "evidence.abstract"
+            "paper.demo::evidence.abstract"
           ],
           "visual": {
             "visibleIds": [
@@ -1253,24 +1148,24 @@
       "eyebrow": "Architecture · part 1",
       "contentKind": "architecture",
       "worldId": "world.encoder-local",
-      "claimIds": [
-        "claim.architecture"
-      ],
-      "evidenceIds": [
-        "evidence.architecture"
-      ],
       "presentation": {
         "treatment": "parts_then_whole",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.encoder-local"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.architecture"
+      ],
       "steps": [
         {
           "id": "step.encoder-input",
           "title": "Encoder input",
           "narration": "First identify the tensor entering the encoder and the projection applied to it.",
+          "mechanismStepIds": [
+            "step.encoder-input"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1318,8 +1213,11 @@
           "id": "step.encoder-context",
           "title": "Encoded state",
           "narration": "Then keep the frame fixed while the context blocks produce the encoded representation.",
+          "mechanismStepIds": [
+            "step.encoder-context"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1372,24 +1270,24 @@
       "eyebrow": "Architecture · part 2",
       "contentKind": "architecture",
       "worldId": "world.fusion-local",
-      "claimIds": [
-        "claim.architecture"
-      ],
-      "evidenceIds": [
-        "evidence.architecture"
-      ],
       "presentation": {
         "treatment": "progressive_reveal",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.fusion-local"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.architecture"
+      ],
       "steps": [
         {
           "id": "step.fusion-inputs",
           "title": "Fusion inputs",
           "narration": "Read both source streams together before applying the fusion operation.",
+          "mechanismStepIds": [
+            "step.fusion-inputs"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1438,8 +1336,11 @@
           "id": "step.fusion-output",
           "title": "Fusion output",
           "narration": "The reserved detail area can expand the mechanism without moving or resizing the main diagram.",
+          "mechanismStepIds": [
+            "step.fusion-output"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1491,24 +1392,24 @@
       "eyebrow": "Architecture · part 3",
       "contentKind": "architecture",
       "worldId": "world.decoder-local",
-      "claimIds": [
-        "claim.architecture"
-      ],
-      "evidenceIds": [
-        "evidence.architecture"
-      ],
       "presentation": {
         "treatment": "static_emphasis",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.decoder-local"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.architecture"
+      ],
       "steps": [
         {
           "id": "step.decoder",
           "title": "Decoder path",
           "narration": "The decoder transforms the fused representation into the paper's output in one readable frame.",
+          "mechanismStepIds": [
+            "step.decoder"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1560,24 +1461,24 @@
       "eyebrow": "Architecture · whole",
       "contentKind": "architecture",
       "worldId": "world.architecture-summary",
-      "claimIds": [
-        "claim.architecture"
-      ],
-      "evidenceIds": [
-        "evidence.architecture"
-      ],
       "presentation": {
         "treatment": "parts_then_whole",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.architecture-summary"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.architecture"
+      ],
       "steps": [
         {
           "id": "step.architecture-summary",
           "title": "End-to-end path",
           "narration": "Now connect the encoder, fusion and decoder after each part has already been learned.",
+          "mechanismStepIds": [
+            "step.architecture-summary"
+          ],
           "evidenceIds": [
-            "evidence.architecture"
+            "paper.demo::evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
@@ -1633,23 +1534,23 @@
       "eyebrow": "Equation derivation",
       "contentKind": "equation",
       "worldId": "world.equation",
-      "claimIds": [
-        "claim.equation"
-      ],
-      "evidenceIds": [
-        "evidence.equation"
-      ],
       "presentation": {
         "treatment": "progressive_reveal",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.equation"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.equation"
+      ],
       "steps": [
         {
           "id": "step.primary-loss",
           "narration": "The first term captures the primary prediction error.",
+          "mechanismStepIds": [
+            "step.primary-loss"
+          ],
           "evidenceIds": [
-            "evidence.equation"
+            "paper.demo::evidence.equation"
           ],
           "visual": {
             "visibleIds": [
@@ -1693,8 +1594,11 @@
         {
           "id": "step.regularizer",
           "narration": "The weighted second term controls the regularization objective.",
+          "mechanismStepIds": [
+            "step.regularizer"
+          ],
           "evidenceIds": [
-            "evidence.equation"
+            "paper.demo::evidence.equation"
           ],
           "visual": {
             "visibleIds": [
@@ -1743,23 +1647,23 @@
       "eyebrow": "Algorithm state trace",
       "contentKind": "algorithm",
       "worldId": "world.algorithm",
-      "claimIds": [
-        "claim.algorithm"
-      ],
-      "evidenceIds": [
-        "evidence.algorithm"
-      ],
       "presentation": {
         "treatment": "progressive_reveal",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.algorithm"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.algorithm"
+      ],
       "steps": [
         {
           "id": "step.initialize",
           "narration": "First initialize the state from the current observation.",
+          "mechanismStepIds": [
+            "step.initialize"
+          ],
           "evidenceIds": [
-            "evidence.algorithm"
+            "paper.demo::evidence.algorithm"
           ],
           "visual": {
             "visibleIds": [
@@ -1806,8 +1710,11 @@
         {
           "id": "step.update",
           "narration": "Then update the state until the stopping condition is reached.",
+          "mechanismStepIds": [
+            "step.update"
+          ],
           "evidenceIds": [
-            "evidence.algorithm"
+            "paper.demo::evidence.algorithm"
           ],
           "visual": {
             "visibleIds": [
@@ -1862,23 +1769,23 @@
       "eyebrow": "Variant comparison",
       "contentKind": "experiment",
       "worldId": "world.ablation",
-      "claimIds": [
-        "claim.ablation"
-      ],
-      "evidenceIds": [
-        "evidence.ablation"
-      ],
       "presentation": {
         "treatment": "progressive_reveal",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.ablation"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.ablation"
+      ],
       "steps": [
         {
           "id": "step.baseline",
           "narration": "The baseline establishes the comparison point.",
+          "mechanismStepIds": [
+            "step.baseline"
+          ],
           "evidenceIds": [
-            "evidence.ablation"
+            "paper.demo::evidence.ablation"
           ],
           "visual": {
             "visibleIds": [
@@ -1924,8 +1831,11 @@
         {
           "id": "step.full",
           "narration": "The full method shows the total reported improvement on the same scale.",
+          "mechanismStepIds": [
+            "step.full"
+          ],
           "evidenceIds": [
-            "evidence.ablation"
+            "paper.demo::evidence.ablation"
           ],
           "visual": {
             "visibleIds": [
@@ -1980,23 +1890,23 @@
       "eyebrow": "Figure region exploration",
       "contentKind": "figure",
       "worldId": "world.figure",
-      "claimIds": [
-        "claim.figure"
-      ],
-      "evidenceIds": [
-        "evidence.figure"
-      ],
       "presentation": {
         "treatment": "overview_detail_spotlight",
         "cameraPolicy": "static_first",
         "defaultFrameId": "frame.figure-input"
       },
+      "evidenceIds": [
+        "paper.demo::evidence.figure"
+      ],
       "steps": [
         {
           "id": "step.region-input",
           "narration": "Inspect the first region because its original annotation is too small in the complete figure.",
+          "mechanismStepIds": [
+            "step.region-input"
+          ],
           "evidenceIds": [
-            "evidence.figure"
+            "paper.demo::evidence.figure"
           ],
           "visual": {
             "visibleIds": [
@@ -2042,8 +1952,11 @@
         {
           "id": "step.region-output",
           "narration": "After restoring spatial context, inspect the second region before accepting the conclusion.",
+          "mechanismStepIds": [
+            "step.region-output"
+          ],
           "evidenceIds": [
-            "evidence.figure"
+            "paper.demo::evidence.figure"
           ],
           "visual": {
             "visibleIds": [

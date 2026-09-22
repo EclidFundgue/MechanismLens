@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mechanism-lens.local/schema/code-ir.schema.json",
+  "title": "MechanismLens Code IR",
+  "type": "object",
+  "required": ["repository", "question", "scope", "entities", "relations", "entrypoints", "evidence", "unresolved"],
+  "properties": {
+    "repository": { "type": "object", "required": ["id", "title", "location", "sourceType"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "location": { "type": "string", "minLength": 1 }, "sourceType": { "enum": ["local", "git"] } }, "additionalProperties": false },
+    "question": { "type": "string", "minLength": 1 },
+    "scope": { "type": "object", "required": ["focus", "excluded", "limitations"], "properties": { "focus": { "type": "array", "items": { "type": "string" } }, "excluded": { "type": "array", "items": { "type": "string" } }, "limitations": { "type": "array", "items": { "type": "string" } } }, "additionalProperties": false },
+    "entities": { "type": "array", "items": { "$ref": "#/$defs/entity" } },
+    "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } },
+    "entrypoints": { "type": "array", "items": { "$ref": "#/$defs/entrypoint" } },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+    "unresolved": { "type": "array", "items": { "$ref": "#/$defs/unresolved" } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "idList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "entity": { "type": "object", "required": ["id", "kind", "name", "path", "lineStart", "lineEnd", "evidenceIds"], "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["file", "module", "class", "function", "method", "data"] }, "name": { "type": "string", "minLength": 1 }, "path": { "type": "string", "minLength": 1 }, "symbol": { "type": "string" }, "lineStart": { "type": "integer", "minimum": 1 }, "lineEnd": { "type": "integer", "minimum": 1 }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": false },
+    "relation": { "type": "object", "required": ["id", "kind", "from", "to", "evidenceIds"], "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["direct_call", "function_reference", "registration", "import", "read", "write", "dynamic_candidate", "contains"] }, "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" }, "label": { "type": "string" }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": false },
+    "entrypoint": { "type": "object", "required": ["id", "entityId", "reason", "evidenceIds"], "properties": { "id": { "$ref": "#/$defs/id" }, "entityId": { "$ref": "#/$defs/id" }, "reason": { "type": "string", "minLength": 1 }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": false },
+    "evidence": { "type": "object", "required": ["id", "label", "kind", "path", "lineStart", "lineEnd", "excerpt", "basis"], "properties": { "id": { "$ref": "#/$defs/id" }, "label": { "type": "string", "minLength": 1 }, "kind": { "const": "code" }, "path": { "type": "string", "minLength": 1 }, "symbol": { "type": "string" }, "lineStart": { "type": "integer", "minimum": 1 }, "lineEnd": { "type": "integer", "minimum": 1 }, "excerpt": { "type": "string" }, "basis": { "enum": ["source_fact", "static_inference", "runtime_observation"] } }, "additionalProperties": false },
+    "unresolved": { "type": "object", "required": ["id", "description"], "properties": { "id": { "$ref": "#/$defs/id" }, "description": { "type": "string", "minLength": 1 }, "path": { "type": "string" }, "reason": { "type": "string" } }, "additionalProperties": false }
+  }
+}

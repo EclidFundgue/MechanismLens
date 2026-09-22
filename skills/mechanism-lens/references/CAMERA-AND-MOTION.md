@@ -1,6 +1,6 @@
 # Camera 与 Motion
 
-相机是可读性工具，不是默认叙事手段。Visual Intent 2.1 先声明固定 frame，编译器把它展开为完整 camera bounds；`emphasisIds` 只改变注意力，不参与 camera 求解。
+相机是可读性工具，不是默认叙事手段。Visual Intent 先声明固定 frame，编译器把它展开为完整 camera bounds；`emphasisIds` 只改变注意力，不参与 camera 求解。
 
 ## 决策顺序
 

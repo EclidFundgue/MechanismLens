@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/assets/readme-hero.svg" alt="MechanismLens：从文档，到逐步讲解，再回到证据。" width="100%" />
+  <img src="docs/assets/readme-hero.svg" alt="MechanismLens：从论文与代码，到逐步讲解，再回到证据。" width="100%" />
 </p>
 
 <h1 align="center">MechanismLens</h1>
-<p align="center"><strong>把复杂文档，变成看得懂、点得动、查得到出处的视觉讲解。</strong></p>
-<p align="center">一个自包含的 Agent Skill · 输入链接或文件 · 交付交互式网页</p>
+<p align="center"><strong>把论文与代码中的复杂机制，变成可探索、可追溯的视觉讲解。</strong></p>
+<p align="center">一个自包含的 Agent Skill · 输入论文、仓库或二者 · 交付交互式网页</p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-93c5fd?style=flat-square" alt="MIT License" /></a>
@@ -22,7 +22,7 @@
 
 ---
 
-阅读复杂文档时，最难的往往是把概念、结构、流程和数据连起来。MechanismLens 通过内置的 `mechanism-lens` Skill 让 Agent 读取原文，把关键内容组织成可以逐步探索的讲解：看数据如何流动，拆开一个公式，跟踪一次算法执行，再点开对应的原文依据。
+理解复杂系统时，最难的往往不是找到材料，而是把概念、结构、执行路径和状态变化连起来。MechanismLens 让 Agent 读取论文或代码仓库，把事实组织成可以逐步探索的机制讲解，并随时回到论文摘录或真实源码。
 
 在支持本地 Skill 的 Agent 对话中输入：
 
@@ -30,7 +30,11 @@
 mechanism-lens https://arxiv.org/abs/1706.03762
 ```
 
-**从原文解析到网页构建，一次调用完成。** 支持论文、技术报告、产品文档、教程、文章、网页、PDF、本地文件和粘贴文本；讲解深度取决于原文可提取的信息。
+```text
+用 mechanism-lens 解释 https://github.com/example/project 的缓存未命中路径
+```
+
+**从来源读取到网页构建，一次调用完成。** Paper Lens 解释方法和依据，Code Lens 解释实现与执行路径，Paper ↔ Code 把论文机制连接到真实实现。
 
 <a id="experience"></a>
 ## 你会得到什么
@@ -89,7 +93,7 @@ Claude Code 用户将目标目录改为 `.claude/skills`。
 
 </details>
 
-### 2. 给它一份文档
+### 2. 给它论文或代码
 
 安装后，在 Agent 的新会话里使用以下任一提示。**这些是对话提示，不是终端命令。**
 
@@ -102,14 +106,18 @@ mechanism-lens https://arxiv.org/abs/1706.03762
 ```
 
 ```text
-用 mechanism-lens 讲解这份文档，内容定稿后再导出 MP4：<文档链接>
+用 mechanism-lens 解释 ./my-project 的请求缓存机制
+```
+
+```text
+对照这篇论文和它的实现，解释模型前向路径：<论文链接> <仓库链接>
 ```
 
 不必先指定主题、篇幅、场景或输出目录。输入需要登录或无法解析时，Agent 会请求可访问的文件或正文。
 
 ### 3. 打开讲解
 
-在生成的 `<paper-slug>-explainer/` 目录中：
+在生成的 `<slug>-explainer/` 目录中：
 
 | 系统 | 打开方式 |
 | :--- | :--- |
@@ -139,27 +147,28 @@ mechanism-lens https://arxiv.org/abs/1706.03762
 
 ```mermaid
 flowchart LR
-    A["01 · 读取原文<br/>正文 / 公式 / 图表"] --> B["02 · 组织证据<br/>观点 / 结论 / 出处"]
-    B --> C["03 · 选择表达<br/>模板 / world / 固定 frame"]
-    C --> D["04 · 确定性编译<br/>布局 / 场景图 / camera"]
-    D --> E["05 · 构建与验证<br/>交互网页 / 来源审计"]
+    A["01 · 读取来源<br/>论文 / 代码"] --> B["02 · 来源 IR<br/>事实 / 片段 / 未知项"]
+    B --> C["03 · Mechanism IR<br/>条件 / 步骤 / 状态"]
+    C --> D["04 · Visual Intent<br/>world / frame / 强调"]
+    D --> E["05 · 构建与验证<br/>网页 / 来源审计"]
 ```
 
-事实和来源保存在 Paper IR，模板选择、固定 frame、字幕、步骤与强调保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/mechanism-lens/SKILL.md)。
+论文事实保存在 Paper IR，代码事实保存在 Code IR；二者都先进入 Mechanism IR，再由 Visual Intent 选择讲法。Scene IR 与来源 bundle 由编译器生成。完整执行规范见 [SKILL.md](skills/mechanism-lens/SKILL.md)。
 
 <a id="delivery"></a>
 ## 交付的是一个可以带走的项目
 
 ```text
-<paper-slug>-explainer/
+<slug>-explainer/
 ├── open.cmd / open.command / open.sh  # 本地打开入口
 ├── site/                             # 构建好的静态网页
 ├── sources/                          # 下载原件统一归档
 │   ├── original.pdf                  # 原始 PDF（获取成功时）
 │   ├── arxiv/                        # LaTeX 源码包与解压素材（适用于论文）
+│   ├── code/repository/              # URL 输入的完整浅克隆仓库及 .git
 │   ├── supplements/                  # 相关补充材料（按需）
 │   └── manifest.md                   # 来源、相对路径与获取状态
-├── content/                          # 原文、结构化内容与讲解稿
+├── content/                          # Paper/Code/Mechanism IR、视觉意图与派生产物
 ├── templates/                        # 模板能力目录
 ├── engine/                           # 确定性编译、布局与校验
 ├── project/                          # 可编辑的 React / TypeScript 源码
@@ -179,9 +188,9 @@ flowchart LR
 
 它是供 Agent 使用的 Skill。Agent 负责阅读与编排内容，附带的运行时负责呈现讲解。
 
-**只能处理论文或技术文档吗？**
+**可以解释代码仓库吗？**
 
-可以处理论文、技术报告、产品文档、教程、文章、网页或正文。公式、流程、数据、图表等场景需要原文提供相应材料。
+可以。Code Lens 默认只做静态读取，不安装或执行目标项目。URL 仓库的最新工作树会浅克隆并保留在生成项目中，网页只发布被讲解引用的源码片段。
 
 **需要配置其它设计或演示 Skill 吗？**
 
@@ -205,6 +214,9 @@ flowchart LR
 | [执行规范](skills/mechanism-lens/SKILL.md) | 输入约定、生成流程与交付要求 |
 | [环境与初始化](skills/mechanism-lens/references/INIT.md) | 依赖与项目脚手架 |
 | [文档内容模型](skills/mechanism-lens/references/PAPER-IR.md) | 事实、结论和证据组织 |
+| [代码工作流](skills/mechanism-lens/references/CODE-WORKFLOW.md) | 仓库读取、Code IR 与只读边界 |
+| [机制模型](skills/mechanism-lens/references/MECHANISM-IR.md) | 参与者、条件、步骤、状态和未知项 |
+| [证据合同](skills/mechanism-lens/references/EVIDENCE.md) | 论文与代码证据绑定 |
 | [视觉意图](skills/mechanism-lens/references/VISUAL-INTENT.md) | world、固定 frame、步骤、强调和状态 |
 | [模板选择](skills/mechanism-lens/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |
 | [生成场景图](skills/mechanism-lens/references/SCENE-IR.md) | 编译后的 geometry 与执行快照 |
@@ -219,7 +231,7 @@ flowchart LR
 在仓库根目录执行；`demo-explainer` 必须不存在或为空：
 
 ```bash
-node skills/mechanism-lens/scripts/scaffold-project.mjs ./demo-explainer --title "Demo document" --source "https://example.com/document.pdf"
+node skills/mechanism-lens/scripts/scaffold-project.mjs ./demo-explainer --mode paper --title "Demo document" --source "https://example.com/document.pdf"
 node skills/mechanism-lens/scripts/build-project.mjs ./demo-explainer
 ```
 
@@ -231,4 +243,4 @@ node skills/mechanism-lens/scripts/build-project.mjs ./demo-explainer
 
 ---
 
-<p align="center"><strong>让每一步讲解，都有原文可循。</strong><br/><a href="LICENSE">MIT License</a></p>
+<p align="center"><strong>让每一步机制解释，都有论文或源码可循。</strong><br/><a href="LICENSE">MIT License</a></p>

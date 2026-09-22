@@ -1,0 +1,36 @@
+{
+  "mechanismId": "mechanism.cache-miss",
+  "title": "Cache miss walkthrough",
+  "worlds": [{
+    "id": "world.cache",
+    "templateId": "branch_merge_pipeline",
+    "selection": { "reason": "The miss path branches from lookup, loads a value and merges at the returned result." },
+    "objects": [
+      { "id": "node.request", "kind": "node", "label": "Request", "mechanismRef": "participant.request" },
+      { "id": "node.cache", "kind": "node", "label": "Cache", "mechanismRef": "participant.cache" },
+      { "id": "node.loader", "kind": "node", "label": "Loader", "mechanismRef": "participant.loader" },
+      { "id": "node.result", "kind": "node", "label": "Result", "mechanismRef": "participant.result" }
+    ],
+    "relations": [
+      { "id": "edge.lookup", "from": "node.request", "to": "node.cache" },
+      { "id": "edge.load", "from": "node.cache", "to": "node.loader" },
+      { "id": "edge.store", "from": "node.loader", "to": "node.cache" },
+      { "id": "edge.return", "from": "node.cache", "to": "node.result" }
+    ],
+    "frames": [{ "id": "frame.cache", "targetIds": ["node.request", "node.cache", "node.loader", "node.result"], "mode": "fit", "requiredReadableIds": ["node.request", "node.cache", "node.loader", "node.result"] }],
+    "detailViews": []
+  }],
+  "scenes": [{
+    "id": "scene.cache-miss",
+    "title": "Cache miss",
+    "contentKind": "architecture",
+    "worldId": "world.cache",
+    "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.cache" },
+    "steps": [
+      { "id": "view.lookup", "narration": "The request first checks the cache.", "frameId": "frame.cache", "mechanismStepIds": ["step.lookup"], "emphasisIds": ["node.request", "node.cache"], "activeRelationIds": ["edge.lookup"] },
+      { "id": "view.load", "narration": "A miss calls the loader.", "frameId": "frame.cache", "mechanismStepIds": ["step.load"], "emphasisIds": ["node.loader"], "activeRelationIds": ["edge.load"] },
+      { "id": "view.store", "narration": "The loaded value is written back to the cache.", "frameId": "frame.cache", "mechanismStepIds": ["step.store"], "emphasisIds": ["node.cache"], "activeRelationIds": ["edge.store"] },
+      { "id": "view.return", "narration": "Finally the value is returned.", "frameId": "frame.cache", "mechanismStepIds": ["step.return"], "emphasisIds": ["node.result"], "activeRelationIds": ["edge.return"] }
+    ]
+  }]
+}

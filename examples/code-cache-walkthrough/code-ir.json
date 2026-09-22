@@ -1,0 +1,24 @@
+{
+  "repository": { "id": "code.cache-example", "title": "Cache example", "location": "source", "sourceType": "local" },
+  "question": "What happens when the cache misses?",
+  "scope": { "focus": ["source/cache.py"], "excluded": [], "limitations": ["Static analysis only."] },
+  "entities": [
+    { "id": "entity.load", "kind": "function", "name": "load", "path": "source/cache.py", "symbol": "load", "lineStart": 1, "lineEnd": 2, "evidenceIds": ["evidence.load"] },
+    { "id": "entity.get-or-load", "kind": "function", "name": "get_or_load", "path": "source/cache.py", "symbol": "get_or_load", "lineStart": 5, "lineEnd": 10, "evidenceIds": ["evidence.lookup", "evidence.call", "evidence.store"] }
+  ],
+  "relations": [
+    { "id": "relation.get-load", "kind": "direct_call", "from": "entity.get-or-load", "to": "entity.load", "evidenceIds": ["evidence.call"] }
+  ],
+  "entrypoints": [
+    { "id": "entrypoint.get-or-load", "entityId": "entity.get-or-load", "reason": "Public cache lookup function.", "evidenceIds": ["evidence.lookup"] }
+  ],
+  "evidence": [
+    { "id": "evidence.lookup", "label": "Cache lookup", "kind": "code", "path": "source/cache.py", "symbol": "get_or_load", "lineStart": 5, "lineEnd": 7, "excerpt": "def get_or_load(cache, key):\n    if key in cache:\n        return cache[key]", "basis": "source_fact" },
+    { "id": "evidence.load", "label": "Loader", "kind": "code", "path": "source/cache.py", "symbol": "load", "lineStart": 1, "lineEnd": 2, "excerpt": "def load(key):\n    return key.upper()", "basis": "source_fact" },
+    { "id": "evidence.call", "label": "Load on miss", "kind": "code", "path": "source/cache.py", "symbol": "get_or_load", "lineStart": 8, "lineEnd": 8, "excerpt": "    value = load(key)", "basis": "source_fact" },
+    { "id": "evidence.store", "label": "Store and return", "kind": "code", "path": "source/cache.py", "symbol": "get_or_load", "lineStart": 9, "lineEnd": 10, "excerpt": "    cache[key] = value\n    return value", "basis": "source_fact" }
+  ],
+  "unresolved": [
+    { "id": "unresolved.concurrent-miss", "description": "The selected function does not establish whether concurrent misses can duplicate work.", "path": "source/cache.py", "reason": "outside_selected_scope" }
+  ]
+}

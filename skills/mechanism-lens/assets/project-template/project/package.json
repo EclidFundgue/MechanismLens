@@ -6,7 +6,6 @@
   "scripts": {
     "compile": "node ../runtime/compile-content.mjs ../content",
     "validate": "node ../runtime/validate-data.mjs ../content",
-    "migrate:intent": "node ../runtime/migrate-visual-intent.mjs ../content/visual-intent.json ../content/visual-intent.v2.1.json",
     "dev": "npm run compile && vite",
     "build": "npm run compile && npm run validate && tsc -b && vite build",
     "start": "node ../runtime/serve.mjs ../site --open"

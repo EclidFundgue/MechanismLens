@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mechanism-lens.local/schema/source-bundle.schema.json",
+  "title": "MechanismLens Source Bundle",
+  "type": "object",
+  "required": ["subject", "sources", "evidence"],
+  "properties": {
+    "subject": { "type": "object", "required": ["id", "title"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "summary": { "type": "string" } }, "additionalProperties": false },
+    "sources": { "type": "array", "items": { "type": "object", "required": ["id", "kind", "title"], "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["paper", "code"] }, "title": { "type": "string" }, "summary": { "type": "string" }, "url": { "type": "string" }, "pdfUrl": { "type": "string" }, "localPath": { "type": "string" }, "location": { "type": "string" }, "sourceType": { "enum": ["local", "git"] } }, "additionalProperties": false } },
+    "evidence": { "type": "array", "items": { "type": "object", "required": ["id", "sourceId", "sourceKind", "label", "basis"], "properties": { "id": { "type": "string" }, "sourceId": { "$ref": "#/$defs/id" }, "sourceKind": { "enum": ["paper", "code"] }, "label": { "type": "string" }, "kind": { "type": "string" }, "basis": { "enum": ["source_fact", "static_inference", "runtime_observation"] }, "path": { "type": "string" }, "symbol": { "type": "string" }, "lineStart": { "type": "integer" }, "lineEnd": { "type": "integer" }, "section": { "type": "string" }, "page": { "type": "integer" }, "anchor": { "type": "string" }, "url": { "type": "string" }, "excerpt": { "type": "string" }, "confidence": { "type": "string" } }, "additionalProperties": false } }
+  },
+  "additionalProperties": false,
+  "$defs": { "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" } }
+}
