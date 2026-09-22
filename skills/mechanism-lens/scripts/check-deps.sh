@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Self-contained paper-explainer dependency check.
+# Self-contained MechanismLens dependency check.
 # External skills are intentionally not checked: the runtime, scene renderers,
 # subtitle layer, evidence UI, schemas, and launchers ship with this skill.
 set -uo pipefail
@@ -7,7 +7,7 @@ set -uo pipefail
 have() { command -v "$1" >/dev/null 2>&1; }
 missing=()
 
-echo "paper-explainer · environment check"
+echo "MechanismLens · environment check"
 echo "───────────────────────────────────────────"
 
 if have node; then

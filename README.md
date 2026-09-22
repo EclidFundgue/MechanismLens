@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="docs/assets/readme-hero.svg" alt="Paper Explainer：从文档，到逐步讲解，再回到证据。" width="100%" />
+  <img src="docs/assets/readme-hero.svg" alt="MechanismLens：从文档，到逐步讲解，再回到证据。" width="100%" />
 </p>
 
-<h1 align="center">Paper Explainer</h1>
+<h1 align="center">MechanismLens</h1>
 <p align="center"><strong>把复杂文档，变成看得懂、点得动、查得到出处的视觉讲解。</strong></p>
 <p align="center">一个自包含的 Agent Skill · 输入链接或文件 · 交付交互式网页</p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-93c5fd?style=flat-square" alt="MIT License" /></a>
-  <a href="skills/paper-explainer/SKILL.md"><img src="https://img.shields.io/badge/Agent_Skill-self--contained-a7f3d0?style=flat-square" alt="Self-contained Agent Skill" /></a>
+  <a href="skills/mechanism-lens/SKILL.md"><img src="https://img.shields.io/badge/Agent_Skill-self--contained-a7f3d0?style=flat-square" alt="Self-contained Agent Skill" /></a>
   <a href="#quick-start"><img src="https://img.shields.io/badge/Node.js-%E2%89%A5_18-c4b5fd?style=flat-square" alt="Node.js 18 or later" /></a>
 </p>
 
@@ -22,12 +22,12 @@
 
 ---
 
-阅读复杂文档时，最难的往往是把概念、结构、流程和数据连起来。Paper Explainer 让 Agent 读取原文，把关键内容组织成可以逐步探索的讲解：看数据如何流动，拆开一个公式，跟踪一次算法执行，再点开对应的原文依据。
+阅读复杂文档时，最难的往往是把概念、结构、流程和数据连起来。MechanismLens 通过内置的 `mechanism-lens` Skill 让 Agent 读取原文，把关键内容组织成可以逐步探索的讲解：看数据如何流动，拆开一个公式，跟踪一次算法执行，再点开对应的原文依据。
 
 在支持本地 Skill 的 Agent 对话中输入：
 
 ```text
-paper-explainer https://arxiv.org/abs/1706.03762
+mechanism-lens https://arxiv.org/abs/1706.03762
 ```
 
 **从原文解析到网页构建，一次调用完成。** 支持论文、技术报告、产品文档、教程、文章、网页、PDF、本地文件和粘贴文本；讲解深度取决于原文可提取的信息。
@@ -55,10 +55,10 @@ paper-explainer https://arxiv.org/abs/1706.03762
 先克隆仓库：
 
 ```bash
-git clone https://github.com/EclidFundgue/paper-explainer.git
+git clone https://github.com/EclidFundgue/MechanismLens.git
 ```
 
-将 `skills/paper-explainer` 整个目录复制到你的 Agent 的 Skill 目录。以下按平台选择一种：
+将 `skills/mechanism-lens` 整个目录复制到你的 Agent 的 Skill 目录。以下按平台选择一种：
 
 <details open>
 <summary><strong>macOS / Linux / Git Bash</strong></summary>
@@ -66,11 +66,11 @@ git clone https://github.com/EclidFundgue/paper-explainer.git
 ```bash
 # Claude Code
 mkdir -p ~/.claude/skills
-cp -r paper-explainer/skills/paper-explainer ~/.claude/skills/
+cp -r MechanismLens/skills/mechanism-lens ~/.claude/skills/
 
 # 使用 ~/.agents/skills 的 Agent（如 Codex）
 mkdir -p ~/.agents/skills
-cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
+cp -r MechanismLens/skills/mechanism-lens ~/.agents/skills/
 ```
 
 </details>
@@ -82,7 +82,7 @@ cp -r paper-explainer/skills/paper-explainer ~/.agents/skills/
 # 使用 ~/.agents/skills 的 Agent（如 Codex）
 $skillDir = Join-Path $HOME '.agents/skills'
 New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
-Copy-Item -Recurse -Path './paper-explainer/skills/paper-explainer' -Destination $skillDir
+Copy-Item -Recurse -Path './MechanismLens/skills/mechanism-lens' -Destination $skillDir
 ```
 
 Claude Code 用户将目标目录改为 `.claude/skills`。
@@ -94,15 +94,15 @@ Claude Code 用户将目标目录改为 `.claude/skills`。
 安装后，在 Agent 的新会话里使用以下任一提示。**这些是对话提示，不是终端命令。**
 
 ```text
-paper-explainer https://arxiv.org/abs/1706.03762
+mechanism-lens https://arxiv.org/abs/1706.03762
 ```
 
 ```text
-用 paper-explainer 讲解 ./technical-report.pdf
+用 mechanism-lens 讲解 ./technical-report.pdf
 ```
 
 ```text
-用 paper-explainer 讲解这份文档，内容定稿后再导出 MP4：<文档链接>
+用 mechanism-lens 讲解这份文档，内容定稿后再导出 MP4：<文档链接>
 ```
 
 不必先指定主题、篇幅、场景或输出目录。输入需要登录或无法解析时，Agent 会请求可访问的文件或正文。
@@ -145,7 +145,7 @@ flowchart LR
     D --> E["05 · 构建与验证<br/>交互网页 / 来源审计"]
 ```
 
-事实和来源保存在 Paper IR，模板选择、固定 frame、字幕、步骤与强调保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/paper-explainer/SKILL.md)。
+事实和来源保存在 Paper IR，模板选择、固定 frame、字幕、步骤与强调保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/mechanism-lens/SKILL.md)。
 
 <a id="delivery"></a>
 ## 交付的是一个可以带走的项目
@@ -202,16 +202,16 @@ flowchart LR
 
 | 文档 | 内容 |
 | :--- | :--- |
-| [执行规范](skills/paper-explainer/SKILL.md) | 输入约定、生成流程与交付要求 |
-| [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖与项目脚手架 |
-| [文档内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
-| [视觉意图](skills/paper-explainer/references/VISUAL-INTENT.md) | world、固定 frame、步骤、强调和状态 |
-| [模板选择](skills/paper-explainer/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |
-| [生成场景图](skills/paper-explainer/references/SCENE-IR.md) | 编译后的 geometry 与执行快照 |
-| [镜头与过渡](skills/paper-explainer/references/CAMERA-AND-MOTION.md) | camera、detail 和播放语义 |
-| [运行时与交付](skills/paper-explainer/references/RUNTIME-AND-DELIVERY.md) | 构建、验证与打开方式 |
-| [修改已有讲解](skills/paper-explainer/references/REVISION.md) | 内容更新与重新构建 |
-| [开发与测试](skills/paper-explainer/references/DEVELOPMENT.md) | 编译器、舞台、校验器与回归测试 |
+| [执行规范](skills/mechanism-lens/SKILL.md) | 输入约定、生成流程与交付要求 |
+| [环境与初始化](skills/mechanism-lens/references/INIT.md) | 依赖与项目脚手架 |
+| [文档内容模型](skills/mechanism-lens/references/PAPER-IR.md) | 事实、结论和证据组织 |
+| [视觉意图](skills/mechanism-lens/references/VISUAL-INTENT.md) | world、固定 frame、步骤、强调和状态 |
+| [模板选择](skills/mechanism-lens/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |
+| [生成场景图](skills/mechanism-lens/references/SCENE-IR.md) | 编译后的 geometry 与执行快照 |
+| [镜头与过渡](skills/mechanism-lens/references/CAMERA-AND-MOTION.md) | camera、detail 和播放语义 |
+| [运行时与交付](skills/mechanism-lens/references/RUNTIME-AND-DELIVERY.md) | 构建、验证与打开方式 |
+| [修改已有讲解](skills/mechanism-lens/references/REVISION.md) | 内容更新与重新构建 |
+| [开发与测试](skills/mechanism-lens/references/DEVELOPMENT.md) | 编译器、舞台、校验器与回归测试 |
 
 <details>
 <summary><strong>本地开发：创建并构建示例项目</strong></summary>
@@ -219,13 +219,13 @@ flowchart LR
 在仓库根目录执行；`demo-explainer` 必须不存在或为空：
 
 ```bash
-node skills/paper-explainer/scripts/scaffold-project.mjs ./demo-explainer --title "Demo document" --source "https://example.com/document.pdf"
-node skills/paper-explainer/scripts/build-project.mjs ./demo-explainer
+node skills/mechanism-lens/scripts/scaffold-project.mjs ./demo-explainer --title "Demo document" --source "https://example.com/document.pdf"
+node skills/mechanism-lens/scripts/build-project.mjs ./demo-explainer
 ```
 
 脚手架包含演示数据，以上命令用于验证运行时，不会自动读取示例 URL 并生成真实文档讲解。正式内容由 Agent 按 Skill 流程写入。
 
-运行时源码位于 [`assets/project-template/`](skills/paper-explainer/assets/project-template/)。欢迎通过 [Issues](https://github.com/EclidFundgue/paper-explainer/issues) 提交问题和改进建议。
+运行时源码位于 [`assets/project-template/`](skills/mechanism-lens/assets/project-template/)。欢迎通过 [Issues](https://github.com/EclidFundgue/MechanismLens/issues) 提交问题和改进建议。
 
 </details>
 

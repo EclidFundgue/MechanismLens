@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# stop-processes.sh — paper-explainer 进程清理（交付零遗留）
+# stop-processes.sh — MechanismLens 进程清理（交付零遗留）
 #
 # 停止本次工作流启动的后台进程：dev server / preview / 浏览器 / 录屏 /
 # ffmpeg / 临时 HTTP。按进程树（含进程组）先 TERM 后 KILL。
@@ -157,7 +157,7 @@ for p in ${TARGETS[@]+"${TARGETS[@]}"}; do
   (( seen )) || UNIQ+=("$p")
 done
 
-log "paper-explainer · 进程清理"
+log "MechanismLens · 进程清理"
 log "───────────────────────────────────────────"
 
 if ((${#UNIQ[@]} == 0)); then

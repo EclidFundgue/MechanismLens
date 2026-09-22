@@ -3,10 +3,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { validateSource } from "../../skills/paper-explainer/assets/project-template/engine/validation/index.mjs";
+import { validateSource } from "../../skills/mechanism-lens/assets/project-template/engine/validation/index.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const templateRoot = join(repositoryRoot, "skills/paper-explainer/assets/project-template");
+const templateRoot = join(repositoryRoot, "skills/mechanism-lens/assets/project-template");
 const read = (name) => JSON.parse(readFileSync(join(templateRoot, name), "utf8"));
 const baselinePaper = read("content/paper-ir.json");
 const baselineIntent = read("content/visual-intent.json");

@@ -8,7 +8,7 @@ import socketserver
 import threading
 import webbrowser
 
-parser = argparse.ArgumentParser(description="Serve a built paper explainer")
+parser = argparse.ArgumentParser(description="Serve a built MechanismLens explanation")
 parser.add_argument("root", nargs="?", default="site")
 parser.add_argument("--port", type=int, default=0)
 parser.add_argument("--open", action="store_true")
@@ -25,7 +25,7 @@ class ReusableTCPServer(socketserver.TCPServer):
 
 with ReusableTCPServer(("127.0.0.1", args.port), handler) as server:
     url = f"http://127.0.0.1:{server.server_address[1]}/"
-    print(f"Paper Explainer: {url}")
+    print(f"MechanismLens: {url}")
     print("Press Ctrl+C to stop.")
     if args.open:
         threading.Timer(0.2, lambda: webbrowser.open(url)).start()

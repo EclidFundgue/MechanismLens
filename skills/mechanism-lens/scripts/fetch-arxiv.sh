@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────
-# fetch-arxiv.sh — 下载并解压 arXiv LaTeX 源码（paper-explainer 素材源）
+# fetch-arxiv.sh — 下载并解压 arXiv LaTeX 源码（MechanismLens 素材源）
 #
 # Usage:
 #   bash fetch-arxiv.sh <arxiv-url-or-id> <project-root>
@@ -72,10 +72,10 @@ echo "▸ 下载：$URL"
 
 if command -v curl >/dev/null 2>&1; then
   curl -fL --retry 3 --connect-timeout 20 \
-    -A "paper-explainer/1.0 (https://github.com/EclidFundgue/paper-explainer)" \
+    -A "MechanismLens/1.0 (https://github.com/EclidFundgue/MechanismLens)" \
     -o "$ARCHIVE" "$URL"
 elif command -v wget >/dev/null 2>&1; then
-  wget -q --tries=3 --timeout=20 -U "paper-explainer/1.0" -O "$ARCHIVE" "$URL"
+  wget -q --tries=3 --timeout=20 -U "MechanismLens/1.0" -O "$ARCHIVE" "$URL"
 else
   echo "✗ 需要 curl 或 wget（装一个再跑）" >&2
   exit 1

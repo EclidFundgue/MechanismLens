@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
-  <title id="title">Paper Explainer</title>
+  <title id="title">MechanismLens</title>
   <desc id="desc">From paper to understanding. From source paper through step-by-step explanation to evidence.</desc>
   <defs>
     <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101c34"/><stop offset="1" stop-color="#111827"/></linearGradient>
@@ -10,7 +10,7 @@
   <rect width="1280" height="420" rx="24" fill="url(#grid)"/>
   <g font-family="Segoe UI,Arial,sans-serif">
     <rect x="56" y="49" width="8" height="20" rx="4" fill="#67e8f9"/>
-    <text x="78" y="65" fill="#a7f3d0" font-size="15" letter-spacing="3">PAPER EXPLAINER</text>
+    <text x="78" y="65" fill="#a7f3d0" font-size="15" letter-spacing="3">MECHANISM LENS</text>
     <text x="56" y="139" fill="#f1f5f9" font-size="48" font-weight="700">From paper</text>
     <text x="56" y="199" fill="url(#accent)" font-size="48" font-weight="700">to understanding.</text>
     <text x="58" y="248" fill="#b8c8dc" font-size="18">Read the idea. Follow the steps.</text>

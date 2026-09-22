@@ -9,7 +9,7 @@ function usage() {
   console.log(`Usage:
   node scaffold-project.mjs <output-dir> [--title <paper-title>] [--source <url>]
 
-Creates a self-contained paper-explainer project. The target must be empty or
+Creates a self-contained MechanismLens project. The target must be empty or
 missing; existing files are never overwritten.`);
 }
 

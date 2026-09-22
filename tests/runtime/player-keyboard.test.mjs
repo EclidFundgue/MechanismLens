@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getPlayerAction, handlePlayerKeydown } from "../../skills/paper-explainer/assets/project-template/project/src/lib/player-keyboard.ts";
+import { getPlayerAction, handlePlayerKeydown } from "../../skills/mechanism-lens/assets/project-template/project/src/lib/player-keyboard.ts";
 
 function keyboardEvent(overrides = {}) {
   return {

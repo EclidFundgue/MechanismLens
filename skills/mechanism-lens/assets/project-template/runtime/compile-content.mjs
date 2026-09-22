@@ -42,12 +42,12 @@ try {
   const intent = await readJson(path.join(root, "visual-intent.json"));
   const catalog = await readJson(path.join(templateRoot, "templates", "catalog.json"));
   const sourceReport = validateSource(paper, intent, catalog);
-  printIssues("Paper Explainer source validation failed:", sourceReport.errors);
+  printIssues("MechanismLens source validation failed:", sourceReport.errors);
   if (sourceReport.errors.length > 0) process.exitCode = 1;
   else {
     const scene = compileContent(paper, intent, catalog);
     const sceneReport = validateSceneGraph(scene);
-    printIssues("Paper Explainer compiled scene validation failed:", sceneReport.errors);
+    printIssues("MechanismLens compiled scene validation failed:", sceneReport.errors);
     if (sceneReport.errors.length > 0) process.exitCode = 1;
     else {
       const destination = path.join(root, "scene-ir.json");
@@ -61,6 +61,6 @@ try {
     }
   }
 } catch (error) {
-  console.error(`Paper Explainer compilation failed: ${error.message}`);
+  console.error(`MechanismLens compilation failed: ${error.message}`);
   process.exitCode = 1;
 }

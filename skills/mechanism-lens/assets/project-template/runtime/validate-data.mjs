@@ -41,7 +41,7 @@ try {
   } catch { /* source validation already reports malformed input */ }
 
   if (report.errors.length > 0) {
-    console.error("Paper Explainer data validation failed:");
+    console.error("MechanismLens data validation failed:");
     for (const issue of report.errors) console.error(`  - ${issue.message}`);
     process.exitCode = 1;
   } else {
@@ -50,10 +50,10 @@ try {
   }
 
   if (report.warnings.length > 0) {
-    console.warn("Paper Explainer data validation warnings:");
+    console.warn("MechanismLens data validation warnings:");
     for (const issue of report.warnings) console.warn(`  - ${issue.message}`);
   }
 } catch (error) {
-  console.error(`Paper Explainer data validation failed: ${error.message}`);
+  console.error(`MechanismLens data validation failed: ${error.message}`);
   process.exitCode = 1;
 }

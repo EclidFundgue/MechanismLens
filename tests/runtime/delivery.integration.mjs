@@ -8,8 +8,8 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scaffold = join(repositoryRoot, "skills/paper-explainer/scripts/scaffold-project.mjs");
-const build = join(repositoryRoot, "skills/paper-explainer/scripts/build-project.mjs");
+const scaffold = join(repositoryRoot, "skills/mechanism-lens/scripts/scaffold-project.mjs");
+const build = join(repositoryRoot, "skills/mechanism-lens/scripts/build-project.mjs");
 
 function terminateTree(child) {
   if (!child.pid) return;
@@ -59,7 +59,7 @@ async function startServer(root) {
     const timer = setTimeout(() => reject(new Error(`server start timed out: ${stderr}`)), 15_000);
     child.stderr.on("data", (chunk) => { stderr += chunk; });
     child.stdout.on("data", (chunk) => {
-      const match = String(chunk).match(/Paper Explainer: (http:\/\/127\.0\.0\.1:\d+\/)/);
+      const match = String(chunk).match(/MechanismLens: (http:\/\/127\.0\.0\.1:\d+\/)/);
       if (match) {
         clearTimeout(timer);
         resolveUrl(match[1]);
@@ -98,7 +98,7 @@ async function removeTemporaryRoot(root) {
 }
 
 test("scaffolded delivery validates, builds, and serves outside the repository", { timeout: 240_000 }, async () => {
-  const temporaryRoot = mkdtempSync(join(tmpdir(), "paper-explainer-delivery-"));
+  const temporaryRoot = mkdtempSync(join(tmpdir(), "mechanism-lens-delivery-"));
   const staging = join(temporaryRoot, "staging");
   const delivered = join(temporaryRoot, "论文 讲解 交付");
   let server;

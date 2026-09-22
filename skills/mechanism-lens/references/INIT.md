@@ -1,6 +1,6 @@
 # 初始化与项目脚手架
 
-Paper Explainer 是自包含 Skill。唯一必需的构建依赖是 Node.js >= 18 与 npm；
+MechanismLens 是自包含 Skill。唯一必需的构建依赖是 Node.js >= 18 与 npm；
 不检查或安装其它 skill。
 
 ## 环境检查

@@ -12,7 +12,7 @@ function initialCursor() {
   const fallback = { sceneId: sceneIR.scenes[0]?.id ?? "", stepId: sceneIR.scenes[0]?.steps[0]?.id ?? "" };
   if (new URLSearchParams(window.location.search).get("reset") === "1") return fallback;
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(`paper-explainer:v2:${paperIR.paper.id}:cursor`) ?? "null");
+    const parsed = JSON.parse(window.localStorage.getItem(`mechanism-lens:v2:${paperIR.paper.id}:cursor`) ?? "null");
     if (typeof parsed?.sceneId === "string" && typeof parsed?.stepId === "string") return parsed;
   } catch { /* ignore stale state */ }
   return fallback;
@@ -81,7 +81,7 @@ export function App() {
   usePlayerKeyboard({ next, previous, home, toggleSubtitles, toggleEvidence });
 
   useEffect(() => {
-    window.localStorage.setItem(`paper-explainer:v2:${paperIR.paper.id}:cursor`, JSON.stringify({ sceneId: scene.id, stepId: step.id }));
+    window.localStorage.setItem(`mechanism-lens:v2:${paperIR.paper.id}:cursor`, JSON.stringify({ sceneId: scene.id, stepId: step.id }));
   }, [scene.id, step.id]);
   useEffect(() => {
     if (!auto || !cameraSettled) return;
@@ -92,7 +92,7 @@ export function App() {
   const originalPaperUrl = paperIR.paper.localPdfPath ? assetUrl(paperIR.paper.localPdfPath) : paperIR.paper.originalUrl || paperIR.paper.pdfUrl || null;
   return <div className="app-shell">
     <header className="topbar">
-      <div className="brand-block"><span className="brand-mark">PE</span><div><span className="kicker">Paper Explainer</span><strong>{paperIR.paper.title}</strong></div></div>
+      <div className="brand-block"><span className="brand-mark">ML</span><div><span className="kicker">MechanismLens</span><strong>{paperIR.paper.title}</strong></div></div>
       <div className="header-actions">{originalPaperUrl && <a className="quiet-link" href={originalPaperUrl} target="_blank" rel="noreferrer">查看论文 ↗</a>}<button className="evidence-button" onClick={() => setEvidenceOpen(true)}>论文依据 <span>{currentEvidence.length}</span></button></div>
     </header>
     <nav className="scene-nav" aria-label="讲解章节">

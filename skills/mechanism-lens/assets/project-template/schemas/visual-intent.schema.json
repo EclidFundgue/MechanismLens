@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://paper-explainer.local/schema/visual-intent.v2.schema.json",
-  "title": "Paper Explainer Visual Intent 2.0/2.1",
+  "$id": "https://mechanism-lens.local/schema/visual-intent.v2.schema.json",
+  "title": "MechanismLens Visual Intent 2.0/2.1",
   "type": "object",
   "required": ["schemaVersion", "paperId", "worlds", "scenes"],
   "properties": {

@@ -3,11 +3,11 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
-import { compileContent } from "../../skills/paper-explainer/assets/project-template/engine/compiler/index.mjs";
-import { validateSceneGraph, validateSource } from "../../skills/paper-explainer/assets/project-template/engine/validation/index.mjs";
+import { compileContent } from "../../skills/mechanism-lens/assets/project-template/engine/compiler/index.mjs";
+import { validateSceneGraph, validateSource } from "../../skills/mechanism-lens/assets/project-template/engine/validation/index.mjs";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const templateRoot = join(repositoryRoot, "skills/paper-explainer/assets/project-template");
+const templateRoot = join(repositoryRoot, "skills/mechanism-lens/assets/project-template");
 const read = (path) => JSON.parse(readFileSync(path, "utf8"));
 const paper = read(join(templateRoot, "content/paper-ir.json"));
 const intent = read(join(templateRoot, "content/visual-intent.json"));

@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-const scripts = fileURLToPath(new URL("../skills/paper-explainer/scripts/", import.meta.url));
+const scripts = fileURLToPath(new URL("../skills/mechanism-lens/scripts/", import.meta.url));
 const bash = process.env.BASH_EXECUTABLE || (process.platform === "win32" ? null : "bash");
 const shellPath = (value) => value.replaceAll("\\", "/");
 

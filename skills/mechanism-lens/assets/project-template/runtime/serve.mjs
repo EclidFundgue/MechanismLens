@@ -80,7 +80,7 @@ server.listen(Number.isFinite(requestedPort) ? requestedPort : 0, "127.0.0.1", (
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : requestedPort;
   const url = `http://127.0.0.1:${port}/`;
-  console.log(`Paper Explainer: ${url}`);
+  console.log(`MechanismLens: ${url}`);
   console.log("Press Ctrl+C to stop.");
   if (shouldOpen) openBrowser(url);
 });

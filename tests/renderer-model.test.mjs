@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { boundsNearlyEqual, comparisonDelta, comparisonDomain, easeInOutCubic, interpolateBounds } from "../skills/paper-explainer/assets/project-template/project/src/stage/model.ts";
-import { layoutWorld, targetBounds } from "../skills/paper-explainer/assets/project-template/engine/compiler/layout.mjs";
+import { boundsNearlyEqual, comparisonDelta, comparisonDomain, easeInOutCubic, interpolateBounds } from "../skills/mechanism-lens/assets/project-template/project/src/stage/model.ts";
+import { layoutWorld, targetBounds } from "../skills/mechanism-lens/assets/project-template/engine/compiler/layout.mjs";
 
 test("keeps one zero-based scale and respects lower-is-better metrics", () => {
   assert.deepEqual(comparisonDomain([-4, -2, 1]), [-4, 1]);

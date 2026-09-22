@@ -1,4 +1,4 @@
-# Paper Explainer v2 重构计划
+# MechanismLens v2 重构计划
 
 状态：核心 v2 纵向链路已实施。设计日期：2026-09-21；首次实施：2026-09-22。
 
@@ -21,7 +21,7 @@
 
 ## 2. 当前代码事实与重构落点
 
-以下路径相对仓库根目录；`T` 表示 `skills/paper-explainer/assets/project-template/`。
+以下路径相对仓库根目录；`T` 表示 `skills/mechanism-lens/assets/project-template/`。
 
 | 当前实现 | 实际约束 | v2 处理 |
 |---|---|---|
@@ -309,7 +309,7 @@ Evidence Drawer 汇总当前 step 的显式来源、claim 和当前讲解对象�
 新模块仍留在 `assets/project-template/`，随 Skill 复制，避免拆出必须额外安装的内部包。
 
 ```text
-skills/paper-explainer/
+skills/mechanism-lens/
 ├── SKILL.md
 ├── references/
 │   ├── PAPER-IR.md

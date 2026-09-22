@@ -1,10 +1,10 @@
 ---
-name: paper-explainer
+name: mechanism-lens
 license: MIT
 description: 把学术论文（arXiv、DOI、PDF、网页、本地文件或粘贴文本）编译成可交互、逐步播放、可回到原文证据的技术讲解网页。输入只需论文；Skill 自带 Paper IR、Visual Intent、确定性场景编译器、模板目录、通用视觉舞台和跨平台启动器。默认交付网页，只有用户明确要求时才导出 MP4。
 ---
 
-# Paper Explainer
+# MechanismLens
 
 读取论文后直接交付构建完成的交互式讲解。先核对事实与来源，再选择适合内容结构的视觉表达；模型负责编排讲法，编译器负责布局、几何、镜头目标和可执行场景图。
 
