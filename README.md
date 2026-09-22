@@ -85,7 +85,7 @@ New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
 Copy-Item -Recurse -Path './paper-explainer/skills/paper-explainer' -Destination $skillDir
 ```
 
-Claude Code 用户将目标目录改为 `.claude/skills`。以上命令用于首次安装；更新时同步整个 Skill 目录，避免保留旧版本文件。
+Claude Code 用户将目标目录改为 `.claude/skills`。
 
 </details>
 
@@ -131,7 +131,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 | **对比分析** | 数据、方案、baseline、消融结果 | 指标与比较对象随步骤聚焦 |
 | **原图检视** | 架构图、定性结果、复杂图表 | 原图区域标注、局部放大与解读 |
 
-这些内容能力不再绑定六个整页 renderer。Agent 先识别顺序、分支融合、层级模块、公式项、状态更新或区域比较等结构模式，再从模板目录选择表达方式；编译器把视觉意图展开为统一场景图。架构讲解可以在同一张 world 中完成“总览 → 局部 → detail → 缩回 → 另一局部”，对象不会在切步时重新排版。
+这些内容能力由统一场景图表达。Agent 先识别顺序、分支融合、层级模块、公式项、状态更新或区域比较等结构模式，再从模板目录选择表达方式；编译器把视觉意图展开为场景图。架构讲解可以在同一张 world 中完成“总览 → 局部 → detail → 缩回 → 另一局部”，对象不会在切步时重新排版。
 
 每个关键结论、数字、公式解释和技术关系都要求绑定来源；基于原文的推导性解读单独标记，交付前生成来源与视觉审计报告。
 
@@ -203,7 +203,7 @@ flowchart LR
 | 文档 | 内容 |
 | :--- | :--- |
 | [执行规范](skills/paper-explainer/SKILL.md) | 输入约定、生成流程与交付要求 |
-| [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖、配置与项目脚手架 |
+| [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖与项目脚手架 |
 | [文档内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
 | [视觉意图](skills/paper-explainer/references/VISUAL-INTENT.md) | world、对象、步骤、焦点和状态 |
 | [模板选择](skills/paper-explainer/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |

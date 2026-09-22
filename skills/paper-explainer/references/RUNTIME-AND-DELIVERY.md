@@ -98,8 +98,6 @@ npm run validate
 此外检查重复 ID/引用、focus 可见性、活动关系、比较基线、原图 region、detail
 归属和 step state target。错误带稳定 `code`、JSON path，以及可选的 layer、
 template、object、scene 和 step ID；过密比较等属于 warning，不阻断构建。
-v1 输入返回版本错误，不做隐式兼容或自动改写。
-
 JSON Schema 用于编辑器和自动化集成；`compile-content.mjs` 和
 `validate-data.mjs` 是构建时硬门槛。
 

@@ -12,7 +12,7 @@ description: 把学术论文（arXiv、DOI、PDF、网页、本地文件或粘�
 
 唯一必需输入是论文链接、文件或正文。拿到输入后直接完成，不询问主题、语言、篇幅、封面、场景或输出目录。只有完全没给论文、输入需要用户登录、或所有解析路径都失败时才停下。
 
-默认输出网页。仅用户明确说“视频 / MP4 / 录屏”或配置 `recording.enabled=true` 时，才在网页定稿后导出视频。
+默认输出网页。仅用户明确说“视频 / MP4 / 录屏”时，才在网页定稿后导出视频。
 
 本 Skill 自包含，不读取或安装其它 presentation、design、video 或 paper-reader skill。运行时、模板、编译器和验证器全部位于 `assets/project-template/`。
 
@@ -78,7 +78,6 @@ site/
 
 ```bash
 bash "$SELF/scripts/check-deps.sh"
-bash "$SELF/scripts/init-config.sh" --ensure
 node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
   --title "<paper title>" --source "<original URL>"
 ```

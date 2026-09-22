@@ -21,23 +21,6 @@ bash "$SELF/scripts/check-deps.sh"
 - `pdftocairo` / `pdfimages`：论文图；
 - ffmpeg：仅可选视频导出。
 
-## 配置
-
-配置默认位于 `~/.config/paper-explainer/config.json`，当前版本为 v3：
-
-```json
-{
-  "version": 3,
-  "theme": "paper-dark",
-  "narration": { "language": "auto" },
-  "playback": { "autoAdvance": false },
-  "recording": { "enabled": false }
-}
-```
-
-旧 v1/v2 配置会由 `init-config.sh --ensure` 压缩迁移；WVP、DTF、devMode、
-cover 等旧字段会被删除，因为它们不再参与运行。
-
 ## 创建项目
 
 先固定本次任务的工作目录 `WORKSPACE`，再创建其中的 `<slug>-explainer/`；
