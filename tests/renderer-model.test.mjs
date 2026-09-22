@@ -1,53 +1,76 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import {
-  architectureLayout,
-  comparisonDelta,
-  comparisonDomain,
-  edgeEndpoints,
-  regionViewBox,
-  resolveRegionId,
-  visibleIds,
-} from '../skills/paper-explainer/assets/project-template/project/src/components/renderer-model.ts';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { comparisonDelta, comparisonDomain, easeInOutCubic, interpolateBounds } from "../skills/paper-explainer/assets/project-template/project/src/stage/model.ts";
+import { layoutWorld, targetBounds } from "../skills/paper-explainer/assets/project-template/engine/compiler/layout.mjs";
 
-test('connects diagram edges at node boundaries', () => {
-  assert.deepEqual(
-    edgeEndpoints({ x: 20, y: 100, width: 180, height: 100 }, { x: 350, y: 100, width: 180, height: 100 }),
-    { x1: 200, y1: 150, x2: 350, y2: 150 },
-  );
-});
-
-test('keeps one zero-based scale and respects lower-is-better metrics', () => {
+test("keeps one zero-based scale and respects lower-is-better metrics", () => {
   assert.deepEqual(comparisonDomain([-4, -2, 1]), [-4, 1]);
   assert.deepEqual(comparisonDomain([0, 0]), [0, 1]);
-  assert.deepEqual(comparisonDelta(-4, -2, 'lower', 2), { delta: -2, outcome: 'better' });
-  assert.deepEqual(comparisonDelta(1, -2, 'lower', 2), { delta: 3, outcome: 'worse' });
-  assert.deepEqual(comparisonDelta(62, 62, 'higher', 1), { delta: 0, outcome: 'equal' });
+  assert.deepEqual(comparisonDelta(-4, -2, "lower", 2), { delta: -2, outcome: "better" });
+  assert.deepEqual(comparisonDelta(1, -2, "lower", 2), { delta: 3, outcome: "worse" });
 });
 
-test('maps normalized figure regions to source-image coordinates', () => {
-  assert.equal(regionViewBox({ x: .06, y: .15, width: .38, height: .65 }, 800, 480), '48 72 304 312');
-  assert.equal(regionViewBox(undefined, 800, 480), '0 0 800 480');
+test("interpolates camera bounds without overshooting", () => {
+  assert.deepEqual(interpolateBounds({ x: 0, y: 20, width: 100, height: 60 }, { x: 40, y: 0, width: 20, height: 100 }, .25), { x: 10, y: 15, width: 80, height: 70 });
+  assert.equal(easeInOutCubic(0), 0);
+  assert.equal(easeInOutCubic(1), 1);
 });
 
-test('keeps the default five-node architecture inside the canvas', () => {
-  const nodes = architectureLayout(['a', 'b', 'c', 'd', 'e'].map((id) => ({ id })));
-  assert.equal(nodes.length, 5);
-  for (const node of nodes) {
-    assert.ok(node.x >= 0 && node.y >= 0);
-    assert.ok(node.x + node.width <= 960);
-    assert.ok(node.y + node.height <= 480);
+test("lays out nested groups once and derives focus bounds from the same world", () => {
+  const world = layoutWorld({
+    id: "world.test", templateId: "grouped_overview", objects: [
+      { id: "group.encoder", kind: "group", label: "Encoder" },
+      { id: "node.a", kind: "node", parentId: "group.encoder" },
+      { id: "node.b", kind: "node", parentId: "group.encoder" },
+      { id: "node.output", kind: "node" },
+    ], relations: [{ id: "edge.output", from: "node.b", to: "node.output" }],
+  });
+  const group = world.objects.find((item) => item.id === "group.encoder");
+  const child = world.objects.find((item) => item.id === "node.a");
+  assert.ok(child.x >= group.x && child.y >= group.y);
+  assert.ok(child.x + child.width <= group.x + group.width);
+  assert.equal(world.relations.length, 1);
+  assert.match(world.relations[0].path, /^M /);
+  const focus = targetBounds(world, ["group.encoder"], "tight");
+  assert.ok(focus.width < world.bounds.width);
+});
+
+test("creates stable anchors for equation parts, code lines, chart items, and image regions", () => {
+  const fixtures = [
+    { id: "eq", kind: "equation", tex: "x", parts: [{ id: "term.x", tex: "x" }] },
+    { id: "code", kind: "code", lines: [{ id: "line.x", code: "x" }] },
+    { id: "chart", kind: "chart", items: [{ id: "bar.x", value: 1 }] },
+    { id: "image", kind: "image", regions: [{ id: "region.x", x: .1, y: .2, width: .3, height: .4 }] },
+  ];
+  for (const object of fixtures) {
+    const world = layoutWorld({ id: `world.${object.id}`, templateId: "single", objects: [object], relations: [] });
+    assert.equal(world.anchors.length, 1, object.id);
+    assert.ok(world.anchors[0].bounds.width > 0, object.id);
   }
 });
 
-test('distinguishes omitted and explicitly empty visibility lists', () => {
-  assert.deepEqual([...visibleIds(undefined, ['a', 'b'])], ['a', 'b']);
-  assert.deepEqual([...visibleIds([], ['a', 'b'])], []);
+test("contextual anchor focus keeps its owner while tight focus isolates the anchor", () => {
+  const world = layoutWorld({ id: "world.eq", templateId: "equation_derivation", objects: [{ id: "eq", kind: "equation", tex: "x+y", parts: [{ id: "term.x", tex: "x" }, { id: "term.y", tex: "y" }] }], relations: [] });
+  const contextual = targetBounds(world, ["term.x"], "contextual");
+  const tight = targetBounds(world, ["term.x"], "tight");
+  assert.ok(contextual.height > tight.height);
+  assert.ok(contextual.width > tight.width);
 });
 
-test('distinguishes inferred, full-image, and explicit figure regions', () => {
-  const known = new Set(['region.a', 'region.b']);
-  assert.equal(resolveRegionId(undefined, ['line.x', 'region.b'], known), 'region.b');
-  assert.equal(resolveRegionId(null, ['region.b'], known), undefined);
-  assert.equal(resolveRegionId('region.a', ['region.b'], known), 'region.a');
+test("places parallel branch inputs in one layer before their merge", () => {
+  const world = layoutWorld({
+    id: "world.branch", templateId: "branch_merge_pipeline",
+    objects: [
+      { id: "node.a", kind: "node" }, { id: "node.b", kind: "node" }, { id: "node.merge", kind: "node" },
+    ],
+    relations: [
+      { id: "edge.a", from: "node.a", to: "node.merge" }, { id: "edge.b", from: "node.b", to: "node.merge" },
+    ],
+  });
+  const a = world.objects.find((item) => item.id === "node.a");
+  const b = world.objects.find((item) => item.id === "node.b");
+  const merge = world.objects.find((item) => item.id === "node.merge");
+  assert.equal(a.x, b.x);
+  assert.notEqual(a.y, b.y);
+  assert.ok(merge.x > a.x);
 });

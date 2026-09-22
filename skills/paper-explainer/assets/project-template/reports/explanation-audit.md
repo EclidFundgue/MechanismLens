@@ -4,6 +4,7 @@ Generated projects should record:
 
 - key contribution coverage;
 - numeric claim source coverage;
-- scene-to-claim mappings;
-- generic scene fallbacks;
+- visual-object-to-evidence and scene-to-claim mappings;
+- template selections and generic fallbacks;
+- overview/detail/camera and narrow-screen checks;
 - unsupported or low-confidence interpretations.

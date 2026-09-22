@@ -1,0 +1,55 @@
+.world-stage { display: grid; width: 100%; height: 100%; min-height: 260px; overflow: hidden; }
+.world-stage.has-detail { grid-template-columns: minmax(0, 1.5fr) minmax(270px, .75fr); gap: 18px; }
+.world-canvas, .world-detail-panel svg { display: block; width: 100%; height: 100%; min-height: 0; overflow: visible; }
+.world-object { transition: opacity .25s ease; }
+.world-object.is-deemphasized, .world-relation.is-deemphasized { opacity: .24; }
+.world-group-frame { fill: rgba(120,213,181,.035); stroke: #3a4b49; stroke-width: 2; }
+.world-group.is-emphasized .world-group-frame { stroke: var(--accent); stroke-width: 4; }
+.world-group-title { fill: var(--accent); font-size: 17px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.world-html-box { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; width: 100%; height: 100%; padding: 14px; overflow: hidden; color: var(--ink); background: var(--panel-2); border: 2px solid var(--rule); border-radius: 10px; text-align: center; }
+.world-object.is-emphasized .world-html-box { border-color: var(--accent); box-shadow: inset 0 0 0 2px rgba(120,213,181,.15); }
+.world-html-box small { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: .1em; }
+.world-html-box strong { font-size: 21px; line-height: 1.15; }
+.world-html-box span { color: var(--muted); font-size: 14px; line-height: 1.35; }
+.world-relation { transition: opacity .25s ease; }
+.world-relation path { fill: none; stroke: #56616a; stroke-width: 3; }
+.world-relation marker path { fill: #56616a; }
+.world-relation text { fill: var(--muted); font-size: 15px; paint-order: stroke; stroke: var(--panel); stroke-width: 8px; }
+.world-relation.is-active path { stroke: var(--accent); stroke-width: 5; }
+.world-relation.is-active marker path { fill: var(--accent); }
+.world-equation-box { width: 100%; height: 100%; color: var(--ink); background: var(--panel-2); border: 2px solid var(--rule); border-radius: 12px; padding: 28px; }
+.world-equation-main { min-height: 170px; display: grid; place-items: center; overflow-x: auto; font-size: 31px; border-bottom: 1px solid var(--rule); }
+.world-equation-parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; padding-top: 24px; }
+.world-equation-parts article { padding: 15px; border: 1px solid var(--rule); font-size: 20px; transition: opacity .25s, border-color .25s; }
+.world-equation-parts article.is-emphasized { border-color: var(--accent); }
+.world-equation-parts p { margin: 12px 0 0; color: var(--muted); font-size: 14px; }
+.world-code-box { display: grid; grid-template-columns: 1fr; gap: 18px; width: 100%; height: 100%; color: var(--ink); }
+.world-code-box.has-state { grid-template-columns: 1.25fr .75fr; }
+.world-code-lines, .world-code-box aside { overflow: hidden; padding: 22px; background: var(--panel-2); border: 2px solid var(--rule); border-radius: 12px; }
+.world-code-lines h3, .world-code-box aside h3 { margin: 0 0 16px; }
+.world-code-lines > div { display: grid; grid-template-columns: 38px minmax(210px, .8fr) 1fr; gap: 12px; align-items: baseline; padding: 13px 10px; border-top: 1px solid var(--rule); transition: opacity .25s, background .25s; }
+.world-code-lines > div.is-emphasized { background: var(--accent-soft); }
+.world-code-lines span { color: var(--accent); }
+.world-code-lines code { overflow-wrap: anywhere; }
+.world-code-lines p { margin: 0; color: var(--muted); }
+.world-code-box dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rule); font-family: monospace; }
+.world-code-box dd { margin: 0; }
+.world-code-box [data-changed="true"] dd, .world-code-box aside > p { color: var(--accent); }
+.world-surface { fill: var(--panel-2); stroke: var(--rule); stroke-width: 2; }
+.world-chart-title { fill: var(--muted); font-size: 16px; }
+.world-chart-axis { stroke: var(--rule); stroke-width: 2; }
+.world-chart-row { transition: opacity .25s; }
+.world-chart-row text { fill: var(--ink); font-size: 20px; }
+.world-chart-row rect { fill: #647987; }
+.world-chart-row.is-emphasized rect { fill: var(--accent); }
+.world-chart-row .world-chart-delta { fill: var(--muted); font-size: 17px; }
+.world-chart-row [data-outcome="better"] { fill: var(--accent); }
+.world-paper { fill: var(--paper); stroke: var(--rule); stroke-width: 2; }
+.world-region rect { fill: rgba(120,213,181,.05); stroke: transparent; stroke-width: 5; vector-effect: non-scaling-stroke; }
+.world-region.is-emphasized rect { fill: rgba(120,213,181,.11); stroke: var(--accent); }
+.world-region text { fill: #07100d; font-size: 18px; font-weight: 800; paint-order: stroke; stroke: var(--accent); stroke-width: 7px; }
+.world-image-error { fill: #922; font-size: 20px; }
+.world-detail-panel { display: grid; grid-template-rows: auto minmax(0, 1fr); min-width: 0; min-height: 0; padding: 18px; border: 1px solid #34584d; background: #0c100f; }
+.world-detail-panel h3 { margin: 5px 0 12px; font-size: 21px; }
+@media (prefers-reduced-motion: reduce) { .world-object, .world-relation, .world-chart-row { transition: none; } }
+@media (max-width: 850px) { .world-stage.has-detail { grid-template-columns: 1fr; grid-template-rows: minmax(250px, 1fr) minmax(220px, .7fr); overflow: auto; } .world-code-box.has-state { grid-template-columns: 1fr; } }

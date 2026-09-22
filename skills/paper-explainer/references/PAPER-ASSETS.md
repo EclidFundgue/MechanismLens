@@ -19,12 +19,12 @@
 
 | 内容 | 首选 |
 |---|---|
-| 简单架构 / 数据流 | `architecture_execution` 数据重绘 |
-| 复杂架构总览 | 原图 + `figure_inspector` callout |
-| 定性结果 / 照片 / 渲染 | 原图 + `figure_inspector` |
-| 小型结果 / 消融表 | `ablation_comparison` |
+| 简单架构 / 数据流 | Visual Intent 的 `group/node/relation`，选择合适结构模板 |
+| 复杂架构总览 | `image` primitive + region，必要时加 detail view |
+| 定性结果 / 照片 / 渲染 | `figure_region_exploration` + 原图 region |
+| 小型结果 / 消融表 | `compare_variant` + `chart` primitive |
 | 大型密集表格 | 原图裁切 + callout |
-| 公式 | `equation_walkthrough` + KaTeX |
+| 公式 | `equation_derivation` + `equation` primitive + KaTeX |
 | 作者定义 / 结论 | Evidence Drawer excerpt |
 
 禁止用图像生成模型重画技术结构或实验结果。
@@ -102,7 +102,7 @@ Evidence 中的 `page` 会跳到构建后的 `site/paper/original.pdf#page=N`。
 
 ## 公式
 
-运行时自带 KaTeX。公式放进 `payload.tex`，分解项放 `payload.parts`。复杂宏
+运行时自带 KaTeX。公式放进 equation object 的 `tex`，分解项放 `parts`。复杂宏
 先展开成 KaTeX 可识别写法；不能可靠重建时使用论文公式截图，并在 evidence
 中保留 equation 编号和页码。
 

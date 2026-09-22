@@ -1,68 +1,16 @@
 # 修改已有讲解
 
-修改遵循一个简单链路：
+判断问题属于哪一层：
 
-```text
-paper.md / 原论文
-  → paper-ir.json
-  → scene-ir.json
-  → npm run build
-  → site/
-```
-
-## 稳定 ID
-
-已经交付的 Paper IR 对象、scene 和 step ID 非必要不改。插入新 step 时创建
-新的语义 ID；不要根据当前位置重排成 `step1`、`step2`，否则游标、审计和用户
-反馈定位都会失效。
-
-## 修改类型
-
-| 需求 | 最小改动 |
+| 反馈 | 修改位置 |
 |---|---|
-| 改字幕措辞 | Scene IR 对应 step narration + `script.md` |
-| 展开一节 | Paper IR 补对象/evidence → Scene IR 插 step 或 scene → Markdown 副本 |
-| 事实或数字纠错 | 回原论文核对 → Paper IR → Scene IR payload/narration |
-| 调整图中聚焦 | Scene IR `focusIds` / callout，不复制 renderer |
-| 换论文图 | `project/public/assets/` + figure item + Scene IR src |
-| 调整来源跳转 | Paper IR evidence/page/url/anchor |
-| 新增场景能力 | 扩展 schema、types、renderer、示例和文档，然后重新构建 |
+| 事实、数字、关系或来源错误 | 原文核对后改 `paper-ir.json` |
+| 字幕、顺序、模板、焦点、显隐、detail 或转场 | 改 `visual-intent.json` |
+| 多篇论文都会遇到的布局、原语或编译问题 | 改 `engine/` 或 `project/src/stage/` |
+| generated geometry 或 camera 错误 | 修 Intent 约束或编译器；不手改 `scene-ir.json` |
 
-## 展开某一节
+修改后运行项目的 `npm run build`，它会重新生成 Scene IR。Paper 对象、world、scene、step ID 非必要不改；插入新内容使用新的语义 ID。cursor 使用 `sceneId + stepId`，删除目标时运行时回退到有效开头。
 
-1. 从用户说法定位 scene ID 和 step ID；
-2. 回 Paper IR 找可用 claim、module、equation、experiment；
-3. 内容不足时回原文补 evidence；
-4. 在 Scene IR 同一 scene 插 step，或在语义改变时插新 scene；
-5. 更新 script/outline 的人类可读副本；
-6. 运行 `npm run validate` 和 `npm run build`；
-7. 从插入点前一个 step 连续播放到后一个 step；
-8. 在 `revisions.md` 追加记录。
+浏览器至少从改动前一步播放到后一步，并直接跳到目标 step 比较最终状态。视觉改动检查 overview、局部、detail、窄屏与 reduced motion；事实改动检查 Evidence Drawer 跳转。
 
-## 重建与缓存
-
-运行时游标按 `paper.id` 存储。只增删 step 不必手动修改缓存版本；被删除的
-游标越界时 App 会自动收敛到有效范围。想强制从头验证，使用：
-
-```text
-?reset=1
-```
-
-## 修改记录
-
-```markdown
-## 2026-09-21 · 展开算法循环
-- 反馈：算法部分太快
-- Paper IR：新增 evidence.algorithm-loop / claim.iterative-update
-- Scene IR：scene.algorithm 插入 step.update-state
-- 构建：validate ✓ / build ✓ / source link ✓
-```
-
-## 完成标准
-
-- IR 引用无断链；
-- 上屏数字来源覆盖率仍为 100%；
-- 新 step 有 narration 和正确 focus；
-- 来源按钮打开正确原文位置；
-- `site/` 已重新构建；
-- `revisions.md` 已追加。
+在 `revisions.md` 记录日期、用户反馈、Paper/Intent/engine 改动、build 结果和来源核查。完成标准：引用无断链、关键来源覆盖保持 100%、生成文件已重编译、站点已构建、没有遗留 dev server。

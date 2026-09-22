@@ -31,7 +31,9 @@ node "$SELF/scripts/build-project.mjs" <output-dir>
 
 ```text
 npm install（缺 node_modules 时）
-→ validate-data.mjs
+→ source validation
+→ compile-content.mjs
+→ generated Scene IR validation
 → TypeScript
 → Vite build --base ./
 → site/
@@ -49,10 +51,10 @@ npm install（缺 node_modules 时）
 | `S` | 字幕开关 |
 | `E` | Evidence Drawer 开关 |
 
-全局快捷键只在页面的非交互区域生效。事件已被处理、输入法组合输入、长按重复、
-按下 `Ctrl` / `Meta` / `Alt`，或焦点位于输入框、可编辑区域、按钮、链接及其子元素
-时，运行时不会接管按键。只有实际执行播放器动作时才阻止浏览器默认行为；`Shift`
-不会被统一禁用，因此大写 `S` / `E` 保持可用。
+左右方向键在页面主体、按钮和链接获得焦点时仍切换 step；Space 在按钮或链接上
+保留原生激活行为。事件已被处理、输入法组合输入、长按重复、按下
+`Ctrl` / `Meta` / `Alt`，或焦点位于输入框和可编辑区域时不接管。只有实际执行
+播放器动作时才阻止默认行为；`Shift` 不统一禁用，因此大写 `S` / `E` 可用。
 
 URL 参数：
 
@@ -87,22 +89,19 @@ npm run validate
 
 校验器覆盖：
 
-- Paper ID 与 Scene IR paperId 一致；
-- 所有对象和 scene/step ID 唯一；
-- scene 至少一个，scene 至少一个 step；
-- claim/evidence 引用存在；
-- narration 非空。
+- Paper、Visual Intent 与 generated Scene IR 版本和 paperId 一致；
+- 模板、world、object、relation、detail、scene 和 step 引用存在；
+- parent 无环，模板 required kinds 满足；
+- narration、claim、evidence 和技术对象绑定有效；
+- 编译几何、relation path 和 camera bounds 有限且为正尺寸。
 
-此外，校验器会按“结构、合法 ID、引用、场景语义”的顺序检查：数组和对象类型、
-重复 ID/引用、focus 可见性、活动边端点、比较基线、变量标量、原图区域和
-`visual.regionId`。错误带稳定 `code`、JSON 风格 `path`，以及可选的 scene/step ID；
-展示文字不足和过密比较属于 warning，不阻断构建。旧 `src + callouts`、缺省
-`visual`、缺省 `metric` 和无显式 ID 的架构边继续兼容。
+此外检查重复 ID/引用、focus 可见性、活动关系、比较基线、原图 region、detail
+归属和 step state target。错误带稳定 `code`、JSON path，以及可选的 layer、
+template、object、scene 和 step ID；过密比较等属于 warning，不阻断构建。
+v1 输入返回版本错误，不做隐式兼容或自动改写。
 
-Scene IR 1.0 不接受 `step.state`。检测到该字段时会明确提示改用 `step.visual`，
-但不会全局拒绝其它 step 扩展字段，也不会自动改写输入数据。
-
-JSON Schema 用于编辑器和自动化集成，`validate-data.mjs` 是构建时硬门槛。
+JSON Schema 用于编辑器和自动化集成；`compile-content.mjs` 和
+`validate-data.mjs` 是构建时硬门槛。
 
 ## 交付前检查
 

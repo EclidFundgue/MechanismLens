@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "2.0",
   "paper": {
     "id": "paper.demo",
     "title": "Untitled paper",
@@ -30,9 +30,33 @@
   "contributions": [
     { "id": "contribution.main", "title": "Primary contribution", "summary": "Replace this with the main contribution.", "weight": "high", "evidenceIds": ["evidence.abstract"] }
   ],
-  "concepts": [],
-  "modules": [],
-  "equations": [],
-  "experiments": [],
-  "figures": []
+  "concepts": [
+    { "id": "concept.problem", "title": "Problem", "text": "What existing methods cannot do", "evidenceIds": ["evidence.abstract"] },
+    { "id": "concept.solution", "title": "Contribution", "text": "What this paper changes", "evidenceIds": ["evidence.abstract"] }
+  ],
+  "modules": [
+    { "id": "module.input", "title": "Input", "summary": "Input representation", "evidenceIds": ["evidence.architecture"] },
+    { "id": "module.encoder", "title": "Encoder", "summary": "Builds a contextual representation", "evidenceIds": ["evidence.architecture"] },
+    { "id": "module.fusion", "title": "Fusion", "summary": "Combines complementary information", "evidenceIds": ["evidence.architecture"] },
+    { "id": "module.decoder", "title": "Decoder", "summary": "Produces the task output", "evidenceIds": ["evidence.architecture"] },
+    { "id": "module.output", "title": "Output", "summary": "Final prediction", "evidenceIds": ["evidence.architecture"] }
+  ],
+  "relations": [
+    { "id": "relation.encode", "title": "Encode", "from": "module.input", "to": "module.encoder", "stage": "both", "evidenceIds": ["evidence.architecture"] },
+    { "id": "relation.fuse", "title": "Fuse", "from": "module.encoder", "to": "module.fusion", "stage": "both", "evidenceIds": ["evidence.architecture"] },
+    { "id": "relation.decode", "title": "Decode", "from": "module.fusion", "to": "module.decoder", "stage": "both", "evidenceIds": ["evidence.architecture"] },
+    { "id": "relation.predict", "title": "Predict", "from": "module.decoder", "to": "module.output", "stage": "both", "evidenceIds": ["evidence.architecture"] }
+  ],
+  "equations": [
+    { "id": "equation.objective", "title": "Main objective", "tex": "\\mathcal{L}=\\mathcal{L}_{main}+\\lambda\\mathcal{L}_{reg}", "evidenceIds": ["evidence.equation"] }
+  ],
+  "algorithms": [
+    { "id": "algorithm.main", "title": "Main algorithm", "summary": "Initialize, update, and decode state", "evidenceIds": ["evidence.algorithm"] }
+  ],
+  "experiments": [
+    { "id": "experiment.ablation", "title": "Ablation", "metric": "Demo score", "evidenceIds": ["evidence.ablation"] }
+  ],
+  "figures": [
+    { "id": "figure.qualitative", "title": "Qualitative result", "asset": "assets/demo-figure.svg", "evidenceIds": ["evidence.figure"] }
+  ]
 }

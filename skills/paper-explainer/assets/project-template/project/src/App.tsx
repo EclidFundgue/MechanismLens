@@ -1,145 +1,109 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { paperIR, sceneIR } from "./data";
 import { EvidenceDrawer } from "./components/EvidenceDrawer";
-import { SceneRenderer } from "./components/SceneRenderer";
+import { WorldStage } from "./stage/WorldStage";
 import { usePlayerKeyboard } from "./hooks/usePlayerKeyboard";
 import { assetUrl } from "./lib/source";
 
-function unique<T>(items: T[]): T[] {
-  return [...new Set(items)];
-}
+function unique<T>(items: T[]): T[] { return [...new Set(items)]; }
 
 function initialCursor() {
-  const reset = new URLSearchParams(window.location.search).get("reset") === "1";
-  if (reset) return { scene: 0, step: 0 };
+  const fallback = { sceneId: sceneIR.scenes[0]?.id ?? "", stepId: sceneIR.scenes[0]?.steps[0]?.id ?? "" };
+  if (new URLSearchParams(window.location.search).get("reset") === "1") return fallback;
   try {
-    const parsed = JSON.parse(window.localStorage.getItem(`paper-explainer:${paperIR.paper.id}:cursor`) ?? "null");
-    if (Number.isInteger(parsed?.scene) && Number.isInteger(parsed?.step)) return parsed;
+    const parsed = JSON.parse(window.localStorage.getItem(`paper-explainer:v2:${paperIR.paper.id}:cursor`) ?? "null");
+    if (typeof parsed?.sceneId === "string" && typeof parsed?.stepId === "string") return parsed;
   } catch { /* ignore stale state */ }
-  return { scene: 0, step: 0 };
+  return fallback;
 }
 
 export function App() {
-  const [{ scene: sceneIndex, step: stepIndex }, setCursor] = useState(initialCursor);
+  const [cursor, setCursor] = useState(initialCursor);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [subtitles, setSubtitles] = useState(true);
   const [auto, setAuto] = useState(new URLSearchParams(window.location.search).get("auto") === "1");
 
-  const safeSceneIndex = Math.max(0, Math.min(sceneIndex, sceneIR.scenes.length - 1));
-  const scene = sceneIR.scenes[safeSceneIndex];
-  const safeStepIndex = Math.max(0, Math.min(stepIndex, scene.steps.length - 1));
-  const step = scene.steps[safeStepIndex];
+  const sceneIndex = Math.max(0, sceneIR.scenes.findIndex((item) => item.id === cursor.sceneId));
+  const scene = sceneIR.scenes[sceneIndex];
+  const stepIndex = Math.max(0, scene.steps.findIndex((item) => item.id === cursor.stepId));
+  const step = scene.steps[stepIndex];
+  const world = sceneIR.worlds.find((item) => item.id === scene.worldId)!;
+  const previousStep = scene.steps[stepIndex - 1];
 
   const claimMap = useMemo(() => new Map(paperIR.claims.map((claim) => [claim.id, claim])), []);
   const evidenceMap = useMemo(() => new Map(paperIR.evidence.map((item) => [item.id, item])), []);
+  const semanticMap = useMemo(() => new Map([
+    ...paperIR.contributions, ...paperIR.concepts, ...paperIR.modules, ...paperIR.relations,
+    ...paperIR.equations, ...paperIR.algorithms, ...paperIR.experiments, ...paperIR.figures,
+  ].map((item) => [item.id, item])), []);
   const currentEvidence = useMemo(() => {
-    const claimEvidence = (scene.claimIds ?? []).flatMap((id) => claimMap.get(id)?.evidenceIds ?? []);
-    const ids = unique([...(scene.evidenceIds ?? []), ...(step.evidenceIds ?? []), ...claimEvidence]);
+    const claimEvidence = scene.claimIds.flatMap((id) => claimMap.get(id)?.evidenceIds ?? []);
+    const anchorOwners = new Map(world.anchors.map((anchor) => [anchor.id, anchor.ownerId]));
+    const activeObjectIds = new Set(step.visual.emphasisIds.map((id) => anchorOwners.get(id) ?? id));
+    const visualEvidence = world.objects.filter((object) => activeObjectIds.has(object.id)).flatMap((object) => [
+      ...(object.evidenceIds ?? []), ...(object.paperRef ? semanticMap.get(object.paperRef)?.evidenceIds ?? [] : []),
+    ]);
+    const relationEvidence = world.relations.filter((relation) => step.visual.activeRelationIds.includes(relation.id)).flatMap((relation) => {
+      const source = relation as typeof relation & { evidenceIds?: string[]; paperRef?: string };
+      return [...(source.evidenceIds ?? []), ...(source.paperRef ? semanticMap.get(source.paperRef)?.evidenceIds ?? [] : [])];
+    });
+    const ids = unique([...scene.evidenceIds, ...step.evidenceIds, ...claimEvidence, ...visualEvidence, ...relationEvidence]);
     return ids.map((id) => evidenceMap.get(id)).filter((item): item is NonNullable<typeof item> => Boolean(item));
-  }, [claimMap, evidenceMap, scene, step]);
+  }, [claimMap, evidenceMap, scene, semanticMap, step, world]);
 
   const totalSteps = sceneIR.scenes.reduce((total, item) => total + item.steps.length, 0);
-  const completedBefore = sceneIR.scenes.slice(0, safeSceneIndex).reduce((total, item) => total + item.steps.length, 0);
-  const absoluteStep = completedBefore + safeStepIndex + 1;
+  const completedBefore = sceneIR.scenes.slice(0, sceneIndex).reduce((total, item) => total + item.steps.length, 0);
+  const absoluteStep = completedBefore + stepIndex + 1;
 
-  const jump = useCallback((nextScene: number, nextStep = 0) => {
-    const boundedScene = Math.max(0, Math.min(nextScene, sceneIR.scenes.length - 1));
-    const boundedStep = Math.max(0, Math.min(nextStep, sceneIR.scenes[boundedScene].steps.length - 1));
-    setCursor({ scene: boundedScene, step: boundedStep });
+  const jump = useCallback((nextSceneIndex: number, nextStepIndex = 0) => {
+    const boundedSceneIndex = Math.max(0, Math.min(nextSceneIndex, sceneIR.scenes.length - 1));
+    const nextScene = sceneIR.scenes[boundedSceneIndex];
+    const boundedStepIndex = Math.max(0, Math.min(nextStepIndex, nextScene.steps.length - 1));
+    setCursor({ sceneId: nextScene.id, stepId: nextScene.steps[boundedStepIndex].id });
   }, []);
-
   const next = useCallback(() => {
-    if (safeStepIndex < scene.steps.length - 1) jump(safeSceneIndex, safeStepIndex + 1);
-    else if (safeSceneIndex < sceneIR.scenes.length - 1) jump(safeSceneIndex + 1, 0);
+    if (stepIndex < scene.steps.length - 1) jump(sceneIndex, stepIndex + 1);
+    else if (sceneIndex < sceneIR.scenes.length - 1) jump(sceneIndex + 1, 0);
     else setAuto(false);
-  }, [jump, safeSceneIndex, safeStepIndex, scene.steps.length]);
-
+  }, [jump, scene.steps.length, sceneIndex, stepIndex]);
   const previous = useCallback(() => {
-    if (safeStepIndex > 0) jump(safeSceneIndex, safeStepIndex - 1);
-    else if (safeSceneIndex > 0) jump(safeSceneIndex - 1, sceneIR.scenes[safeSceneIndex - 1].steps.length - 1);
-  }, [jump, safeSceneIndex, safeStepIndex]);
-
+    if (stepIndex > 0) jump(sceneIndex, stepIndex - 1);
+    else if (sceneIndex > 0) jump(sceneIndex - 1, sceneIR.scenes[sceneIndex - 1].steps.length - 1);
+  }, [jump, sceneIndex, stepIndex]);
   const home = useCallback(() => jump(0, 0), [jump]);
   const toggleSubtitles = useCallback(() => setSubtitles((value) => !value), []);
   const toggleEvidence = useCallback(() => setEvidenceOpen((value) => !value), []);
-
   usePlayerKeyboard({ next, previous, home, toggleSubtitles, toggleEvidence });
 
   useEffect(() => {
-    window.localStorage.setItem(`paper-explainer:${paperIR.paper.id}:cursor`, JSON.stringify({ scene: safeSceneIndex, step: safeStepIndex }));
-  }, [safeSceneIndex, safeStepIndex]);
-
+    window.localStorage.setItem(`paper-explainer:v2:${paperIR.paper.id}:cursor`, JSON.stringify({ sceneId: scene.id, stepId: step.id }));
+  }, [scene.id, step.id]);
   useEffect(() => {
     if (!auto) return;
-    const timer = window.setTimeout(next, Math.max(1800, step.narration.length * 190));
+    const timer = window.setTimeout(next, step.transition.durationMs + step.timing.holdMs);
     return () => window.clearTimeout(timer);
-  }, [auto, next, scene.id, step.id, step.narration.length]);
+  }, [auto, next, scene.id, step.id, step.timing.holdMs, step.transition.durationMs]);
 
-  const originalPaperUrl = paperIR.paper.localPdfPath
-    ? assetUrl(paperIR.paper.localPdfPath)
-    : paperIR.paper.originalUrl || paperIR.paper.pdfUrl || null;
-
-  return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="brand-block">
-          <span className="brand-mark">PE</span>
-          <div><span className="kicker">Paper Explainer</span><strong>{paperIR.paper.title}</strong></div>
-        </div>
-        <div className="header-actions">
-          {originalPaperUrl && <a className="quiet-link" href={originalPaperUrl} target="_blank" rel="noreferrer">查看论文 ↗</a>}
-          <button className="evidence-button" onClick={() => setEvidenceOpen(true)}>
-            论文依据 <span>{currentEvidence.length}</span>
-          </button>
-        </div>
-      </header>
-
-      <nav className="scene-nav" aria-label="讲解章节">
-        <div className="nav-title"><span className="kicker">Walkthrough</span><strong>{sceneIR.title ?? "Contents"}</strong></div>
-        <ol>
-          {sceneIR.scenes.map((item, index) => (
-            <li key={item.id}>
-              <button className={index === safeSceneIndex ? "is-current" : ""} onClick={() => jump(index, 0)}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div><strong>{item.title}</strong><small>{item.steps.length} steps · {item.type.replaceAll("_", " ")}</small></div>
-              </button>
-            </li>
-          ))}
-        </ol>
-        <div className="paper-summary">
-          <span className="kicker">Paper in one line</span>
-          <p>{paperIR.paper.summary}</p>
-        </div>
-      </nav>
-
-      <main className="stage-area">
-        <section className="stage" aria-live="polite">
-          <div className="stage-heading">
-            <div><span className="kicker">{scene.eyebrow ?? scene.type.replaceAll("_", " ")}</span><h1>{scene.title}</h1></div>
-            <div className="step-counter"><span>{String(safeStepIndex + 1).padStart(2, "0")}</span><small>/ {String(scene.steps.length).padStart(2, "0")}</small></div>
-          </div>
-
-          <div className="visual-stage"><SceneRenderer scene={scene} step={step} stepIndex={safeStepIndex} /></div>
-
-          {subtitles && <div className="subtitle"><span>{step.title ?? "Explanation"}</span><p>{step.narration}</p></div>}
-        </section>
-
-        <footer className="player-controls">
-          <div className="progress-track"><span style={{ width: `${(absoluteStep / totalSteps) * 100}%` }} /></div>
-          <div className="control-row">
-            <span>{absoluteStep} / {totalSteps}</span>
-            <div>
-              <button onClick={previous} disabled={absoluteStep === 1}>←</button>
-              <button className={auto ? "is-active" : ""} onClick={() => setAuto((value) => !value)}>{auto ? "暂停" : "自动播放"}</button>
-              <button onClick={next} disabled={absoluteStep === totalSteps}>→</button>
-            </div>
-            <button className="subtitle-toggle" onClick={() => setSubtitles((value) => !value)}>字幕 {subtitles ? "开" : "关"}</button>
-          </div>
-        </footer>
-      </main>
-
-      <EvidenceDrawer evidence={currentEvidence} paper={paperIR.paper} open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
-      {evidenceOpen && <button className="drawer-scrim" onClick={() => setEvidenceOpen(false)} aria-label="关闭证据面板" />}
-    </div>
-  );
+  const originalPaperUrl = paperIR.paper.localPdfPath ? assetUrl(paperIR.paper.localPdfPath) : paperIR.paper.originalUrl || paperIR.paper.pdfUrl || null;
+  return <div className="app-shell">
+    <header className="topbar">
+      <div className="brand-block"><span className="brand-mark">PE</span><div><span className="kicker">Paper Explainer</span><strong>{paperIR.paper.title}</strong></div></div>
+      <div className="header-actions">{originalPaperUrl && <a className="quiet-link" href={originalPaperUrl} target="_blank" rel="noreferrer">查看论文 ↗</a>}<button className="evidence-button" onClick={() => setEvidenceOpen(true)}>论文依据 <span>{currentEvidence.length}</span></button></div>
+    </header>
+    <nav className="scene-nav" aria-label="讲解章节">
+      <div className="nav-title"><span className="kicker">Walkthrough</span><strong>{sceneIR.title ?? "Contents"}</strong></div>
+      <ol>{sceneIR.scenes.map((item, index) => <li key={item.id}><button className={index === sceneIndex ? "is-current" : ""} onClick={() => jump(index, 0)}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.title}</strong><small>{item.steps.length} steps · {item.contentKind}</small></div></button></li>)}</ol>
+      <div className="paper-summary"><span className="kicker">Paper in one line</span><p>{paperIR.paper.summary}</p></div>
+    </nav>
+    <main className="stage-area">
+      <section className="stage" aria-live="polite">
+        <div className="stage-heading"><div><span className="kicker">{scene.eyebrow ?? scene.contentKind}</span><h1>{scene.title}</h1></div><div className="step-counter"><span>{String(stepIndex + 1).padStart(2, "0")}</span><small>/ {String(scene.steps.length).padStart(2, "0")}</small></div></div>
+        <div className="visual-stage"><WorldStage key={world.id} world={world} step={step} previousStep={previousStep} /></div>
+        {subtitles && <div className="subtitle"><span>{step.title ?? "Explanation"}</span><p>{step.narration}</p></div>}
+      </section>
+      <footer className="player-controls"><div className="progress-track"><span style={{ width: `${(absoluteStep / totalSteps) * 100}%` }} /></div><div className="control-row"><span>{absoluteStep} / {totalSteps}</span><div><button onClick={previous} disabled={absoluteStep === 1}>←</button><button className={auto ? "is-active" : ""} onClick={() => setAuto((value) => !value)}>{auto ? "暂停" : "自动播放"}</button><button onClick={next} disabled={absoluteStep === totalSteps}>→</button></div><button className="subtitle-toggle" onClick={() => setSubtitles((value) => !value)}>字幕 {subtitles ? "开" : "关"}</button></div></footer>
+    </main>
+    <EvidenceDrawer evidence={currentEvidence} paper={paperIR.paper} open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
+    {evidenceOpen && <button className="drawer-scrim" onClick={() => setEvidenceOpen(false)} aria-label="关闭证据面板" />}
+  </div>;
 }

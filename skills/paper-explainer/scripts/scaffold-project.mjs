@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { cp, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -63,6 +64,20 @@ paperIr.paper.pdfUrl = source.includes("arxiv.org/abs/")
   : source;
 await writeFile(paperIrPath, `${JSON.stringify(paperIr, null, 2)}\n`);
 
+await new Promise((resolveCompile, rejectCompile) => {
+  const compiler = path.join(targetDir, "runtime", "compile-content.mjs");
+  const child = spawn(process.execPath, [compiler, path.join(targetDir, "content")], {
+    cwd: targetDir,
+    stdio: "inherit",
+    shell: false,
+  });
+  child.once("error", rejectCompile);
+  child.once("exit", (code) => {
+    if (code === 0) resolveCompile();
+    else rejectCompile(new Error(`Initial content compilation exited with ${code}`));
+  });
+});
+
 if (process.platform !== "win32") {
   const { chmod } = await import("node:fs/promises");
   await chmod(path.join(targetDir, "open.sh"), 0o755);
@@ -72,6 +87,6 @@ if (process.platform !== "win32") {
 console.log(`Created: ${targetDir}`);
 console.log("Next:");
 console.log(`  Save downloaded originals under: ${path.join(targetDir, "sources")}`);
-console.log("  1. Replace content/paper-ir.json and content/scene-ir.json");
+console.log("  1. Replace content/paper-ir.json and content/visual-intent.json");
 console.log(`  2. node "${path.join(scriptDir, "build-project.mjs")}" "${targetDir}"`);
 console.log("  3. Double-click open.cmd (Windows) or open.command (macOS), or run ./open.sh (Linux)");

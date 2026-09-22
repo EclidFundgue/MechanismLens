@@ -107,7 +107,9 @@ test("scaffolded delivery validates, builds, and serves outside the repository",
     renameSync(staging, delivered);
 
     const generatedValidator = join(delivered, "runtime/validate-data.mjs");
-    assert.equal(existsSync(join(delivered, "runtime/validation/scenes.mjs")), true);
+    assert.equal(existsSync(join(delivered, "engine/compiler/index.mjs")), true);
+    assert.equal(existsSync(join(delivered, "engine/validation/index.mjs")), true);
+    assert.equal(existsSync(join(delivered, "content/visual-intent.json")), true);
     await run(process.execPath, [generatedValidator, join(delivered, "content")], delivered);
     await run(process.execPath, [build, delivered], repositoryRoot);
 

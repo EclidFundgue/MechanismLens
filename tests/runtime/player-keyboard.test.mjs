@@ -39,13 +39,26 @@ test("ignores prevented, composing, modified, and repeated key events", () => {
   }
 });
 
-test("ignores interactive targets including descendants of buttons and links", () => {
-  const targets = [
+test("ignores shortcuts while the user is editing text", () => {
+  const editingTargets = [
     { isContentEditable: true, closest: () => null },
-    { isContentEditable: false, closest: () => ({ tagName: "BUTTON" }) },
-    { isContentEditable: false, closest: () => ({ tagName: "A" }) },
+    { isContentEditable: false, closest: (selector) => selector.includes("input") ? { tagName: "INPUT" } : null },
   ];
-  for (const target of targets) assert.equal(getPlayerAction(keyboardEvent({ key: " ", target })), null);
+  for (const target of editingTargets) {
+    assert.equal(getPlayerAction(keyboardEvent({ key: "ArrowRight", target })), null);
+  }
+});
+
+test("keeps arrow navigation global while preserving button and link activation", () => {
+  const interactiveTargets = [
+    { isContentEditable: false, closest: (selector) => selector === "button, a" ? { tagName: "BUTTON" } : null },
+    { isContentEditable: false, closest: (selector) => selector === "button, a" ? { tagName: "A" } : null },
+  ];
+  for (const target of interactiveTargets) {
+    assert.equal(getPlayerAction(keyboardEvent({ key: "ArrowRight", target })), "next");
+    assert.equal(getPlayerAction(keyboardEvent({ key: "ArrowLeft", target })), "previous");
+    assert.equal(getPlayerAction(keyboardEvent({ key: " ", target })), null);
+  }
 });
 
 test("prevents default only when a player shortcut is dispatched", () => {

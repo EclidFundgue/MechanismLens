@@ -4,9 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "compile": "node ../runtime/compile-content.mjs ../content",
     "validate": "node ../runtime/validate-data.mjs ../content",
-    "dev": "vite",
-    "build": "npm run validate && tsc -b && vite build",
+    "dev": "npm run compile && vite",
+    "build": "npm run compile && npm run validate && tsc -b && vite build",
     "start": "node ../runtime/serve.mjs ../site --open"
   },
   "dependencies": {

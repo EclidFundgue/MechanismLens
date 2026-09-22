@@ -1,0 +1,86 @@
+{
+  "version": "2.1.0",
+  "templates": [
+    {
+      "id": "grouped_overview",
+      "label": "Grouped overview",
+      "applicablePatterns": ["hierarchical_modules", "overview_then_detail"],
+      "allowedKinds": ["group", "node", "annotation"],
+      "requiredKinds": ["node"],
+      "supportedTreatments": ["overview_detail_spotlight"],
+      "antiPatterns": ["single_equation", "raw_figure_only"]
+    },
+    {
+      "id": "branch_merge_pipeline",
+      "label": "Branch and merge pipeline",
+      "applicablePatterns": ["parallel_branches", "multi_modal_fusion"],
+      "allowedKinds": ["group", "node", "annotation"],
+      "requiredKinds": ["node"],
+      "supportedTreatments": ["overview_detail_spotlight"],
+      "antiPatterns": ["unrelated_comparison"]
+    },
+    {
+      "id": "encoder_decoder",
+      "label": "Encoder decoder",
+      "applicablePatterns": ["encoder_decoder", "bottleneck", "cross_stage_connections"],
+      "allowedKinds": ["group", "node", "annotation"],
+      "requiredKinds": ["node"],
+      "supportedTreatments": ["overview_detail_spotlight"],
+      "antiPatterns": ["unrelated_parallel_branches"]
+    },
+    {
+      "id": "training_inference_dual_view",
+      "label": "Training and inference dual view",
+      "applicablePatterns": ["training_inference_split", "shared_modules"],
+      "allowedKinds": ["group", "node", "annotation"],
+      "requiredKinds": ["group", "node"],
+      "supportedTreatments": ["overview_detail_spotlight", "step_focus"],
+      "antiPatterns": ["identical_execution_paths"]
+    },
+    {
+      "id": "concept_sequence",
+      "label": "Concept sequence",
+      "applicablePatterns": ["problem_solution", "ordered_concepts"],
+      "allowedKinds": ["card", "annotation"],
+      "requiredKinds": ["card"],
+      "supportedTreatments": ["step_focus"],
+      "antiPatterns": ["dense_data_flow"]
+    },
+    {
+      "id": "equation_derivation",
+      "label": "Equation derivation",
+      "applicablePatterns": ["equation_terms", "progressive_derivation"],
+      "allowedKinds": ["equation", "annotation"],
+      "requiredKinds": ["equation"],
+      "supportedTreatments": ["step_focus"],
+      "antiPatterns": ["architecture_only"]
+    },
+    {
+      "id": "algorithm_state_trace",
+      "label": "Algorithm state trace",
+      "applicablePatterns": ["state_update", "iterative_process"],
+      "allowedKinds": ["code", "annotation"],
+      "requiredKinds": ["code"],
+      "supportedTreatments": ["step_focus"],
+      "antiPatterns": ["static_claims"]
+    },
+    {
+      "id": "compare_variant",
+      "label": "Variant comparison",
+      "applicablePatterns": ["ablation", "baseline_comparison"],
+      "allowedKinds": ["chart", "annotation"],
+      "requiredKinds": ["chart"],
+      "supportedTreatments": ["step_focus"],
+      "antiPatterns": ["values_without_shared_metric"]
+    },
+    {
+      "id": "figure_region_exploration",
+      "label": "Figure region exploration",
+      "applicablePatterns": ["qualitative_figure", "region_comparison"],
+      "allowedKinds": ["image", "annotation"],
+      "requiredKinds": ["image"],
+      "supportedTreatments": ["overview_detail_spotlight"],
+      "antiPatterns": ["missing_original_asset"]
+    }
+  ]
+}

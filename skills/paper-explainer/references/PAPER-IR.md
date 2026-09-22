@@ -1,47 +1,29 @@
-# Paper IR 1.0
+# Paper IR 2.0
 
-Paper IR 是论文事实层：它保存论文身份、可展示 claim、贡献、技术对象和统一
-evidence。它不包含动画时间轴。
+Paper IR 是论文事实层。它保存论文身份、evidence、可展示结论、技术对象和对象间关系，不包含布局、镜头或播放步骤。Schema：`schemas/paper-ir.schema.json`。
 
-Schema：`schemas/paper-ir.schema.json`。
-
-## 最小结构
+## 顶层结构
 
 ```json
 {
-  "schemaVersion": "1.0",
-  "paper": {
-    "id": "paper.attention",
-    "title": "Attention Is All You Need",
-    "originalUrl": "https://arxiv.org/abs/1706.03762",
-    "pdfUrl": "https://arxiv.org/pdf/1706.03762",
-    "localPdfPath": "paper/original.pdf"
-  },
+  "schemaVersion": "2.0",
+  "paper": { "id": "paper.attention", "title": "Attention Is All You Need", "originalUrl": "https://arxiv.org/abs/1706.03762" },
   "evidence": [],
   "claims": [],
   "contributions": [],
   "concepts": [],
   "modules": [],
+  "relations": [],
   "equations": [],
+  "algorithms": [],
   "experiments": [],
   "figures": []
 }
 ```
 
-ID 仅使用字母、数字、点、下划线和连字符，并在一次生成后保持稳定。推荐命名：
-
-```text
-evidence.sec3.2
-evidence.eq1
-claim.no-recurrence
-module.encoder
-equation.scaled-dot-product
-experiment.wmt14-en-de
-```
+ID 使用字母、数字、点、下划线和连字符；交付后保持稳定。先建立 evidence，再建立引用它的 grounded item。
 
 ## Evidence
-
-先建 evidence，再建引用它的其它对象：
 
 ```json
 {
@@ -51,79 +33,36 @@ experiment.wmt14-en-de
   "section": "§3.2.1",
   "page": 4,
   "anchor": "S3.SS2.SSS1",
-  "url": "",
   "excerpt": "Attention(Q,K,V)=...",
   "confidence": "direct"
 }
 ```
 
-字段语义：
+`page` 是 PDF 阅读器的 1-based 页码。`direct` 表示论文直接陈述；`derived` 表示系统根据论文计算、合并或教学重命名。derived evidence 的 excerpt 说明推导依据，不写成作者原话。
 
-- `url`：存在精确网页锚点时填写，优先级最高；
-- `page`：PDF 的 1-based 页码；运行时自动生成 `#page=N`；
-- `anchor`：HTML 版本的 fragment，不带 `#`；
-- `section`：人类可读定位；
-- `excerpt`：支持该 claim 的短摘录，避免整段复制；
-- `confidence=direct`：论文直接陈述；
-- `confidence=derived`：系统根据论文计算、比较或归纳。
+## 技术对象
 
-`page` 必须是 PDF 阅读器显示的页序号，而不是论文印刷页码。若两者不同，在
-`label` 或 `section` 中保留印刷页信息。
+所有 grounded item 至少包含 `id/title/evidenceIds`，核心解释写在 `text` 或 `summary`。按实际内容增加这些领域字段：
 
-## Grounded item
+- `modules`：输入、输出、角色、适用阶段和父模块；
+- `relations`：`from/to`、端口、关系类型及 `training/inference/both`；
+- `equations`：完整 `tex`、稳定 term ID、符号解释；
+- `algorithms`：稳定伪代码行、解释和教学执行例；
+- `experiments`：指标、单位、方向、真实值、变体和 baseline；
+- `figures`：素材路径、原始尺寸、caption 和可复用 region。
 
-claim、contribution、concept、module、equation、experiment、figure 共用稳定的
-grounded item 形状：
+Visual Intent 的视觉分组不自动成为论文声称的模块层级。模板也不能为了填槽位补造关系。
 
-```json
-{
-  "id": "claim.parallelizable",
-  "title": "训练可并行化",
-  "text": "模型不依赖循环计算，可并行处理序列位置。",
-  "evidenceIds": ["evidence.intro.parallel"]
-}
-```
+## 来源覆盖
 
-允许增加场景需要的领域字段，例如 module 的 `inputs` / `outputs` / `shape`，
-equation 的 `tex` / `symbols`，experiment 的 `metric` / `values`。但核心解释不能
-只藏在扩展字段里；`title`、`text`/`summary`、`evidenceIds` 必须完整。
+数字、百分比、年份、比较判断、公式与符号、模块输入输出、训练/推理顺序、作者结论和限制必须有 evidence。允许标为 derived 的典型情况包括表格差值、跨段落归纳和教学重命名。
 
-## 来源覆盖规则
-
-必须有 evidence：
-
-- 数字、百分比、年份、数据集规模；
-- “优于”“提升”“首次”等比较或优先级判断；
-- 公式定义与符号含义；
-- 模块输入输出和训练/推理顺序；
-- 作者结论与局限。
-
-可以标为 derived：
-
-- 由同一表格两列计算出的差值；
-- 对多处方法描述的合并归纳；
-- 为教学重命名的阶段或模块。
-
-derived evidence 的 excerpt 要说明推导依据；不要把推导写成作者原话。
-
-## 原文跳转策略
-
-优先级：
-
-1. evidence 自带精确 `url`；
-2. 本地 PDF + `page`；
-3. 在线 `pdfUrl` + `page`；
-4. `originalUrl` + `anchor`；
-5. 论文主页 + section/excerpt 人工定位。
-
-本地 PDF 路径固定为 `paper/original.pdf`，对应文件位于
-`project/public/paper/original.pdf`。不要写绝对本地路径，它在构建后不可移植。
+原文跳转顺序：evidence URL → 本地 PDF 页 → 在线 PDF 页 → 原文 anchor → 论文主页与人工 locator。本地 PDF 路径固定为 `paper/original.pdf`。
 
 ## 自检
 
-- 每个 ID 唯一；
-- 所有 `evidenceIds` 存在；
-- 所有上屏数字有来源；
-- direct / derived 没有混淆；
-- page 能打开到正确 PDF 页；
-- originalUrl、pdfUrl、localPdfPath 至少有一个可用入口。
+- 所有 ID 唯一，引用存在；
+- 关键关系与数值有 evidence；
+- direct 与 derived 不混淆；
+- page、URL 和 anchor 实际可定位；
+- Paper IR 不含模板、坐标、相机或字幕。

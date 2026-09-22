@@ -15,7 +15,7 @@
 <p align="center">
   <a href="#experience">你会得到什么</a> ·
   <a href="#quick-start">快速开始</a> ·
-  <a href="#scenes">六种讲解场景</a> ·
+  <a href="#scenes">视觉讲解能力</a> ·
   <a href="#delivery">交付与分享</a> ·
   <a href="#development">开发文档</a>
 </p>
@@ -50,7 +50,7 @@ paper-explainer https://arxiv.org/abs/1706.03762
 
 ### 1. 安装 Skill
 
-准备一个能读取本地 Skill、执行命令的 Agent，以及 **Node.js ≥ 18 和 npm**。运行时、六类场景和校验器随仓库提供，无需安装其它 Skill。构建时会安装 npm 依赖；使用附带的 `.sh` 工具需要 Bash，Windows 可使用 Git Bash 或 WSL。
+准备一个能读取本地 Skill、执行命令的 Agent，以及 **Node.js ≥ 18 和 npm**。模板目录、场景编译器、通用视觉舞台和校验器随仓库提供，无需安装其它 Skill。构建时会安装 npm 依赖；使用附带的 `.sh` 工具需要 Bash，Windows 可使用 Git Bash 或 WSL。
 
 先克隆仓库：
 
@@ -120,9 +120,9 @@ paper-explainer https://arxiv.org/abs/1706.03762
 启动器会选择空闲端口并打开浏览器。查看已构建的网页需要 Node.js 或 Python；不需要运行开发服务器。
 
 <a id="scenes"></a>
-## 六种场景，把技术讲清楚
+## 内容决定讲法，镜头保留空间关系
 
-| 场景 | 适合解释 | 你可以看到 |
+| 内容能力 | 适合解释 | 你可以看到 |
 | :--- | :--- | :--- |
 | **概念讲解** | 问题、前置知识、关键观点与结论 | 围绕当前步骤聚焦关键概念 |
 | **架构执行** | 模型模块、数据流、训练与推理管线 | 模块与连接随步骤高亮 |
@@ -131,18 +131,21 @@ paper-explainer https://arxiv.org/abs/1706.03762
 | **对比分析** | 数据、方案、baseline、消融结果 | 指标与比较对象随步骤聚焦 |
 | **原图检视** | 架构图、定性结果、复杂图表 | 原图区域标注、局部放大与解读 |
 
-Agent 根据原文选择场景。每个关键结论、数字和公式解释都要求绑定来源；基于原文的推导性解读单独标记，交付前生成来源审计报告。
+这些内容能力不再绑定六个整页 renderer。Agent 先识别顺序、分支融合、层级模块、公式项、状态更新或区域比较等结构模式，再从模板目录选择表达方式；编译器把视觉意图展开为统一场景图。架构讲解可以在同一张 world 中完成“总览 → 局部 → detail → 缩回 → 另一局部”，对象不会在切步时重新排版。
+
+每个关键结论、数字、公式解释和技术关系都要求绑定来源；基于原文的推导性解读单独标记，交付前生成来源与视觉审计报告。
 
 ## 从一份原文到一场讲解
 
 ```mermaid
 flowchart LR
     A["01 · 读取原文<br/>正文 / 公式 / 图表"] --> B["02 · 组织证据<br/>观点 / 结论 / 出处"]
-    B --> C["03 · 编排讲解<br/>场景 / 步骤 / 字幕"]
-    C --> D["04 · 构建与验证<br/>交互网页 / 来源审计"]
+    B --> C["03 · 选择表达<br/>模板 / world / 镜头"]
+    C --> D["04 · 确定性编译<br/>布局 / 场景图 / camera"]
+    D --> E["05 · 构建与验证<br/>交互网页 / 来源审计"]
 ```
 
-播放器、字幕和来源面板共用同一份步骤数据。修改讲解时，先调整内容和来源，再重新构建网页，保证画面与说明一致。完整执行规范见 [SKILL.md](skills/paper-explainer/SKILL.md)。
+事实和来源保存在 Paper IR，模板选择、字幕、步骤与焦点保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/paper-explainer/SKILL.md)。
 
 <a id="delivery"></a>
 ## 交付的是一个可以带走的项目
@@ -157,6 +160,8 @@ flowchart LR
 │   ├── supplements/                  # 相关补充材料（按需）
 │   └── manifest.md                   # 来源、相对路径与获取状态
 ├── content/                          # 原文、结构化内容与讲解稿
+├── templates/                        # 模板能力目录
+├── engine/                           # 确定性编译、布局与校验
 ├── project/                          # 可编辑的 React / TypeScript 源码
 ├── runtime/                          # 本地查看器与数据校验器
 ├── schemas/                          # 内容数据格式
@@ -180,7 +185,7 @@ flowchart LR
 
 **需要配置其它设计或演示 Skill 吗？**
 
-不需要。页面模板、场景渲染器、字幕、来源面板和启动器都已内置。
+不需要。模板目录、通用视觉舞台、字幕、来源面板和启动器都已内置。
 
 **扫描 PDF 或受限链接怎么办？**
 
@@ -200,10 +205,13 @@ flowchart LR
 | [执行规范](skills/paper-explainer/SKILL.md) | 输入约定、生成流程与交付要求 |
 | [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖、配置与项目脚手架 |
 | [文档内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
-| [场景与步骤](skills/paper-explainer/references/SCENE-IR.md) | 六类场景的数据结构 |
+| [视觉意图](skills/paper-explainer/references/VISUAL-INTENT.md) | world、对象、步骤、焦点和状态 |
+| [模板选择](skills/paper-explainer/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |
+| [生成场景图](skills/paper-explainer/references/SCENE-IR.md) | 编译后的 geometry 与执行快照 |
+| [镜头与过渡](skills/paper-explainer/references/CAMERA-AND-MOTION.md) | camera、detail 和播放语义 |
 | [运行时与交付](skills/paper-explainer/references/RUNTIME-AND-DELIVERY.md) | 构建、验证与打开方式 |
 | [修改已有讲解](skills/paper-explainer/references/REVISION.md) | 内容更新与重新构建 |
-| [开发与测试](skills/paper-explainer/references/DEVELOPMENT.md) | 渲染器、校验器与回归测试 |
+| [开发与测试](skills/paper-explainer/references/DEVELOPMENT.md) | 编译器、舞台、校验器与回归测试 |
 
 <details>
 <summary><strong>本地开发：创建并构建示例项目</strong></summary>

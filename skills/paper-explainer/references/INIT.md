@@ -75,9 +75,13 @@ sources/
 
 ```text
 project/src/components/
+project/src/stage/
+project/src/camera/
 project/src/lib/
 project/src/App.tsx
 project/src/styles.css
+engine/
+templates/
 runtime/
 schemas/
 open.cmd / open.command / open.sh
@@ -87,12 +91,13 @@ open.cmd / open.command / open.sh
 
 ```text
 content/paper-ir.json
-content/scene-ir.json
-content/*.md
+content/visual-intent.json
+content/scene-ir.json       # generated，不手改
+content/script.md / outline.md
 sources/
 project/public/assets/
 project/public/paper/original.pdf
 ```
 
-只有内置 scene 无法表达必要的论文语义时，才扩展 renderer；不要为了单篇论文
-复制整套组件。
+只有现有 primitive、布局策略和模板组合都无法表达多篇论文都会遇到的能力时，
+才扩展 engine/runtime；不要为了单篇论文复制组件或手写 TSX。

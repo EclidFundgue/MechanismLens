@@ -1,78 +1,29 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://paper-explainer.local/schema/paper-ir.schema.json",
-  "title": "Paper Explainer Paper IR",
+  "$id": "https://paper-explainer.local/schema/paper-ir.v2.schema.json",
+  "title": "Paper Explainer Paper IR 2.0",
   "type": "object",
-  "required": ["schemaVersion", "paper", "evidence", "claims", "contributions"],
+  "required": ["schemaVersion", "paper", "evidence", "claims", "contributions", "concepts", "modules", "relations", "equations", "algorithms", "experiments", "figures"],
   "properties": {
-    "schemaVersion": { "const": "1.0" },
-    "paper": {
-      "type": "object",
-      "required": ["id", "title", "originalUrl"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "title": { "type": "string", "minLength": 1 },
-        "authors": { "type": "array", "items": { "type": "string" } },
-        "year": { "type": ["integer", "null"] },
-        "venue": { "type": "string" },
-        "summary": { "type": "string" },
-        "originalUrl": { "type": "string" },
-        "pdfUrl": { "type": "string" },
-        "localPdfPath": { "type": "string" }
-      },
-      "additionalProperties": true
-    },
-    "evidence": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/evidence" }
-    },
-    "claims": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/groundedItem" }
-    },
-    "contributions": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/groundedItem" }
-    },
-    "concepts": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } },
-    "modules": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } },
-    "equations": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } },
-    "experiments": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } },
-    "figures": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } }
+    "schemaVersion": { "const": "2.0" },
+    "paper": { "type": "object", "required": ["id", "title", "originalUrl"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "authors": { "type": "array", "items": { "type": "string" } }, "year": { "type": ["integer", "null"] }, "venue": { "type": "string" }, "summary": { "type": "string" }, "originalUrl": { "type": "string" }, "pdfUrl": { "type": "string" }, "localPdfPath": { "type": "string" } }, "additionalProperties": true },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+    "claims": { "$ref": "#/$defs/groundedList" },
+    "contributions": { "$ref": "#/$defs/groundedList" },
+    "concepts": { "$ref": "#/$defs/groundedList" },
+    "modules": { "$ref": "#/$defs/groundedList" },
+    "relations": { "$ref": "#/$defs/groundedList" },
+    "equations": { "$ref": "#/$defs/groundedList" },
+    "algorithms": { "$ref": "#/$defs/groundedList" },
+    "experiments": { "$ref": "#/$defs/groundedList" },
+    "figures": { "$ref": "#/$defs/groundedList" }
   },
   "$defs": {
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
-    "evidence": {
-      "type": "object",
-      "required": ["id", "label"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "label": { "type": "string", "minLength": 1 },
-        "kind": { "enum": ["section", "page", "figure", "table", "equation", "quote", "appendix", "code"] },
-        "section": { "type": "string" },
-        "page": { "type": "integer", "minimum": 1 },
-        "anchor": { "type": "string" },
-        "url": { "type": "string" },
-        "excerpt": { "type": "string" },
-        "confidence": { "enum": ["direct", "derived"] }
-      },
-      "additionalProperties": true
-    },
-    "groundedItem": {
-      "type": "object",
-      "required": ["id", "title", "evidenceIds"],
-      "properties": {
-        "id": { "$ref": "#/$defs/id" },
-        "title": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string" },
-        "text": { "type": "string" },
-        "evidenceIds": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/id" }
-        }
-      },
-      "additionalProperties": true
-    }
+    "idList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
+    "evidence": { "type": "object", "required": ["id", "label"], "properties": { "id": { "$ref": "#/$defs/id" }, "label": { "type": "string", "minLength": 1 }, "kind": { "enum": ["section", "page", "figure", "table", "equation", "quote", "appendix", "code"] }, "section": { "type": "string" }, "page": { "type": "integer", "minimum": 1 }, "anchor": { "type": "string" }, "url": { "type": "string" }, "excerpt": { "type": "string" }, "confidence": { "enum": ["direct", "derived"] } }, "additionalProperties": true },
+    "groundedItem": { "type": "object", "required": ["id", "title", "evidenceIds"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "summary": { "type": "string" }, "text": { "type": "string" }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": true },
+    "groundedList": { "type": "array", "items": { "$ref": "#/$defs/groundedItem" } }
   },
-  "additionalProperties": true
+  "additionalProperties": false
 }

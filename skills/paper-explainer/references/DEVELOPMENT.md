@@ -1,42 +1,39 @@
 # Runtime 开发说明
 
-## Renderer 边界
+## 分层
 
-`project/src/components/SceneRenderer.tsx` 只根据 `scene.type` 分发。六类 renderer
-位于 `components/renderers/`，共享的轻量类型与展示辅助函数放在 `shared.ts`，公式
-排版放在 `MathText.tsx`。坐标、可见集合和 region 选择等纯计算继续放在
-`components/renderer-model.ts`。
+- `engine/compiler/`：纯 ESM，模板展开、布局、路由、anchors 和 camera bounds；
+- `engine/validation/`：Paper、Intent 和 generated Scene Graph 的纯校验；
+- `templates/catalog.json`：模板能力的机器可读真相源；
+- `runtime/*.mjs`：薄 CLI，只负责读写、打印和退出码；
+- `project/src/stage/`：按 primitive kind 绘制的统一 WorldStage；
+- `project/src/camera/`：可取消的 viewBox 插值；
+- `project/src/App.tsx`：章节、稳定 ID cursor、字幕、自动播放和 Evidence Drawer。
 
-renderer 必须只从当前 `scene`、`step` 和 Scene IR 中相邻的 `previousStep` 得出
-画面。不要在组件内累积播放历史或创建另一份可序列化场景状态。图片加载失败可以
-保留为局部 UI 状态；增强图片组件的 `key` 必须随图片地址变化，以隔离失败状态。
+不要恢复按 content kind 分发的整页 renderer。新增视觉能力优先拆成 primitive、布局策略或 treatment；模板只组合这些能力。
 
-新增或修改 renderer 时，至少补一项纯函数/语义回归测试，并确认：
+## 编译器不变量
 
-- 省略可见列表使用默认集合，显式 `[]` 保持为空；
-- `regionId` 的省略、`null`、字符串三态不混淆；
-- 比较坐标域来自全体条目，不随逐步显现改变；
-- 算法变量变化只与 Scene IR 中的前一步比较。
+- 输入不被修改；相同输入和版本得到相同输出；
+- 所有默认值展开到每个 step；
+- world geometry 覆盖所有步骤可能出现的对象，显隐不触发布局；
+- 关系只路由已有 Paper/Intent 关系，不补造事实；
+- nested object、term、line、item 和 region 都有稳定可聚焦 ID；
+- 输出通过 Scene Graph 校验后才原子替换。
 
-## Validation 边界
+## Validation
 
-`runtime/validation/index.mjs` 导出纯函数 `validateData(paper, sceneIR)`，返回
-`{ errors, warnings }`。`validate-data.mjs` 只负责读取文件、打印和退出码。
+`engine/validation/index.mjs` 导出 `validateSource`、`validateSceneGraph` 和 `validateData`，返回 `{ errors, warnings }`。结构错误、断链、parent 环、模板槽位、隐藏焦点、非法 geometry 和 baseline 隐藏是 error；密度与可读性指导是 warning。不要修复、去重或类型转换输入。
 
-基础类型、ID 和引用工具位于 `helpers.mjs`；Paper IR 规则位于 `paper.mjs`；
-Scene IR 通用与场景专属规则位于 `scenes.mjs`。校验顺序必须先确认结构，再收集
-合法 ID，随后检查引用，最后检查显隐、基线、边端点和区域等关系。不要修复、去重
-或类型转换用户数据。
+## Runtime
+
+WorldStage 可以有短暂动画状态，但目标画面只由当前 compiled step 决定。算法变量变化与 scene 中前一步比较。图表始终使用全体 item 的数值域。图片失败状态随图片对象实例隔离。
 
 ## 测试
-
-在仓库根目录执行：
 
 ```bash
 npm test
 npm run test:delivery
 ```
 
-`tests/runtime/fixtures/` 分为 baseline、legacy、invalid。新增硬规则时，把合法与
-非法边界分别写入 fixture 或纯函数测试；内容质量建议应断言为 warning。交付集成
-测试必须使用脚手架复制后的 runtime，不能回指仓库源码。
+至少覆盖：合同和引用边界、编译确定性、nested layout、camera 插值、各类 anchors、键盘控制，以及把脚手架移动到含空格/中文路径后的 compile → validate → TypeScript → Vite → serve。视觉改动还要在浏览器检查总览、局部、viaOverview 中间状态、detail panel 和窄屏。

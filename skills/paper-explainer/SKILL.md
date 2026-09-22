@@ -1,110 +1,80 @@
 ---
 name: paper-explainer
 license: MIT
-description: 把学术论文（arXiv / DOI / PDF / 网页 / 本地文件 / 粘贴文本）自动编译成可交互、可逐步播放、可跳转回论文原文的技术讲解网页。调用方式只有 skill + 论文链接或文件；中途不询问主题、篇幅或场景。Skill 自带 React/Vite 运行时、六类论文场景、字幕、Evidence Drawer、Paper IR / Scene IR schema、数据校验器和 Windows/Linux/macOS 一键启动脚本，不依赖其它 skill。默认只交付网页；用户明确要求 MP4 时才在定稿后导出。
+description: 把学术论文（arXiv、DOI、PDF、网页、本地文件或粘贴文本）编译成可交互、逐步播放、可回到原文证据的技术讲解网页。输入只需论文；Skill 自带 Paper IR、Visual Intent、确定性场景编译器、模板目录、通用视觉舞台和跨平台启动器。默认交付网页，只有用户明确要求时才导出 MP4。
 ---
 
 # Paper Explainer
 
-输入论文，直接交付一个构建完成、可一键打开、每个关键结论能回到论文原文的
-交互式讲解。内部使用轻量 Paper IR 和 Scene IR，但这些实现细节不增加用户步骤。
+读取论文后直接交付构建完成的交互式讲解。先核对事实与来源，再选择适合内容结构的视觉表达；模型负责编排讲法，编译器负责布局、几何、镜头目标和可执行场景图。
 
 ## 用户契约
 
-唯一必需输入是论文链接、文件或正文：
+唯一必需输入是论文链接、文件或正文。拿到输入后直接完成，不询问主题、语言、篇幅、封面、场景或输出目录。只有完全没给论文、输入需要用户登录、或所有解析路径都失败时才停下。
 
-```text
-paper-explainer https://arxiv.org/abs/1706.03762
-paper-explainer ./paper.pdf
-```
+默认输出网页。仅用户明确说“视频 / MP4 / 录屏”或配置 `recording.enabled=true` 时，才在网页定稿后导出视频。
 
-拿到输入后直接完成，不询问主题、语言、篇幅、封面、场景或输出目录。只有三种
-情况允许停下：完全没给论文；输入需要用户登录；所有解析路径都失败。
+本 Skill 自包含，不读取或安装其它 presentation、design、video 或 paper-reader skill。运行时、模板、编译器和验证器全部位于 `assets/project-template/`。
 
-默认输出网页。仅用户明确说“视频 / MP4 / 录屏”或配置
-`recording.enabled=true` 时才在网页定稿后导出视频。
+## 按需阅读
 
-## 自包含边界
+设 `SELF` 为本 Skill 目录。每次生成至少按顺序阅读：
 
-本 Skill 不读取、不安装、也不要求以下外部能力：
+1. `references/INIT.md`：初始化、目录和依赖；
+2. `references/PAPER-IR.md`：论文事实与 evidence；
+3. `references/VISUAL-INTENT.md`：world、视觉对象、step 和状态；
+4. `references/TEMPLATE-SELECTION.md`：内容模式与模板选择；
+5. `references/RUNTIME-AND-DELIVERY.md`：构建、验证和交付。
 
-- presentation / video scaffold skill；
-- design / taste skill；
-- 其它 paper reader skill。
-
-运行时全部位于 `assets/project-template/`：
-
-- `project/`：React/Vite 播放器和六类 renderer；
-- `content/`：Paper IR / Scene IR 示例与人类可读文档；
-- `schemas/`：两类 IR 的 JSON Schema；
-- `runtime/`：校验器以及 Node/Python 本地服务器；
-- `open.cmd` / `open.command` / `open.sh`：跨平台入口。
-
-## 开工必读
-
-设 `SELF` 为本 Skill 目录。每次运行按需阅读：
-
-1. `references/INIT.md`：环境、脚手架、产物结构；
-2. `references/PAPER-IR.md`：解析论文和 evidence；
-3. `references/SCENE-IR.md`：场景选择与 Scene IR；
-4. `references/RUNTIME-AND-DELIVERY.md`：构建、启动、验证、交付；
-5. 使用论文图或公式时读 `references/PAPER-ASSETS.md`；
-6. 修改已有产物时读 `references/REVISION.md`。
-
-维护内置 runtime 或校验器时另读 `references/DEVELOPMENT.md`；普通论文生成流程
-不需要加载该开发说明。
+使用论文图、公式或补充材料时读 `references/PAPER-ASSETS.md`。修改已有讲解时读 `references/REVISION.md`。维护编译器、布局、舞台或校验器时读 `references/DEVELOPMENT.md`；需要理解生成结果或排查镜头时再读 `references/SCENE-IR.md` 与 `references/CAMERA-AND-MOTION.md`。
 
 ## 真相源
 
 ```text
 原论文 / paper.md
         ↓
-paper-ir.json                 事实、claim、evidence
+paper-ir.json              事实、技术对象、关系、claim、evidence
         ↓
-scene-ir.json                 场景顺序、step、字幕、focus、evidence
+visual-intent.json         模板选择、world、scene、step、字幕、焦点
+        ↓  compile-content.mjs
+scene-ir.json              generated：布局、几何、camera、完整步骤快照
         ↓
-内置 renderer                视觉实现
+通用 WorldStage           视觉原语、动画、字幕、Evidence Drawer
         ↓
-site/                         构建产物
+site/
 ```
 
-`scene-ir.json` 是章节、step 数、字幕和画面 focus 的唯一运行时真相源。
-不要再生成 `narrations.ts`、`chapters.ts` 或每章重复的字幕数组。
-`script.md`、`outline.md` 是给人读的规划副本，必须带稳定 scene/step ID；冲突时
-以 IR 为准并修复 Markdown 副本。
+只手动维护 Paper IR 和 Visual Intent。`scene-ir.json`、`script.md`、`outline.md` 属于派生产物；不要直接修改生成的 Scene IR 来掩盖内容、布局或编译问题。事实错误改 Paper IR，讲法或镜头错误改 Visual Intent，跨论文都会出现的能力问题才改 engine/runtime。
 
 ## 标准产物
 
 ```text
 <paper-slug>-explainer/
-├── open.cmd
-├── open.command
-├── open.sh
+├── open.cmd / open.command / open.sh
 ├── site/
-├── sources/                    # 下载的原始素材集中归档，按实际获取情况创建
+├── sources/
 │   ├── original.pdf
-│   ├── arxiv/                  # source.tar.gz、src/、MAIN_TEX
-│   ├── supplements/            # 补充材料、作者提供的原图等
-│   └── manifest.md             # 来源 URL、本地相对路径、获取状态
+│   ├── arxiv/
+│   ├── supplements/
+│   └── manifest.md
 ├── content/
 │   ├── paper.md
 │   ├── paper-ir.json
-│   ├── scene-ir.json
-│   ├── script.md
-│   ├── outline.md
+│   ├── visual-intent.json
+│   ├── scene-ir.json              # generated
+│   ├── script.md / outline.md     # generated readable copies
 │   └── revisions.md
-├── project/
-│   ├── public/assets/
-│   ├── public/paper/original.pdf
-│   └── src/
-├── runtime/
+├── templates/catalog.json
+├── engine/                        # compiler、layout、validation
+├── project/                       # React/Vite 通用播放器
+├── runtime/                       # CLI 与本地服务器
 ├── schemas/
 └── reports/explanation-audit.md
 ```
 
 ## 工作流
 
-### Phase -1 · 初始化
+### 1. 初始化
 
 ```bash
 bash "$SELF/scripts/check-deps.sh"
@@ -113,158 +83,78 @@ node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
   --title "<paper title>" --source "<original URL>"
 ```
 
-目标目录必须不存在或为空。不要覆盖已有项目；修改已有项目走 Phase 8。
+目标目录必须不存在或为空。以任务开始时的工作目录为 `WORKSPACE`，默认 `ROOT = WORKSPACE/<paper-slug>-explainer`；用户已指定位置时遵从。下载、解压和抽取命令都显式使用 `ROOT` 下的路径，不把素材散落到 Skill、系统下载目录或工作区外。
 
-下载前先完成初始化：以任务开始时的工作目录为 `WORKSPACE`，默认项目根目录
-`ROOT = WORKSPACE/<paper-slug>-explainer`；用户已指定位置时遵从该位置。
-将 `ROOT` 和 `SELF` 解析为绝对路径，后续所有下载、解压、抽取命令显式使用
-`ROOT` 下的目标路径。不要因切换工作目录而改变输出位置，也不要把素材写到
-Skill 安装目录、工作区同级目录、系统下载文件夹或临时目录。
-标题未知时可用论文 ID 命名，不要先在外部下载再决定项目位置。
+### 2. 获取原文与素材
 
-### Phase 0 · 获取论文与原始素材
+- arXiv：先运行 `bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> "$ROOT"` 获取源码，再获取 PDF；源码失败时继续用 PDF 或网页。
+- PDF：归档到 `sources/original.pdf`，复制到 `project/public/paper/original.pdf`，正文抽取到 `content/paper.md`。
+- 网页：原始页面保存到 `sources/`，整理正文到 `content/paper.md`；能获取 PDF 时也归档。
+- 粘贴文本：写入 `content/paper.md`；没有在线来源时保留摘录，不伪造链接。
+- 相关补充材料和原图保存到 `sources/`；网页使用的副本放在 `project/public/assets/`。
 
-- arXiv：先用 `bash "$SELF/scripts/fetch-arxiv.sh" <url-or-id> "$ROOT"`
-  将 LaTeX 源归档到 `sources/arxiv/`，再获取 PDF；源不可用时继续用 PDF 或网页。
-- PDF：下载或复制到 `sources/original.pdf`，再复制一份到
-  `project/public/paper/original.pdf` 供网页使用；抽取正文到 `content/paper.md`。
-- 网页：可下载的原文保存到 `sources/original.html`，正文整理到
-  `content/paper.md`；记录原始 URL，能获取 PDF 时也归档 PDF。
-- 补充材料、源码包、原图：可获取且与解读相关时保存在 `sources/` 对应子目录，
-  不仅保留远程链接。详见 `references/PAPER-ASSETS.md`。
-- 粘贴文本：写入 `content/paper.md`；若没有在线原文，Evidence Drawer 仍显示摘录，
-  但不要伪造跳转链接。
+在 `sources/manifest.md` 记录来源、项目内路径和失败原因。用户文件只复制，不移动。
 
-以上文件路径均相对 `ROOT`。在 `sources/manifest.md` 记录已获取素材的来源、
-项目内相对路径，以及不可下载素材的原因。用户提供的外部文件只复制，不移动。
+### 3. Paper IR
 
-写入 `paper-ir.json.paper`：
+按 `references/PAPER-IR.md` 写 `content/paper-ir.json`。先建立 evidence，再建立引用它的 claim、技术对象和关系。所有上屏数字、比较、公式解释、模块关系与作者结论必须有 evidence；推导性解释标为 `derived` 并说明依据。不确定的内容删掉或明确标为推导，不能用常识补论文事实。
 
-- `originalUrl`：论文落地页或原始网页；
-- `pdfUrl`：可公开访问的 PDF；
-- `localPdfPath`：本地 PDF 存在时固定为 `paper/original.pdf`。
+### 4. Visual Intent
 
-### Phase 1 · Paper IR
+按 `references/VISUAL-INTENT.md` 和 `references/TEMPLATE-SELECTION.md` 写 `content/visual-intent.json`：
 
-严格按 `references/PAPER-IR.md` 写 `content/paper-ir.json`：
+1. 从 Paper IR 识别结构模式；
+2. 对有真实选择空间的内容比较 2–3 个模板候选，记录最终选择理由；
+3. 建立可跨步骤复用的 world，绑定 Paper 对象和关系；
+4. 编排 scene 与 step，指定叙事目标、焦点、显隐、状态、detail 与转场；
+5. 一步只引入或强调一个逻辑动作。
 
-- 先建立 evidence，再写引用 evidence ID 的 claim / contribution / module 等；
-- 每个上屏数字、比较、公式解释和作者结论必须至少有一个 evidence ID；
-- `direct` 表示论文直接陈述，`derived` 表示基于论文的系统解读；
-- 不确定时删掉该说法或明确标记 derived，不用常识补论文事实。
+内容类型只描述“在讲什么”，不决定 renderer。总览、局部聚焦和 detail 是可以叠加在不同结构模板上的叙事方式。不要填写像素坐标；原图 region 的 0–1 归一化位置除外。
 
-同时维护简洁的 `script.md`、`outline.md`，每段标注稳定 ID。
+### 5. 素材绑定
 
-### Phase 2 · Scene IR
+网页素材路径写成 `assets/<filename>`。公式写入 equation primitive 的 `tex`；运行时使用 KaTeX。原论文 PDF 固定发布为 `paper/original.pdf`，不要混入 assets。
 
-按 `references/SCENE-IR.md` 将内容映射到六种内置场景：
-
-| type | 选择条件 |
-|---|---|
-| `concept` | 动机、贡献、前置概念、结论 |
-| `architecture_execution` | 模块、数据流、tensor 或训练/推理管线 |
-| `equation_walkthrough` | 公式及符号逐项解释 |
-| `algorithm_trace` | 伪代码、循环、状态更新 |
-| `ablation_comparison` | baseline、主结果、消融、指标对比 |
-| `figure_inspector` | 定性图、复杂架构原图、局部观察 |
-
-每个 scene 必须有至少一个 step；每个 step 必须有 `narration`。关键 scene 和
-step 绑定 `evidenceIds`，视觉元素用 `focusIds` 控制聚焦。
-需要逐步揭示节点、演算状态、公式变化、基线对比或原图放大时，按
-`references/SCENE-IR.md` 的相应类型填写 step `visual`；不要另建章节脚本
-或复制一套字幕数据。
-
-### Phase 3 · 素材
-
-把网页素材放到 `project/public/assets/`。路径在 Scene IR 中写成
-`assets/<filename>`。不要把原论文 PDF 放在 assets；PDF 固定放在
-`project/public/paper/original.pdf`，便于来源跳页。
-
-公式直接写 LaTeX 到 equation scene 的 `payload.tex`；运行时自带 KaTeX。
-
-### Phase 4 · 构建与硬校验
+### 6. 编译与硬校验
 
 ```bash
 node "$SELF/scripts/build-project.mjs" "./<paper-slug>-explainer"
 ```
 
-该命令会：
+该命令安装缺失依赖，并依次执行：源 IR 校验、确定性编译、生成 Scene IR 校验、TypeScript 编译和 Vite 构建。任何数据或构建错误必须修复，不绕过。重复编译同一输入应产生相同 Scene IR 和 `sourceHash`。
 
-1. 安装项目 npm 依赖（只在缺少 `node_modules` 时）；
-2. 校验 Paper IR / Scene IR 的 ID、引用和最小字段；
-3. TypeScript 编译；
-4. 生成 `site/`。
+### 7. 浏览器验证
 
-数据校验失败必须先修复，不能绕过。
+在生成目录运行平台启动脚本，或在 `project/` 中运行 `npm run dev`。验证：
 
-### Phase 5 · 浏览器验证
+- 所有 scene / step 前后切换和目录跳转都正确；
+- `←` / `→` 在主体、导航按钮或链接获得焦点时切换步骤，在输入和可编辑区域不接管；
+- 顺序播放与直接跳到某一步的最终画面一致；
+- overview → detail → overview → another detail 保留空间关系；
+- `viaOverview` 先恢复共同上下文再进入远处目标；
+- detail panel 不遮挡焦点，小屏改为上下布局；
+- 公式、算法状态、对比尺度、图片 region 和素材错误提示正常；
+- 字幕、当前视觉对象与 Evidence Drawer 来源一致；
+- reduced-motion 下直接到达完整目标状态；
+- 自动播放从头到尾结束，不遗留 dev server。
 
-验证时可在生成目录运行平台启动脚本，或开发模式：
+### 8. Audit 与交付
 
-```bash
-cd <paper-slug>-explainer/project
-npm run dev
-```
+`reports/explanation-audit.md` 至少记录：贡献覆盖、数字/公式/关系/实验来源覆盖、derived 解读、模板选择、generic fallback、构建结果、来源链接抽查和视觉核查。
 
-检查：
+硬门槛：所有上屏数字与关键结论来源覆盖率 100%。区分“引用结构完整”与“人工核对语义正确”，不能把 schema 通过写成事实准确率 100%。
 
-- 所有 scene / step 都能前后切换；
-- 自动播放从头到尾不卡住；
-- 字幕与 step narration 一致；
-- 当前 step 的 Evidence Drawer 不为空（纯过渡 step 可例外）；
-- “跳转到论文原文”打开正确网页或 PDF 页；
-- 原图和公式正常构建；
-- 小屏不会遮住主导航。
+交付前确认 `site/index.html`、三个启动脚本和项目内原件存在，PDF 发布副本与归档一致，整个目录移动后仍可构建和打开。最终汇报目录、章节/step 数、来源覆盖率、打开方式及是否导出 MP4。
 
-开发验证完成后停止 dev server。最终用户不需要运行 `npm run dev`。
+## 原文跳转
 
-### Phase 6 · Explanation Audit
-
-生成 `reports/explanation-audit.md`，至少记录：
-
-- 主要贡献覆盖率；
-- 数字 claim 来源覆盖率；
-- 公式、图表和实验结论来源覆盖率；
-- `derived` 解读列表；
-- 没有专属场景而退化到 `concept` 的章节；
-- 构建和来源链接抽查结果。
-
-硬门槛：所有上屏数字和关键结论来源覆盖率 100%。
-
-### Phase 7 · 交付
-
-确认 `site/index.html` 存在，三个启动脚本存在，且没有遗留 dev server。
-按 `sources/manifest.md` 检查下载原件均在项目内，PDF 发布副本与原件一致；
-整个项目文件夹可带走，`site/` 单独发布时只包含网页需要的文件。
-
-最终汇报只保留用户需要的信息：目录、章节/step 数、来源覆盖率、如何打开、
-是否导出 MP4。不要输出安装流水账。
-
-### Phase 8 · 修改
-
-先读 `references/REVISION.md`。修改内容时先更新 Paper IR，再更新 Scene IR，
-最后重新构建 `site/`。稳定 ID 非必要不改；修改记录追加到 `revisions.md`。
-
-## 原文跳转铁律
-
-运行时通过 `EvidenceDrawer` 统一处理来源：
-
-- evidence 有 `url`：直接打开该 URL；
-- 有 `page`：优先打开本地 PDF 的 `#page=N`，否则打开 `pdfUrl#page=N`；
-- 有 `anchor`：打开原文 URL 的 fragment；
-- 两者都没有：打开论文主页，并展示 section / excerpt 帮用户定位。
-
-任何来源按钮都必须来自 Paper IR，禁止在 TSX 中手写第二份链接。
+Evidence Drawer 只读取 Paper IR：精确 `url` 优先；其次本地 PDF + `page`、在线 PDF + `page`、原文 URL + `anchor`、最后论文主页加 section/excerpt。禁止在 TSX 或 Visual Intent 中手写第二份来源链接。
 
 ## 视觉约束
 
-- 一步只强调一个逻辑动作；非 focus 元素降权而不是消失；
-- 技术内容优先结构、关系、状态变化，避免大量装饰卡片；
-- 原论文图不反色、不生成替代图；使用浅色 paper canvas；
-- 英文和数字使用清晰字体；KaTeX 数学字体不覆盖；
-- 颜色只承担语义：accent 表示当前 focus 或来源入口。
-
-## 进程卫生
-
-Skill 自己启动的 dev server、浏览器或录屏进程必须在交付前结束。最终交付的
-`open.*` 是用户主动启动的查看器，不在生成阶段替用户常驻运行。
+- 同一 world 的对象在步骤间保持稳定 identity 和 geometry；显隐不引发布局跳动。
+- 非 focus 元素降权并保留必要上下文；需要显著改变结构时使用 detail view。
+- 模板不能创造论文没有声明的模块、关系、训练路径或数值。
+- 原论文图保持原色，使用浅色 paper canvas；公式、英文和数字保持可读。
+- 颜色只承担语义：accent 表示当前 focus、活动路径或来源入口。
+- 完成后停止 Skill 启动的开发服务器、浏览器或录屏进程。
