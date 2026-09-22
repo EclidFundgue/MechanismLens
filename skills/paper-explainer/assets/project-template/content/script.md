@@ -12,31 +12,37 @@ Replace this sentence with the problem the paper actually solves.
 
 Replace this sentence with the paper's primary contribution.
 
-## Move through one stable architecture `scene.architecture`
+## Build the representation `scene.encoder`
 
-### Whole model `step.architecture-overview`
+### Encoder input `step.encoder-input`
 
-Start from the complete model so every later detail has a stable place.
+First identify the tensor entering the encoder and the projection applied to it.
 
-### Encoder `step.encoder`
+### Encoded state `step.encoder-context`
 
-Move into the encoder while keeping the rest of the model as context.
+Then keep the frame fixed while the context blocks produce the encoded representation.
 
-### Fusion `step.fusion`
+## Combine the evidence `scene.fusion`
 
-The fusion stage combines the representations produced upstream.
+### Fusion inputs `step.fusion-inputs`
 
-### Inside fusion `step.fusion-detail`
+Read both source streams together before applying the fusion operation.
 
-A detail view expands the mechanism without losing its location in the whole model.
+### Fusion output `step.fusion-output`
 
-### Decoder `step.decoder`
+The reserved detail area can expand the mechanism without moving or resizing the main diagram.
 
-The camera first restores context, then moves into the decoder.
+## Recover the output `scene.decoder`
 
-### Return to the whole `step.architecture-return`
+### Decoder path `step.decoder`
 
-Return to the complete architecture and trace the end-to-end path once more.
+The decoder transforms the fused representation into the paper's output in one readable frame.
+
+## Connect the complete method `scene.architecture-summary`
+
+### End-to-end path `step.architecture-summary`
+
+Now connect the encoder, fusion and decoder after each part has already been learned.
 
 ## Unfold the main equation `scene.equation`
 
@@ -66,14 +72,14 @@ The baseline establishes the comparison point.
 
 ### step.full `step.full`
 
-The full method shows the total reported improvement.
+The full method shows the total reported improvement on the same scale.
 
 ## Inspect the paper's qualitative evidence `scene.figure`
 
 ### step.region-input `step.region-input`
 
-Focus on the first region that supports the qualitative claim.
+Inspect the first region because its original annotation is too small in the complete figure.
 
 ### step.region-output `step.region-output`
 
-Compare it with the second region before accepting the conclusion.
+After restoring spatial context, inspect the second region before accepting the conclusion.

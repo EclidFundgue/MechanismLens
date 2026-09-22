@@ -4,6 +4,14 @@ const paperGroups = ["evidence", "claims", "contributions", "concepts", "modules
 const objectKinds = new Set(["group", "node", "card", "annotation", "equation", "code", "chart", "image"]);
 const transitions = new Set(["direct", "viaOverview"]);
 const viewModes = new Set(["overview", "focus", "detail", "compare"]);
+const intentVersions = new Set(["2.0", "2.1"]);
+const sceneVersions = new Set(["2.0", "2.1"]);
+const cameraReasons = new Set(["required_content_unreadable", "inspect_source_detail", "restore_spatial_context"]);
+const treatments = new Set(["static_emphasis", "progressive_reveal", "parts_then_whole", "overview_detail_spotlight"]);
+const readabilityProfiles = [
+  { id: "desktop", width: 1080, height: 540, minimumPx: 18 },
+  { id: "narrow", width: 360, height: 300, minimumPx: 14 },
+];
 
 function validatePaper(paperValue, errors) {
   const paper = requireObject(paperValue, "", errors);
@@ -65,7 +73,7 @@ function parentCycles(objects, objectMap, worldPath, errors, context) {
   }
 }
 
-function validateWorld(worldValue, index, catalogMap, paperInfo, errors, warnings) {
+function validateWorld(worldValue, index, catalogMap, paperInfo, errors, warnings, intentVersion) {
   const path = `/worlds/${index}`;
   const world = requireObject(worldValue, path, errors, { layer: "intent" });
   const id = requireString(world.id, `${path}/id`, errors, { layer: "intent" });
@@ -117,20 +125,33 @@ function validateWorld(worldValue, index, catalogMap, paperInfo, errors, warning
     if (!visualIds.has(detail.explainsObjectId)) add(errors, "MISSING_REFERENCE", `${path}/detailViews/${detailIndex}/explainsObjectId`, `detail view target is missing: ${detail.explainsObjectId}`, context);
     collectVisualIds(detail, `${path}/detailViews/${detailIndex}`, errors, context);
   }
-  return { id, world, objectIds, visualIds, ownerByVisual, objectMap, relationIds: relations.ids, detailIds: detailViews.ids };
+  const frames = collect(world.frames ?? [], `${path}/frames`, errors, context);
+  if (intentVersion === "2.1" && frames.items.length === 0) add(errors, "MISSING_FRAMES", `${path}/frames`, `Visual Intent 2.1 world ${id} must define at least one fixed frame`, context);
+  const frameMap = new Map();
+  for (const [frameIndex, frame] of frames.items.entries()) {
+    if (!isObject(frame)) continue;
+    const framePath = `${path}/frames/${frameIndex}`;
+    const frameContext = { ...context, frameId: frame.id };
+    checkRefs(frame.targetIds, visualIds, `${framePath}/targetIds`, errors, frameContext, { optional: false });
+    checkRefs(frame.requiredReadableIds, visualIds, `${framePath}/requiredReadableIds`, errors, frameContext, { optional: false });
+    if (!new Set(["fit", "tight", "contextual"]).has(frame.mode)) add(errors, "INVALID_FRAME_MODE", `${framePath}/mode`, `unsupported frame mode: ${frame.mode}`, frameContext);
+    if (frame.request?.reason !== undefined && !cameraReasons.has(frame.request.reason)) add(errors, "INVALID_CAMERA_REASON", `${framePath}/request/reason`, `unsupported camera request reason: ${frame.request.reason}`, frameContext);
+    if (typeof frame.id === "string") frameMap.set(frame.id, frame);
+  }
+  return { id, world, template, objectIds, visualIds, ownerByVisual, objectMap, relationIds: relations.ids, detailIds: detailViews.ids, frameIds: frames.ids, frameMap };
 }
 
 export function validateSource(paperValue, intentValue, catalogValue) {
   const errors = [], warnings = [];
   const paperInfo = validatePaper(paperValue, errors);
   const intent = requireObject(intentValue, "", errors);
-  if (intent.schemaVersion !== "2.0") add(errors, "UNSUPPORTED_SCHEMA_VERSION", "/schemaVersion", `visual intent schemaVersion must be 2.0`, { layer: "intent" });
+  if (!intentVersions.has(intent.schemaVersion)) add(errors, "UNSUPPORTED_SCHEMA_VERSION", "/schemaVersion", `visual intent schemaVersion must be 2.0 or 2.1`, { layer: "intent" });
   if (intent.paperId !== paperInfo.meta.id) add(errors, "PAPER_ID_MISMATCH", "/paperId", `visual intent paperId must match paper.paper.id`, { layer: "intent" });
   const catalog = requireObject(catalogValue, "", errors);
   const templates = collect(catalog.templates, "/templates", errors, { layer: "catalog" });
   const catalogMap = new Map(templates.items.filter(isObject).map((template) => [template.id, template]));
   const worlds = requireArray(intent.worlds, "/worlds", errors, { layer: "intent" });
-  const worldRecords = worlds.map((world, index) => validateWorld(world, index, catalogMap, paperInfo, errors, warnings));
+  const worldRecords = worlds.map((world, index) => validateWorld(world, index, catalogMap, paperInfo, errors, warnings, intent.schemaVersion));
   const worldMap = new Map();
   for (const [index, record] of worldRecords.entries()) {
     if (!record.id) continue;
@@ -152,6 +173,13 @@ export function validateSource(paperValue, intentValue, catalogValue) {
     if (!world) add(errors, "MISSING_REFERENCE", `${path}/worldId`, `missing world: ${scene.worldId}`, context);
     checkRefs(scene.claimIds, paperInfo.claims, `${path}/claimIds`, errors, context);
     checkRefs(scene.evidenceIds, paperInfo.evidence, `${path}/evidenceIds`, errors, context);
+    if (intent.schemaVersion === "2.1") {
+      const presentation = requireObject(scene.presentation, `${path}/presentation`, errors, context);
+      if (!treatments.has(presentation.treatment)) add(errors, "INVALID_TREATMENT", `${path}/presentation/treatment`, `unsupported treatment: ${presentation.treatment}`, context);
+      if (presentation.cameraPolicy !== "static_first") add(errors, "INVALID_CAMERA_POLICY", `${path}/presentation/cameraPolicy`, `Visual Intent 2.1 requires cameraPolicy static_first`, context);
+      if (world && !world.frameIds.has(presentation.defaultFrameId)) add(errors, "MISSING_REFERENCE", `${path}/presentation/defaultFrameId`, `missing default frame: ${presentation.defaultFrameId}`, context);
+      if (world?.template && Array.isArray(world.template.supportedTreatments) && !world.template.supportedTreatments.includes(presentation.treatment)) add(errors, "UNSUPPORTED_TREATMENT", `${path}/presentation/treatment`, `${world.world.templateId} does not support treatment ${presentation.treatment}`, context);
+    }
     const steps = requireArray(scene.steps, `${path}/steps`, errors, context);
     if (steps.length === 0) add(errors, "EMPTY_STEPS", `${path}/steps`, `scene ${id} must contain a step`, context);
     const stepIds = new Set();
@@ -164,17 +192,51 @@ export function validateSource(paperValue, intentValue, catalogValue) {
       if (stepId) stepIds.add(stepId);
       requireString(step.narration, `${stepPath}/narration`, errors, stepContext);
       if (step.viewMode !== undefined && !viewModes.has(step.viewMode)) add(errors, "INVALID_VIEW_MODE", `${stepPath}/viewMode`, `unsupported viewMode: ${step.viewMode}`, stepContext);
+      if (intent.schemaVersion === "2.1" && (step.focusIds !== undefined || step.viewMode !== undefined || step.focusMode !== undefined)) add(errors, "LEGACY_CAMERA_FIELDS", stepPath, `Visual Intent 2.1 uses frameId and emphasisIds instead of focusIds/viewMode/focusMode`, stepContext);
       if (world) {
         checkRefs(step.focusIds, world.visualIds, `${stepPath}/focusIds`, errors, stepContext);
         checkRefs(step.emphasisIds, world.visualIds, `${stepPath}/emphasisIds`, errors, stepContext);
+        checkRefs(step.requiredReadableIds, world.visualIds, `${stepPath}/requiredReadableIds`, errors, stepContext);
         checkRefs(step.visibleIds, world.objectIds, `${stepPath}/visibleIds`, errors, stepContext);
         checkRefs(step.activeRelationIds, world.relationIds, `${stepPath}/activeRelationIds`, errors, stepContext);
+        if (intent.schemaVersion === "2.1") {
+          const frameId = requireString(step.frameId, `${stepPath}/frameId`, errors, stepContext);
+          if (frameId && !world.frameIds.has(frameId)) add(errors, "MISSING_REFERENCE", `${stepPath}/frameId`, `missing frame: ${frameId}`, stepContext);
+          const frame = world.frameMap.get(frameId);
+          if (frameId && frameId !== scene.presentation?.defaultFrameId && !cameraReasons.has(frame?.request?.reason)) add(errors, "CAMERA_REASON_REQUIRED", `${stepPath}/frameId`, `non-default frame ${frameId} requires a readability or spatial-context reason`, stepContext);
+          if (step.transition?.strategy === "viaOverview" && stepIndex > 0 && steps[stepIndex - 1]?.frameId === frameId) add(warnings, "UNNECESSARY_VIA_OVERVIEW", `${stepPath}/transition/strategy`, `same-frame step ${step.id} does not need viaOverview`, stepContext);
+          if (frame && Array.isArray(step.requiredReadableIds)) {
+            const frameReadable = new Set(frame.requiredReadableIds ?? []);
+            for (const [readableIndex, readableId] of step.requiredReadableIds.entries()) if (!frameReadable.has(readableId)) add(errors, "FRAME_REQUIRED_CONTENT_MISMATCH", `${stepPath}/requiredReadableIds/${readableIndex}`, `step required content ${readableId} is not declared by frame ${frameId}`, stepContext);
+          }
+          if (Array.isArray(step.visibleIds) && frame) {
+            const visible = new Set(step.visibleIds);
+            for (const [readableIndex, readableId] of (step.requiredReadableIds ?? frame.requiredReadableIds ?? []).entries()) {
+              const ownerId = world.ownerByVisual.get(readableId);
+              if (ownerId && !visible.has(ownerId)) add(errors, "REQUIRED_CONTENT_HIDDEN", `${stepPath}/visibleIds`, `required readable target ${readableId} belongs to hidden object ${ownerId}`, { ...stepContext, frameId, readableIndex });
+            }
+          }
+        }
         if (step.detailViewId !== undefined && step.detailViewId !== null && !world.detailIds.has(step.detailViewId)) add(errors, "MISSING_REFERENCE", `${stepPath}/detailViewId`, `missing detail view: ${step.detailViewId}`, stepContext);
         if (Array.isArray(step.visibleIds) && Array.isArray(step.focusIds)) {
           const visible = new Set(step.visibleIds);
           for (const [focusIndex, focusId] of step.focusIds.entries()) {
             const ownerId = world.ownerByVisual.get(focusId);
             if (ownerId && !visible.has(ownerId)) add(errors, "FOCUS_HIDDEN", `${stepPath}/focusIds/${focusIndex}`, `focus ${focusId} belongs to hidden object ${ownerId}`, stepContext);
+          }
+        }
+        if (Array.isArray(step.visibleIds) && Array.isArray(step.emphasisIds)) {
+          const visible = new Set(step.visibleIds);
+          for (const [emphasisIndex, emphasisId] of step.emphasisIds.entries()) {
+            const ownerId = world.ownerByVisual.get(emphasisId);
+            if (ownerId && !visible.has(ownerId)) add(errors, "EMPHASIS_HIDDEN", `${stepPath}/emphasisIds/${emphasisIndex}`, `emphasis ${emphasisId} belongs to hidden object ${ownerId}`, stepContext);
+          }
+        }
+        if (Array.isArray(step.visibleIds) && Array.isArray(step.requiredReadableIds)) {
+          const visible = new Set(step.visibleIds);
+          for (const [readableIndex, readableId] of step.requiredReadableIds.entries()) {
+            const ownerId = world.ownerByVisual.get(readableId);
+            if (ownerId && !visible.has(ownerId)) add(errors, "REQUIRED_CONTENT_HIDDEN", `${stepPath}/requiredReadableIds/${readableIndex}`, `required content ${readableId} belongs to hidden object ${ownerId}`, stepContext);
           }
         }
         const state = isObject(step.state) ? step.state : {};
@@ -185,6 +247,7 @@ export function validateSource(paperValue, intentValue, catalogValue) {
             const knownItems = new Set((object.items ?? []).map((item) => item.id));
             checkRefs(itemIds, knownItems, `${stepPath}/state/visibleItems/${objectId}`, errors, stepContext, { optional: false });
             if (!itemIds.includes(object.baselineId)) add(errors, "BASELINE_HIDDEN", `${stepPath}/state/visibleItems/${objectId}`, `chart baseline must remain visible: ${object.baselineId}`, stepContext);
+            for (const readableId of step.requiredReadableIds ?? []) if (world.ownerByVisual.get(readableId) === objectId && !itemIds.includes(readableId)) add(errors, "REQUIRED_CONTENT_HIDDEN", `${stepPath}/state/visibleItems/${objectId}`, `required chart item must be visible: ${readableId}`, stepContext);
           } else add(errors, "EXPECTED_ARRAY", `${stepPath}/state/visibleItems/${objectId}`, `visibleItems state must be an array`, stepContext);
         }
         if (isObject(state.selectedRegions)) for (const [objectId, regionId] of Object.entries(state.selectedRegions)) {
@@ -208,10 +271,24 @@ function validateBounds(bounds, path, errors, context) {
   }
 }
 
+function containsBounds(container, item, epsilon = .01) {
+  return item.x >= container.x - epsilon && item.y >= container.y - epsilon && item.x + item.width <= container.x + container.width + epsilon && item.y + item.height <= container.y + container.height + epsilon;
+}
+
+function readableBasePx(object) {
+  if (!object) return 14;
+  if (["node", "card", "annotation"].includes(object.kind)) return 21;
+  if (object.kind === "group") return 17;
+  if (object.kind === "equation") return 20;
+  if (object.kind === "chart" || object.kind === "code") return 21;
+  if (object.kind === "image") return 18;
+  return 14;
+}
+
 export function validateSceneGraph(sceneValue) {
   const errors = [], warnings = [];
   const scene = requireObject(sceneValue, "", errors);
-  if (scene.schemaVersion !== "2.0") add(errors, "UNSUPPORTED_SCHEMA_VERSION", "/schemaVersion", `scene schemaVersion must be 2.0`, { layer: "scene" });
+  if (!sceneVersions.has(scene.schemaVersion)) add(errors, "UNSUPPORTED_SCHEMA_VERSION", "/schemaVersion", `scene schemaVersion must be 2.0 or 2.1`, { layer: "scene" });
   const worlds = collect(scene.worlds, "/worlds", errors, { layer: "scene" });
   const worldMap = new Map();
   for (const [worldIndex, worldValue] of worlds.items.entries()) {
@@ -232,7 +309,32 @@ export function validateSceneGraph(sceneValue) {
       if (!isObject(relation)) continue;
       if (!objectMap.has(relation.from) || !objectMap.has(relation.to) || typeof relation.path !== "string") add(errors, "INVALID_RELATION_GEOMETRY", `${path}/relations/${relationIndex}`, `compiled relation must have valid endpoints and a path`, context);
     }
-    worldMap.set(worldValue.id, { objectIds: objects.ids, visualIds: new Set([...objects.ids, ...anchors.ids]), relationIds: relations.ids });
+    const anchorMap = new Map(anchors.items.filter(isObject).map((anchor) => [anchor.id, anchor]));
+    const visualIds = new Set([...objects.ids, ...anchors.ids]);
+    const frames = collect(worldValue.frames ?? [], `${path}/frames`, errors, context);
+    const frameMap = new Map();
+    for (const [frameIndex, frame] of frames.items.entries()) {
+      if (!isObject(frame)) continue;
+      const framePath = `${path}/frames/${frameIndex}`;
+      const frameContext = { ...context, frameId: frame.id };
+      validateBounds(frame.bounds, `${framePath}/bounds`, errors, frameContext);
+      checkRefs(frame.targetIds, visualIds, `${framePath}/targetIds`, errors, frameContext, { optional: false });
+      checkRefs(frame.requiredReadableIds, visualIds, `${framePath}/requiredReadableIds`, errors, frameContext, { optional: false });
+      const readableObjects = [];
+      for (const [readableIndex, readableId] of (frame.requiredReadableIds ?? []).entries()) {
+        const object = objectMap.get(readableId) ?? objectMap.get(anchorMap.get(readableId)?.ownerId);
+        const bounds = objectMap.get(readableId) ?? anchorMap.get(readableId)?.bounds;
+        if (bounds && isObject(frame.bounds) && !containsBounds(frame.bounds, bounds)) add(errors, "FRAME_REQUIRED_CONTENT_CLIPPED", `${framePath}/requiredReadableIds/${readableIndex}`, `frame ${frame.id} does not fully contain required content ${readableId}`, frameContext);
+        if (object) readableObjects.push(object);
+      }
+      if (isObject(frame.bounds) && readableObjects.length > 0) for (const profile of readabilityProfiles) {
+        const scale = Math.min(profile.width / frame.bounds.width, profile.height / frame.bounds.height);
+        const projected = Math.min(...readableObjects.map((object) => readableBasePx(object) * scale));
+        if (projected < profile.minimumPx) add(warnings, "READABILITY_RISK", `${framePath}/requiredReadableIds`, `${frame.id} projects required text to about ${projected.toFixed(1)}px in ${profile.id}; target is ${profile.minimumPx}px`, { ...frameContext, profile: profile.id });
+      }
+      if (typeof frame.id === "string") frameMap.set(frame.id, frame);
+    }
+    worldMap.set(worldValue.id, { objectIds: objects.ids, visualIds, relationIds: relations.ids, frameIds: frames.ids, frameMap });
   }
   const scenes = collect(scene.scenes, "/scenes", errors, { layer: "scene" });
   for (const [sceneIndex, sceneItem] of scenes.items.entries()) {
@@ -250,6 +352,8 @@ export function validateSceneGraph(sceneValue) {
         checkRefs(step.visual?.visibleIds, world.objectIds, `${stepPath}/visual/visibleIds`, errors, context, { optional: false });
         checkRefs(step.visual?.emphasisIds, world.visualIds, `${stepPath}/visual/emphasisIds`, errors, context, { optional: false });
         checkRefs(step.visual?.activeRelationIds, world.relationIds, `${stepPath}/visual/activeRelationIds`, errors, context, { optional: false });
+        checkRefs(step.visual?.requiredReadableIds, world.visualIds, `${stepPath}/visual/requiredReadableIds`, errors, context, { optional: false });
+        if (scene.schemaVersion === "2.1" && !world.frameIds.has(step.camera?.frameId)) add(errors, "MISSING_REFERENCE", `${stepPath}/camera/frameId`, `compiled camera references missing frame: ${step.camera?.frameId}`, context);
       }
     }
   }

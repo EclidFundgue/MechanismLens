@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { useCameraViewBox } from "../camera/useCameraViewBox";
+import { useCameraViewBox, type CameraPhase } from "../camera/useCameraViewBox";
 import { assetUrl } from "../lib/source";
 import type { ChartPrimitive, CodePrimitive, CompiledWorld, EquationPrimitive, ImagePrimitive, Primitive, SceneState, SceneStep } from "../types";
 import { MathText } from "../components/renderers/MathText";
@@ -126,24 +126,24 @@ function WorldDrawing({ world, drawing, markerId }: { world: CompiledWorld; draw
   </>;
 }
 
-export function WorldStage({ world, step, previousStep }: { world: CompiledWorld; step: SceneStep; previousStep?: SceneStep }) {
+export function WorldStage({ world, step, previousStep, reserveDetailSpace, onCameraPhaseChange }: { world: CompiledWorld; step: SceneStep; previousStep?: SceneStep; reserveDetailSpace: boolean; onCameraPhaseChange?: (stepId: string, phase: CameraPhase) => void }) {
   const markerId = `world-arrow-${useId().replace(/:/g, "")}`;
-  const viewBox = useCameraViewBox(step.camera.bounds, world.bounds, step.transition, step.id);
+  const viewBox = useCameraViewBox(step.camera.bounds, world.bounds, step.transition, step.id, onCameraPhaseChange);
   const drawing: DrawingState = {
     visible: new Set(step.visual.visibleIds), emphasis: new Set(step.visual.emphasisIds), activeRelations: new Set(step.visual.activeRelationIds),
     state: step.visual.state, previousState: previousStep?.visual.state,
   };
   const detail = world.detailViews.find((item) => item.id === step.visual.detailViewId);
   const detailDrawing: DrawingState | null = detail ? { visible: new Set(detail.objects.map((item) => item.id)), emphasis: new Set(), activeRelations: new Set(), state: {} } : null;
-  return <div className={`world-stage ${detail ? "has-detail" : ""}`}>
+  return <div className={`world-stage ${reserveDetailSpace ? "has-detail-slot" : ""}`}>
     <svg className="world-canvas" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img" aria-label={world.title ?? world.id}>
       <WorldDrawing world={world} drawing={drawing} markerId={markerId} />
     </svg>
-    {detail && detailDrawing && <aside className="world-detail-panel">
-      <div><span className="kicker">Detail view</span><h3>{detail.title}</h3></div>
-      <svg viewBox={boundsToViewBox(detail.bounds)} role="img" aria-label={detail.title}>
-        <WorldDrawing world={detail} drawing={detailDrawing} markerId={`${markerId}-detail`} />
-      </svg>
+    {reserveDetailSpace && <aside className={`world-detail-panel ${detail ? "" : "is-reserved"}`} aria-hidden={detail ? undefined : true}>
+      {detail && detailDrawing && <><div><span className="kicker">Detail view</span><h3>{detail.title}</h3></div>
+        <svg viewBox={boundsToViewBox(detail.bounds)} role="img" aria-label={detail.title}>
+          <WorldDrawing world={detail} drawing={detailDrawing} markerId={`${markerId}-detail`} />
+        </svg></>}
     </aside>}
   </div>;
 }

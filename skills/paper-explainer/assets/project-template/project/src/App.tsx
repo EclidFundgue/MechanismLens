@@ -4,6 +4,7 @@ import { EvidenceDrawer } from "./components/EvidenceDrawer";
 import { WorldStage } from "./stage/WorldStage";
 import { usePlayerKeyboard } from "./hooks/usePlayerKeyboard";
 import { assetUrl } from "./lib/source";
+import type { CameraPhase } from "./camera/useCameraViewBox";
 
 function unique<T>(items: T[]): T[] { return [...new Set(items)]; }
 
@@ -22,6 +23,7 @@ export function App() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [subtitles, setSubtitles] = useState(true);
   const [auto, setAuto] = useState(new URLSearchParams(window.location.search).get("auto") === "1");
+  const [cameraStatus, setCameraStatus] = useState<{ stepId: string; phase: CameraPhase }>({ stepId: "", phase: "locating" });
 
   const sceneIndex = Math.max(0, sceneIR.scenes.findIndex((item) => item.id === cursor.sceneId));
   const scene = sceneIR.scenes[sceneIndex];
@@ -29,6 +31,9 @@ export function App() {
   const step = scene.steps[stepIndex];
   const world = sceneIR.worlds.find((item) => item.id === scene.worldId)!;
   const previousStep = scene.steps[stepIndex - 1];
+  const reserveDetailSpace = scene.steps.some((item) => item.visual.detailViewId !== null);
+  const cameraSettled = cameraStatus.stepId === step.id && cameraStatus.phase === "settled";
+  const handleCameraPhaseChange = useCallback((stepId: string, phase: CameraPhase) => setCameraStatus({ stepId, phase }), []);
 
   const claimMap = useMemo(() => new Map(paperIR.claims.map((claim) => [claim.id, claim])), []);
   const evidenceMap = useMemo(() => new Map(paperIR.evidence.map((item) => [item.id, item])), []);
@@ -79,10 +84,10 @@ export function App() {
     window.localStorage.setItem(`paper-explainer:v2:${paperIR.paper.id}:cursor`, JSON.stringify({ sceneId: scene.id, stepId: step.id }));
   }, [scene.id, step.id]);
   useEffect(() => {
-    if (!auto) return;
-    const timer = window.setTimeout(next, step.transition.durationMs + step.timing.holdMs);
+    if (!auto || !cameraSettled) return;
+    const timer = window.setTimeout(next, step.timing.holdMs);
     return () => window.clearTimeout(timer);
-  }, [auto, next, scene.id, step.id, step.timing.holdMs, step.transition.durationMs]);
+  }, [auto, cameraSettled, next, scene.id, step.id, step.timing.holdMs]);
 
   const originalPaperUrl = paperIR.paper.localPdfPath ? assetUrl(paperIR.paper.localPdfPath) : paperIR.paper.originalUrl || paperIR.paper.pdfUrl || null;
   return <div className="app-shell">
@@ -98,8 +103,8 @@ export function App() {
     <main className="stage-area">
       <section className="stage" aria-live="polite">
         <div className="stage-heading"><div><span className="kicker">{scene.eyebrow ?? scene.contentKind}</span><h1>{scene.title}</h1></div><div className="step-counter"><span>{String(stepIndex + 1).padStart(2, "0")}</span><small>/ {String(scene.steps.length).padStart(2, "0")}</small></div></div>
-        <div className="visual-stage"><WorldStage key={world.id} world={world} step={step} previousStep={previousStep} /></div>
-        {subtitles && <div className="subtitle"><span>{step.title ?? "Explanation"}</span><p>{step.narration}</p></div>}
+        <div className="visual-stage"><WorldStage key={world.id} world={world} step={step} previousStep={previousStep} reserveDetailSpace={reserveDetailSpace} onCameraPhaseChange={handleCameraPhaseChange} /></div>
+        {subtitles && <div className={`subtitle ${cameraSettled ? "" : "is-locating"}`} aria-live={cameraSettled ? "polite" : "off"}>{cameraSettled ? <><span>{step.title ?? "Explanation"}</span><p>{step.narration}</p></> : <><span>Locating</span><p>正在定位讲解画面…</p></>}</div>}
       </section>
       <footer className="player-controls"><div className="progress-track"><span style={{ width: `${(absoluteStep / totalSteps) * 100}%` }} /></div><div className="control-row"><span>{absoluteStep} / {totalSteps}</span><div><button onClick={previous} disabled={absoluteStep === 1}>←</button><button className={auto ? "is-active" : ""} onClick={() => setAuto((value) => !value)}>{auto ? "暂停" : "自动播放"}</button><button onClick={next} disabled={absoluteStep === totalSteps}>→</button></div><button className="subtitle-toggle" onClick={() => setSubtitles((value) => !value)}>字幕 {subtitles ? "开" : "关"}</button></div></footer>
     </main>

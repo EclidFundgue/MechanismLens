@@ -60,6 +60,7 @@ URL 参数：
 
 - `?reset=1`：忽略上次游标，从第一步开始；
 - `?auto=1&reset=1`：从头自动播放。
+- `?motion=reduce`：测试或演示 reduced-motion 目标状态，不执行相机插值。
 
 ## 来源跳转
 
@@ -95,8 +96,8 @@ npm run validate
 - narration、claim、evidence 和技术对象绑定有效；
 - 编译几何、relation path 和 camera bounds 有限且为正尺寸。
 
-此外检查重复 ID/引用、focus 可见性、活动关系、比较基线、原图 region、detail
-归属和 step state target。错误带稳定 `code`、JSON path，以及可选的 layer、
+此外检查重复 ID/引用、frame 与 emphasis 可见性、必读内容裁切、相机理由、活动关系、比较基线、原图 region、detail
+归属和 step state target；估算桌面/窄屏字号属于 warning。错误带稳定 `code`、JSON path，以及可选的 layer、
 template、object、scene 和 step ID；过密比较等属于 warning，不阻断构建。
 JSON Schema 用于编辑器和自动化集成；`compile-content.mjs` 和
 `validate-data.mjs` 是构建时硬门槛。
@@ -109,6 +110,7 @@ JSON Schema 用于编辑器和自动化集成；`compile-content.mjs` 和
 - 至少抽查一个网页 anchor 和两个 PDF 页码；
 - 本地 PDF 存在时，构建后的 `site/paper/original.pdf` 存在；
 - 当前 step 的 evidence 数量正确；
+- 同一 frame 步骤不运镜；必要运镜期间不显示新 narration，稳定后才开始 hold；
 - 没有遗留生成阶段的 dev server。
 
 仓库维护者可在仓库根目录运行：

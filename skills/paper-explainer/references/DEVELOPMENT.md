@@ -20,14 +20,16 @@
 - 关系只路由已有 Paper/Intent 关系，不补造事实；
 - nested object、term、line、item 和 region 都有稳定可聚焦 ID；
 - 输出通过 Scene Graph 校验后才原子替换。
+- Visual Intent 2.0 保留 legacy `focusIds → camera` 语义；2.1 使用 `frameId + emphasisIds`，两条路径不得静默互换。
+- 2.1 world frame 编译为完整 bounds；相同 frame 在任意 step 中必须产生相同 camera 快照。
 
 ## Validation
 
-`engine/validation/index.mjs` 导出 `validateSource`、`validateSceneGraph` 和 `validateData`，返回 `{ errors, warnings }`。结构错误、断链、parent 环、模板槽位、隐藏焦点、非法 geometry 和 baseline 隐藏是 error；密度与可读性指导是 warning。不要修复、去重或类型转换输入。
+`engine/validation/index.mjs` 导出 `validateSource`、`validateSceneGraph` 和 `validateData`，返回 `{ errors, warnings }`。结构错误、断链、parent 环、模板槽位、隐藏强调、frame 裁切必读内容、无理由切换非默认 frame、非法 geometry 和 baseline 隐藏是 error；密度、估算字号和可读性指导是 warning。不要修复、去重或类型转换输入。
 
 ## Runtime
 
-WorldStage 可以有短暂动画状态，但目标画面只由当前 compiled step 决定。算法变量变化与 scene 中前一步比较。图表始终使用全体 item 的数值域。图片失败状态随图片对象实例隔离。
+WorldStage 可以有短暂动画状态，但目标画面只由当前 compiled step 决定。相同起终点必须短路；相机未稳定时不展示新 narration，自动播放在稳定后开始 hold。算法变量变化与 scene 中前一步比较。图表始终使用全体 item 的数值域。图片失败状态随图片对象实例隔离。
 
 ## 测试
 

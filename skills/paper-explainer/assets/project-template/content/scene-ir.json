@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "2.0",
+  "schemaVersion": "2.1",
   "paperId": "paper.demo",
   "title": "Interactive paper walkthrough",
   "build": {
-    "compilerVersion": "2.0.0",
-    "templateCatalogVersion": "2.1.0",
-    "sourceHash": "d3225a515b2b14ce158266c6b50c5f4ca978ecaada4092e09918e2b5909a3b85"
+    "compilerVersion": "2.1.0",
+    "templateCatalogVersion": "2.2.0",
+    "sourceHash": "97932a3c9e41d67f321c286782e93428d568f6ef4ec2fb2ee4dc68d9c2df0c7d"
   },
   "worlds": [
     {
@@ -15,7 +15,7 @@
         "contentPatterns": [
           "problem_solution"
         ],
-        "reason": "The opening needs a compact problem-to-contribution sequence."
+        "reason": "The opening needs a compact problem-to-contribution sequence in one stable frame."
       },
       "objects": [
         {
@@ -48,6 +48,24 @@
         }
       ],
       "relations": [],
+      "frames": [
+        {
+          "id": "frame.overview",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "card.problem",
+            "card.contribution"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 754,
+            "height": 350
+          }
+        }
+      ],
       "anchors": [],
       "bounds": {
         "x": 0,
@@ -58,32 +76,20 @@
       "detailViews": []
     },
     {
-      "id": "world.architecture",
-      "templateId": "grouped_overview",
+      "id": "world.encoder-local",
+      "templateId": "branch_merge_pipeline",
       "selection": {
         "contentPatterns": [
-          "hierarchical_modules",
-          "overview_then_detail"
+          "ordered_modules"
         ],
-        "candidates": [
-          {
-            "templateId": "grouped_overview",
-            "reason": "Preserves module ownership while the camera moves between stages."
-          },
-          {
-            "templateId": "branch_merge_pipeline",
-            "risk": "Would overstate parallelism in this demo."
-          }
-        ],
-        "reason": "The explanation must establish one stable whole before visiting encoder, fusion, and decoder."
-      },
-      "layout": {
-        "direction": "horizontal"
+        "reason": "A fixed local page explains the encoder input, operations and output before the whole model is shown."
       },
       "objects": [
         {
-          "id": "node.input",
+          "id": "encoder.input",
           "kind": "node",
+          "width": 140,
+          "height": 100,
           "label": "Input",
           "detail": "[B, N, D]",
           "role": "tensor",
@@ -92,216 +98,265 @@
             "evidence.architecture"
           ],
           "x": 80,
-          "y": 80,
-          "width": 190,
-          "height": 108
+          "y": 80
         },
         {
-          "id": "group.encoder",
-          "kind": "group",
-          "label": "Encoder",
-          "paperRef": "module.encoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "layout": {
-            "direction": "vertical"
-          },
-          "x": 334,
-          "y": 80,
-          "width": 246,
-          "height": 336
-        },
-        {
-          "id": "node.embed",
+          "id": "encoder.embed",
           "kind": "node",
+          "width": 140,
+          "height": 100,
           "label": "Embedding",
           "detail": "project input",
-          "parentId": "group.encoder",
           "paperRef": "module.encoder",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x": 362,
-          "y": 142,
-          "width": 190,
-          "height": 108
+          "x": 300,
+          "y": 80
         },
         {
-          "id": "node.context",
+          "id": "encoder.context",
           "kind": "node",
+          "width": 140,
+          "height": 100,
           "label": "Context blocks",
           "detail": "build representation",
-          "parentId": "group.encoder",
           "paperRef": "module.encoder",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x": 362,
-          "y": 280,
-          "width": 190,
-          "height": 108
+          "x": 520,
+          "y": 80
         },
         {
-          "id": "group.fusion",
-          "kind": "group",
-          "label": "Fusion",
-          "paperRef": "module.fusion",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "layout": {
-            "direction": "vertical"
-          },
-          "x": 644,
-          "y": 80,
-          "width": 246,
-          "height": 198
-        },
-        {
-          "id": "node.fusion",
+          "id": "encoder.output",
           "kind": "node",
-          "label": "Fusion operator",
-          "detail": "combine evidence",
-          "parentId": "group.fusion",
-          "paperRef": "module.fusion",
+          "width": 140,
+          "height": 100,
+          "label": "Encoded state",
+          "detail": "contextual features",
+          "paperRef": "module.encoder",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x": 672,
-          "y": 142,
-          "width": 190,
-          "height": 108
-        },
-        {
-          "id": "group.decoder",
-          "kind": "group",
-          "label": "Decoder",
-          "paperRef": "module.decoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "layout": {
-            "direction": "vertical"
-          },
-          "x": 954,
-          "y": 80,
-          "width": 246,
-          "height": 198
-        },
-        {
-          "id": "node.decode",
-          "kind": "node",
-          "label": "Decode blocks",
-          "detail": "recover output",
-          "parentId": "group.decoder",
-          "paperRef": "module.decoder",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "x": 982,
-          "y": 142,
-          "width": 190,
-          "height": 108
-        },
-        {
-          "id": "node.output",
-          "kind": "node",
-          "label": "Output",
-          "detail": "[B, M, D]",
-          "role": "tensor",
-          "paperRef": "module.output",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "x": 1264,
-          "y": 80,
-          "width": 190,
-          "height": 108
+          "x": 740,
+          "y": 80
         }
       ],
       "relations": [
         {
-          "id": "edge.encode",
-          "from": "node.input",
-          "to": "node.embed",
-          "label": "encode",
+          "id": "encoder.edge-input",
+          "from": "encoder.input",
+          "to": "encoder.embed",
+          "label": "project",
           "paperRef": "relation.encode",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x1": 270,
-          "y1": 134,
-          "x2": 362,
-          "y2": 196,
-          "path": "M 270 134 C 315 134, 317 196, 362 196"
+          "x1": 220,
+          "y1": 130,
+          "x2": 300,
+          "y2": 130,
+          "path": "M 220 130 C 265 130, 255 130, 300 130"
         },
         {
-          "id": "edge.context",
-          "from": "node.embed",
-          "to": "node.context",
+          "id": "encoder.edge-context",
+          "from": "encoder.embed",
+          "to": "encoder.context",
           "label": "context",
           "paperRef": "relation.encode",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x1": 457,
-          "y1": 250,
-          "x2": 457,
-          "y2": 280,
-          "path": "M 457 250 C 457 295, 457 235, 457 280"
+          "x1": 440,
+          "y1": 130,
+          "x2": 520,
+          "y2": 130,
+          "path": "M 440 130 C 485 130, 475 130, 520 130"
         },
         {
-          "id": "edge.fuse",
-          "from": "node.context",
-          "to": "node.fusion",
+          "id": "encoder.edge-output",
+          "from": "encoder.context",
+          "to": "encoder.output",
+          "label": "encode",
+          "paperRef": "relation.encode",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 660,
+          "y1": 130,
+          "x2": 740,
+          "y2": 130,
+          "path": "M 660 130 C 705 130, 695 130, 740 130"
+        }
+      ],
+      "frames": [
+        {
+          "id": "frame.encoder-local",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "encoder.input",
+            "encoder.embed",
+            "encoder.context",
+            "encoder.output"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 960,
+            "height": 260
+          }
+        }
+      ],
+      "anchors": [],
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 960,
+        "height": 260
+      },
+      "detailViews": []
+    },
+    {
+      "id": "world.fusion-local",
+      "templateId": "branch_merge_pipeline",
+      "selection": {
+        "contentPatterns": [
+          "parallel_branches",
+          "multi_modal_fusion"
+        ],
+        "reason": "A fixed branch-merge page keeps both fusion inputs, operation and output readable together."
+      },
+      "objects": [
+        {
+          "id": "fusion.context-a",
+          "kind": "node",
+          "width": 150,
+          "height": 100,
+          "label": "Context A",
+          "detail": "source stream",
+          "paperRef": "module.encoder",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 80,
+          "y": 80
+        },
+        {
+          "id": "fusion.context-b",
+          "kind": "node",
+          "width": 150,
+          "height": 100,
+          "label": "Context B",
+          "detail": "complementary stream",
+          "paperRef": "module.encoder",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 80,
+          "y": 210
+        },
+        {
+          "id": "fusion.operation",
+          "kind": "node",
+          "width": 150,
+          "height": 100,
+          "label": "Fusion",
+          "detail": "combine evidence",
+          "paperRef": "module.fusion",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 310,
+          "y": 145
+        },
+        {
+          "id": "fusion.output",
+          "kind": "node",
+          "width": 150,
+          "height": 100,
+          "label": "Fused state",
+          "detail": "joint representation",
+          "paperRef": "module.fusion",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 540,
+          "y": 145
+        }
+      ],
+      "relations": [
+        {
+          "id": "fusion.edge-a",
+          "from": "fusion.context-a",
+          "to": "fusion.operation",
+          "paperRef": "relation.fuse",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 230,
+          "y1": 130,
+          "x2": 310,
+          "y2": 195,
+          "path": "M 230 130 C 275 130, 265 195, 310 195"
+        },
+        {
+          "id": "fusion.edge-b",
+          "from": "fusion.context-b",
+          "to": "fusion.operation",
+          "paperRef": "relation.fuse",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 230,
+          "y1": 260,
+          "x2": 310,
+          "y2": 195,
+          "path": "M 230 260 C 275 260, 265 195, 310 195"
+        },
+        {
+          "id": "fusion.edge-output",
+          "from": "fusion.operation",
+          "to": "fusion.output",
           "label": "fuse",
           "paperRef": "relation.fuse",
           "evidenceIds": [
             "evidence.architecture"
           ],
-          "x1": 552,
-          "y1": 334,
-          "x2": 672,
-          "y2": 196,
-          "path": "M 552 334 C 606 334, 618 196, 672 196"
-        },
+          "x1": 460,
+          "y1": 195,
+          "x2": 540,
+          "y2": 195,
+          "path": "M 460 195 C 505 195, 495 195, 540 195"
+        }
+      ],
+      "frames": [
         {
-          "id": "edge.decode",
-          "from": "node.fusion",
-          "to": "node.decode",
-          "label": "decode",
-          "paperRef": "relation.decode",
-          "evidenceIds": [
-            "evidence.architecture"
+          "id": "frame.fusion-local",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "fusion.context-a",
+            "fusion.context-b",
+            "fusion.operation",
+            "fusion.output"
           ],
-          "x1": 862,
-          "y1": 196,
-          "x2": 982,
-          "y2": 196,
-          "path": "M 862 196 C 916 196, 928 196, 982 196"
-        },
-        {
-          "id": "edge.predict",
-          "from": "node.decode",
-          "to": "node.output",
-          "label": "predict",
-          "paperRef": "relation.predict",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "x1": 1172,
-          "y1": 196,
-          "x2": 1264,
-          "y2": 134,
-          "path": "M 1172 196 C 1217 196, 1219 134, 1264 134"
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 770,
+            "height": 390
+          }
         }
       ],
       "detailViews": [
         {
           "id": "detail.fusion",
           "title": "Fusion mechanism",
-          "explainsObjectId": "group.fusion",
+          "explainsObjectId": "fusion.operation",
           "templateId": "branch_merge_pipeline",
           "objects": [
             {
@@ -374,9 +429,301 @@
       "bounds": {
         "x": 0,
         "y": 0,
-        "width": 1534,
-        "height": 496
+        "width": 770,
+        "height": 390
       }
+    },
+    {
+      "id": "world.decoder-local",
+      "templateId": "branch_merge_pipeline",
+      "selection": {
+        "contentPatterns": [
+          "ordered_modules"
+        ],
+        "reason": "A fixed local page explains how the fused state becomes the paper output."
+      },
+      "objects": [
+        {
+          "id": "decoder.input",
+          "kind": "node",
+          "label": "Fused state",
+          "detail": "decoder input",
+          "paperRef": "module.fusion",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "width": 190,
+          "height": 108,
+          "x": 80,
+          "y": 80
+        },
+        {
+          "id": "decoder.blocks",
+          "kind": "node",
+          "label": "Decode blocks",
+          "detail": "recover output",
+          "paperRef": "module.decoder",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "width": 190,
+          "height": 108,
+          "x": 350,
+          "y": 80
+        },
+        {
+          "id": "decoder.output",
+          "kind": "node",
+          "label": "Output",
+          "detail": "[B, M, D]",
+          "role": "tensor",
+          "paperRef": "module.output",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "width": 190,
+          "height": 108,
+          "x": 620,
+          "y": 80
+        }
+      ],
+      "relations": [
+        {
+          "id": "decoder.edge-blocks",
+          "from": "decoder.input",
+          "to": "decoder.blocks",
+          "label": "decode",
+          "paperRef": "relation.decode",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 270,
+          "y1": 134,
+          "x2": 350,
+          "y2": 134,
+          "path": "M 270 134 C 315 134, 305 134, 350 134"
+        },
+        {
+          "id": "decoder.edge-output",
+          "from": "decoder.blocks",
+          "to": "decoder.output",
+          "label": "predict",
+          "paperRef": "relation.predict",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 540,
+          "y1": 134,
+          "x2": 620,
+          "y2": 134,
+          "path": "M 540 134 C 585 134, 575 134, 620 134"
+        }
+      ],
+      "frames": [
+        {
+          "id": "frame.decoder-local",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "decoder.input",
+            "decoder.blocks",
+            "decoder.output"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 890,
+            "height": 268
+          }
+        }
+      ],
+      "anchors": [],
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 890,
+        "height": 268
+      },
+      "detailViews": []
+    },
+    {
+      "id": "world.architecture-summary",
+      "templateId": "grouped_overview",
+      "selection": {
+        "contentPatterns": [
+          "hierarchical_modules",
+          "parts_then_whole"
+        ],
+        "candidates": [
+          {
+            "templateId": "grouped_overview",
+            "reason": "Summarizes the modules after each local problem has been explained."
+          },
+          {
+            "templateId": "branch_merge_pipeline",
+            "risk": "Would overstate parallelism in the final method path."
+          }
+        ],
+        "reason": "The final world folds internal details into readable modules and reconnects the end-to-end path."
+      },
+      "layout": {
+        "direction": "horizontal"
+      },
+      "objects": [
+        {
+          "id": "summary.input",
+          "kind": "node",
+          "width": 140,
+          "height": 100,
+          "label": "Input",
+          "paperRef": "module.input",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 80,
+          "y": 80
+        },
+        {
+          "id": "summary.encoder",
+          "kind": "node",
+          "width": 140,
+          "height": 100,
+          "label": "Encoder",
+          "paperRef": "module.encoder",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 284,
+          "y": 80
+        },
+        {
+          "id": "summary.fusion",
+          "kind": "node",
+          "width": 140,
+          "height": 100,
+          "label": "Fusion",
+          "paperRef": "module.fusion",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 488,
+          "y": 80
+        },
+        {
+          "id": "summary.decoder",
+          "kind": "node",
+          "width": 140,
+          "height": 100,
+          "label": "Decoder",
+          "paperRef": "module.decoder",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 692,
+          "y": 80
+        },
+        {
+          "id": "summary.output",
+          "kind": "node",
+          "width": 140,
+          "height": 100,
+          "label": "Output",
+          "paperRef": "module.output",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x": 896,
+          "y": 80
+        }
+      ],
+      "relations": [
+        {
+          "id": "summary.edge-encode",
+          "from": "summary.input",
+          "to": "summary.encoder",
+          "paperRef": "relation.encode",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 220,
+          "y1": 130,
+          "x2": 284,
+          "y2": 130,
+          "path": "M 220 130 C 265 130, 239 130, 284 130"
+        },
+        {
+          "id": "summary.edge-fuse",
+          "from": "summary.encoder",
+          "to": "summary.fusion",
+          "paperRef": "relation.fuse",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 424,
+          "y1": 130,
+          "x2": 488,
+          "y2": 130,
+          "path": "M 424 130 C 469 130, 443 130, 488 130"
+        },
+        {
+          "id": "summary.edge-decode",
+          "from": "summary.fusion",
+          "to": "summary.decoder",
+          "paperRef": "relation.decode",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 628,
+          "y1": 130,
+          "x2": 692,
+          "y2": 130,
+          "path": "M 628 130 C 673 130, 647 130, 692 130"
+        },
+        {
+          "id": "summary.edge-predict",
+          "from": "summary.decoder",
+          "to": "summary.output",
+          "paperRef": "relation.predict",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "x1": 832,
+          "y1": 130,
+          "x2": 896,
+          "y2": 130,
+          "path": "M 832 130 C 877 130, 851 130, 896 130"
+        }
+      ],
+      "frames": [
+        {
+          "id": "frame.architecture-summary",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "summary.input",
+            "summary.encoder",
+            "summary.fusion",
+            "summary.decoder",
+            "summary.output"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1116,
+            "height": 260
+          }
+        }
+      ],
+      "anchors": [],
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 1116,
+        "height": 260
+      },
+      "detailViews": []
     },
     {
       "id": "world.equation",
@@ -385,7 +732,7 @@
         "contentPatterns": [
           "equation_terms"
         ],
-        "reason": "The objective is best explained term by term."
+        "reason": "The objective is best explained term by term inside one frame."
       },
       "objects": [
         {
@@ -416,6 +763,24 @@
         }
       ],
       "relations": [],
+      "frames": [
+        {
+          "id": "frame.equation",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "term.primary",
+            "term.regularizer"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1080,
+            "height": 580
+          }
+        }
+      ],
       "anchors": [
         {
           "id": "term.primary",
@@ -453,7 +818,7 @@
         "contentPatterns": [
           "state_update"
         ],
-        "reason": "Code lines and state snapshots must remain visible together."
+        "reason": "Code lines and state snapshots must remain visible together in one frame."
       },
       "objects": [
         {
@@ -488,6 +853,25 @@
         }
       ],
       "relations": [],
+      "frames": [
+        {
+          "id": "frame.algorithm",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "line.initialize",
+            "line.update",
+            "line.return"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1100,
+            "height": 610
+          }
+        }
+      ],
       "anchors": [
         {
           "id": "line.initialize",
@@ -536,7 +920,7 @@
           "ablation",
           "baseline_comparison"
         ],
-        "reason": "All variants share one metric and baseline."
+        "reason": "All variants share one metric, baseline and fixed scale."
       },
       "objects": [
         {
@@ -581,6 +965,25 @@
         }
       ],
       "relations": [],
+      "frames": [
+        {
+          "id": "frame.ablation",
+          "targetIds": [],
+          "mode": "fit",
+          "requiredReadableIds": [
+            "bar.baseline",
+            "bar.module",
+            "bar.full"
+          ],
+          "requestReason": null,
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 1100,
+            "height": 620
+          }
+        }
+      ],
       "anchors": [
         {
           "id": "bar.baseline",
@@ -629,7 +1032,7 @@
           "qualitative_figure",
           "region_comparison"
         ],
-        "reason": "The claim depends on comparing two regions in the original figure."
+        "reason": "The claim depends on reading two small regions in the original figure."
       },
       "objects": [
         {
@@ -668,6 +1071,42 @@
         }
       ],
       "relations": [],
+      "frames": [
+        {
+          "id": "frame.figure-input",
+          "targetIds": [
+            "region.input"
+          ],
+          "mode": "tight",
+          "requiredReadableIds": [
+            "region.input"
+          ],
+          "requestReason": "inspect_source_detail",
+          "bounds": {
+            "x": 113.80000000000001,
+            "y": 131.2,
+            "width": 402.4,
+            "height": 386.4
+          }
+        },
+        {
+          "id": "frame.figure-output",
+          "targetIds": [
+            "region.output"
+          ],
+          "mode": "tight",
+          "requiredReadableIds": [
+            "region.output"
+          ],
+          "requestReason": "restore_spatial_context",
+          "bounds": {
+            "x": 583.8,
+            "y": 131.2,
+            "width": 402.4,
+            "height": 386.4
+          }
+        }
+      ],
       "anchors": [
         {
           "id": "region.input",
@@ -712,6 +1151,11 @@
       "evidenceIds": [
         "evidence.abstract"
       ],
+      "presentation": {
+        "treatment": "static_emphasis",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.overview"
+      },
       "steps": [
         {
           "id": "step.problem",
@@ -730,19 +1174,22 @@
               "card.problem"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "card.problem"
+            ],
             "detailViewId": null,
             "state": {}
           },
           "camera": {
-            "targetIds": [
-              "card.problem"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.overview",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 472,
-              "height": 382
+              "x": 0,
+              "y": 0,
+              "width": 754,
+              "height": 350
             }
           },
           "transition": {
@@ -771,19 +1218,22 @@
               "card.contribution"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "card.contribution"
+            ],
             "detailViewId": null,
             "state": {}
           },
           "camera": {
-            "targetIds": [
-              "card.contribution"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.overview",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": 298,
-              "y": -16,
-              "width": 472,
-              "height": 382
+              "x": 0,
+              "y": 0,
+              "width": 754,
+              "height": 350
             }
           },
           "transition": {
@@ -798,56 +1248,186 @@
       ]
     },
     {
-      "id": "scene.architecture",
-      "title": "Move through one stable architecture",
-      "eyebrow": "Architecture · grouped overview",
+      "id": "scene.encoder",
+      "title": "Build the representation",
+      "eyebrow": "Architecture · part 1",
       "contentKind": "architecture",
-      "worldId": "world.architecture",
+      "worldId": "world.encoder-local",
       "claimIds": [
         "claim.architecture"
       ],
       "evidenceIds": [
         "evidence.architecture"
       ],
+      "presentation": {
+        "treatment": "parts_then_whole",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.encoder-local"
+      },
       "steps": [
         {
-          "id": "step.architecture-overview",
-          "title": "Whole model",
-          "narration": "Start from the complete model so every later detail has a stable place.",
-          "goal": "Establish spatial context",
+          "id": "step.encoder-input",
+          "title": "Encoder input",
+          "narration": "First identify the tensor entering the encoder and the projection applied to it.",
           "evidenceIds": [
             "evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
+              "encoder.input",
+              "encoder.embed",
+              "encoder.context",
+              "encoder.output"
             ],
-            "emphasisIds": [],
-            "activeRelationIds": [],
+            "emphasisIds": [
+              "encoder.input",
+              "encoder.embed"
+            ],
+            "activeRelationIds": [
+              "encoder.edge-input"
+            ],
+            "requiredReadableIds": [
+              "encoder.input",
+              "encoder.embed"
+            ],
             "detailViewId": null,
             "state": {}
           },
           "camera": {
+            "frameId": "frame.encoder-local",
+            "requestReason": null,
             "targetIds": [],
             "mode": "fit",
             "bounds": {
               "x": 0,
               "y": 0,
-              "width": 1534,
-              "height": 496
+              "width": 960,
+              "height": 260
             }
           },
           "transition": {
             "strategy": "direct",
-            "durationMs": 500,
+            "durationMs": 650,
+            "easing": "easeInOutCubic"
+          },
+          "timing": {
+            "holdMs": 15200
+          }
+        },
+        {
+          "id": "step.encoder-context",
+          "title": "Encoded state",
+          "narration": "Then keep the frame fixed while the context blocks produce the encoded representation.",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "visual": {
+            "visibleIds": [
+              "encoder.input",
+              "encoder.embed",
+              "encoder.context",
+              "encoder.output"
+            ],
+            "emphasisIds": [
+              "encoder.context",
+              "encoder.output"
+            ],
+            "activeRelationIds": [
+              "encoder.edge-context",
+              "encoder.edge-output"
+            ],
+            "requiredReadableIds": [
+              "encoder.context",
+              "encoder.output"
+            ],
+            "detailViewId": null,
+            "state": {}
+          },
+          "camera": {
+            "frameId": "frame.encoder-local",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 960,
+              "height": 260
+            }
+          },
+          "transition": {
+            "strategy": "direct",
+            "durationMs": 650,
+            "easing": "easeInOutCubic"
+          },
+          "timing": {
+            "holdMs": 16340
+          }
+        }
+      ]
+    },
+    {
+      "id": "scene.fusion",
+      "title": "Combine the evidence",
+      "eyebrow": "Architecture · part 2",
+      "contentKind": "architecture",
+      "worldId": "world.fusion-local",
+      "claimIds": [
+        "claim.architecture"
+      ],
+      "evidenceIds": [
+        "evidence.architecture"
+      ],
+      "presentation": {
+        "treatment": "progressive_reveal",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.fusion-local"
+      },
+      "steps": [
+        {
+          "id": "step.fusion-inputs",
+          "title": "Fusion inputs",
+          "narration": "Read both source streams together before applying the fusion operation.",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "visual": {
+            "visibleIds": [
+              "fusion.context-a",
+              "fusion.context-b",
+              "fusion.operation",
+              "fusion.output"
+            ],
+            "emphasisIds": [
+              "fusion.context-a",
+              "fusion.context-b"
+            ],
+            "activeRelationIds": [
+              "fusion.edge-a",
+              "fusion.edge-b"
+            ],
+            "requiredReadableIds": [
+              "fusion.context-a",
+              "fusion.context-b"
+            ],
+            "detailViewId": null,
+            "state": {}
+          },
+          "camera": {
+            "frameId": "frame.fusion-local",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 770,
+              "height": 390
+            }
+          },
+          "transition": {
+            "strategy": "direct",
+            "durationMs": 650,
             "easing": "easeInOutCubic"
           },
           "timing": {
@@ -855,244 +1435,43 @@
           }
         },
         {
-          "id": "step.encoder",
-          "title": "Encoder",
-          "narration": "Move into the encoder while keeping the rest of the model as context.",
-          "goal": "Explain representation building",
+          "id": "step.fusion-output",
+          "title": "Fusion output",
+          "narration": "The reserved detail area can expand the mechanism without moving or resizing the main diagram.",
           "evidenceIds": [
             "evidence.architecture"
           ],
           "visual": {
             "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
+              "fusion.context-a",
+              "fusion.context-b",
+              "fusion.operation",
+              "fusion.output"
             ],
             "emphasisIds": [
-              "group.encoder"
+              "fusion.operation",
+              "fusion.output"
             ],
             "activeRelationIds": [
-              "edge.encode",
-              "edge.context"
+              "fusion.edge-output"
             ],
-            "detailViewId": null,
-            "state": {}
-          },
-          "camera": {
-            "targetIds": [
-              "group.encoder"
+            "requiredReadableIds": [
+              "fusion.operation",
+              "fusion.output"
             ],
-            "mode": "contextual",
-            "bounds": {
-              "x": 238,
-              "y": -16,
-              "width": 438,
-              "height": 528
-            }
-          },
-          "transition": {
-            "strategy": "direct",
-            "durationMs": 650,
-            "easing": "easeInOutCubic"
-          },
-          "timing": {
-            "holdMs": 13110
-          }
-        },
-        {
-          "id": "step.fusion",
-          "title": "Fusion",
-          "narration": "The fusion stage combines the representations produced upstream.",
-          "goal": "Explain information combination",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "visual": {
-            "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
-            ],
-            "emphasisIds": [
-              "group.fusion"
-            ],
-            "activeRelationIds": [
-              "edge.fuse"
-            ],
-            "detailViewId": null,
-            "state": {}
-          },
-          "camera": {
-            "targetIds": [
-              "group.fusion"
-            ],
-            "mode": "contextual",
-            "bounds": {
-              "x": 548,
-              "y": -16,
-              "width": 438,
-              "height": 390
-            }
-          },
-          "transition": {
-            "strategy": "direct",
-            "durationMs": 650,
-            "easing": "easeInOutCubic"
-          },
-          "timing": {
-            "holdMs": 12160
-          }
-        },
-        {
-          "id": "step.fusion-detail",
-          "title": "Inside fusion",
-          "narration": "A detail view expands the mechanism without losing its location in the whole model.",
-          "goal": "Expand the local mechanism",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "visual": {
-            "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
-            ],
-            "emphasisIds": [
-              "group.fusion"
-            ],
-            "activeRelationIds": [],
             "detailViewId": "detail.fusion",
             "state": {}
           },
           "camera": {
-            "targetIds": [
-              "group.fusion"
-            ],
-            "mode": "contextual",
-            "bounds": {
-              "x": 548,
-              "y": -16,
-              "width": 438,
-              "height": 390
-            }
-          },
-          "transition": {
-            "strategy": "direct",
-            "durationMs": 650,
-            "easing": "easeInOutCubic"
-          },
-          "timing": {
-            "holdMs": 15770
-          }
-        },
-        {
-          "id": "step.decoder",
-          "title": "Decoder",
-          "narration": "The camera first restores context, then moves into the decoder.",
-          "goal": "Move to a distant module",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "visual": {
-            "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
-            ],
-            "emphasisIds": [
-              "group.decoder"
-            ],
-            "activeRelationIds": [
-              "edge.decode",
-              "edge.predict"
-            ],
-            "detailViewId": null,
-            "state": {}
-          },
-          "camera": {
-            "targetIds": [
-              "group.decoder"
-            ],
-            "mode": "contextual",
-            "bounds": {
-              "x": 858,
-              "y": -16,
-              "width": 438,
-              "height": 390
-            }
-          },
-          "transition": {
-            "strategy": "viaOverview",
-            "durationMs": 1000,
-            "easing": "easeInOutCubic"
-          },
-          "timing": {
-            "holdMs": 11970
-          }
-        },
-        {
-          "id": "step.architecture-return",
-          "title": "Return to the whole",
-          "narration": "Return to the complete architecture and trace the end-to-end path once more.",
-          "goal": "Summarize the full path",
-          "evidenceIds": [
-            "evidence.architecture"
-          ],
-          "visual": {
-            "visibleIds": [
-              "node.input",
-              "group.encoder",
-              "node.embed",
-              "node.context",
-              "group.fusion",
-              "node.fusion",
-              "group.decoder",
-              "node.decode",
-              "node.output"
-            ],
-            "emphasisIds": [],
-            "activeRelationIds": [
-              "edge.encode",
-              "edge.context",
-              "edge.fuse",
-              "edge.decode",
-              "edge.predict"
-            ],
-            "detailViewId": null,
-            "state": {}
-          },
-          "camera": {
+            "frameId": "frame.fusion-local",
+            "requestReason": null,
             "targetIds": [],
             "mode": "fit",
             "bounds": {
               "x": 0,
               "y": 0,
-              "width": 1534,
-              "height": 496
+              "width": 770,
+              "height": 390
             }
           },
           "transition": {
@@ -1101,7 +1480,149 @@
             "easing": "easeInOutCubic"
           },
           "timing": {
-            "holdMs": 14440
+            "holdMs": 17860
+          }
+        }
+      ]
+    },
+    {
+      "id": "scene.decoder",
+      "title": "Recover the output",
+      "eyebrow": "Architecture · part 3",
+      "contentKind": "architecture",
+      "worldId": "world.decoder-local",
+      "claimIds": [
+        "claim.architecture"
+      ],
+      "evidenceIds": [
+        "evidence.architecture"
+      ],
+      "presentation": {
+        "treatment": "static_emphasis",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.decoder-local"
+      },
+      "steps": [
+        {
+          "id": "step.decoder",
+          "title": "Decoder path",
+          "narration": "The decoder transforms the fused representation into the paper's output in one readable frame.",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "visual": {
+            "visibleIds": [
+              "decoder.input",
+              "decoder.blocks",
+              "decoder.output"
+            ],
+            "emphasisIds": [
+              "decoder.blocks"
+            ],
+            "activeRelationIds": [
+              "decoder.edge-blocks",
+              "decoder.edge-output"
+            ],
+            "requiredReadableIds": [
+              "decoder.input",
+              "decoder.blocks",
+              "decoder.output"
+            ],
+            "detailViewId": null,
+            "state": {}
+          },
+          "camera": {
+            "frameId": "frame.decoder-local",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 890,
+              "height": 268
+            }
+          },
+          "transition": {
+            "strategy": "direct",
+            "durationMs": 650,
+            "easing": "easeInOutCubic"
+          },
+          "timing": {
+            "holdMs": 17860
+          }
+        }
+      ]
+    },
+    {
+      "id": "scene.architecture-summary",
+      "title": "Connect the complete method",
+      "eyebrow": "Architecture · whole",
+      "contentKind": "architecture",
+      "worldId": "world.architecture-summary",
+      "claimIds": [
+        "claim.architecture"
+      ],
+      "evidenceIds": [
+        "evidence.architecture"
+      ],
+      "presentation": {
+        "treatment": "parts_then_whole",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.architecture-summary"
+      },
+      "steps": [
+        {
+          "id": "step.architecture-summary",
+          "title": "End-to-end path",
+          "narration": "Now connect the encoder, fusion and decoder after each part has already been learned.",
+          "evidenceIds": [
+            "evidence.architecture"
+          ],
+          "visual": {
+            "visibleIds": [
+              "summary.input",
+              "summary.encoder",
+              "summary.fusion",
+              "summary.decoder",
+              "summary.output"
+            ],
+            "emphasisIds": [],
+            "activeRelationIds": [
+              "summary.edge-encode",
+              "summary.edge-fuse",
+              "summary.edge-decode",
+              "summary.edge-predict"
+            ],
+            "requiredReadableIds": [
+              "summary.input",
+              "summary.encoder",
+              "summary.fusion",
+              "summary.decoder",
+              "summary.output"
+            ],
+            "detailViewId": null,
+            "state": {}
+          },
+          "camera": {
+            "frameId": "frame.architecture-summary",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
+            "bounds": {
+              "x": 0,
+              "y": 0,
+              "width": 1116,
+              "height": 260
+            }
+          },
+          "transition": {
+            "strategy": "direct",
+            "durationMs": 650,
+            "easing": "easeInOutCubic"
+          },
+          "timing": {
+            "holdMs": 16150
           }
         }
       ]
@@ -1118,6 +1639,11 @@
       "evidenceIds": [
         "evidence.equation"
       ],
+      "presentation": {
+        "treatment": "progressive_reveal",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.equation"
+      },
       "steps": [
         {
           "id": "step.primary-loss",
@@ -1133,6 +1659,9 @@
               "term.primary"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "term.primary"
+            ],
             "detailViewId": null,
             "state": {
               "equations": {
@@ -1141,15 +1670,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "term.primary"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.equation",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1112,
-              "height": 612
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 580
             }
           },
           "transition": {
@@ -1175,6 +1704,9 @@
               "term.regularizer"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "term.regularizer"
+            ],
             "detailViewId": null,
             "state": {
               "equations": {
@@ -1183,15 +1715,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "term.regularizer"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.equation",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1112,
-              "height": 612
+              "x": 0,
+              "y": 0,
+              "width": 1080,
+              "height": 580
             }
           },
           "transition": {
@@ -1217,6 +1749,11 @@
       "evidenceIds": [
         "evidence.algorithm"
       ],
+      "presentation": {
+        "treatment": "progressive_reveal",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.algorithm"
+      },
       "steps": [
         {
           "id": "step.initialize",
@@ -1232,6 +1769,9 @@
               "line.initialize"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "line.initialize"
+            ],
             "detailViewId": null,
             "state": {
               "variables": {
@@ -1243,15 +1783,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "line.initialize"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.algorithm",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1132,
-              "height": 642
+              "x": 0,
+              "y": 0,
+              "width": 1100,
+              "height": 610
             }
           },
           "transition": {
@@ -1277,6 +1817,9 @@
               "line.update"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "line.update"
+            ],
             "detailViewId": null,
             "state": {
               "variables": {
@@ -1291,15 +1834,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "line.update"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.algorithm",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1132,
-              "height": 642
+              "x": 0,
+              "y": 0,
+              "width": 1100,
+              "height": 610
             }
           },
           "transition": {
@@ -1325,6 +1868,11 @@
       "evidenceIds": [
         "evidence.ablation"
       ],
+      "presentation": {
+        "treatment": "progressive_reveal",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.ablation"
+      },
       "steps": [
         {
           "id": "step.baseline",
@@ -1340,6 +1888,9 @@
               "bar.baseline"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "bar.baseline"
+            ],
             "detailViewId": null,
             "state": {
               "visibleItems": {
@@ -1350,15 +1901,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "bar.baseline"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.ablation",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1132,
-              "height": 652
+              "x": 0,
+              "y": 0,
+              "width": 1100,
+              "height": 620
             }
           },
           "transition": {
@@ -1372,7 +1923,7 @@
         },
         {
           "id": "step.full",
-          "narration": "The full method shows the total reported improvement.",
+          "narration": "The full method shows the total reported improvement on the same scale.",
           "evidenceIds": [
             "evidence.ablation"
           ],
@@ -1384,6 +1935,11 @@
               "bar.full"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "bar.baseline",
+              "bar.module",
+              "bar.full"
+            ],
             "detailViewId": null,
             "state": {
               "visibleItems": {
@@ -1396,15 +1952,15 @@
             }
           },
           "camera": {
-            "targetIds": [
-              "bar.full"
-            ],
-            "mode": "contextual",
+            "frameId": "frame.ablation",
+            "requestReason": null,
+            "targetIds": [],
+            "mode": "fit",
             "bounds": {
-              "x": -16,
-              "y": -16,
-              "width": 1132,
-              "height": 652
+              "x": 0,
+              "y": 0,
+              "width": 1100,
+              "height": 620
             }
           },
           "transition": {
@@ -1413,7 +1969,7 @@
             "easing": "easeInOutCubic"
           },
           "timing": {
-            "holdMs": 10070
+            "holdMs": 13490
           }
         }
       ]
@@ -1430,10 +1986,15 @@
       "evidenceIds": [
         "evidence.figure"
       ],
+      "presentation": {
+        "treatment": "overview_detail_spotlight",
+        "cameraPolicy": "static_first",
+        "defaultFrameId": "frame.figure-input"
+      },
       "steps": [
         {
           "id": "step.region-input",
-          "narration": "Focus on the first region that supports the qualitative claim.",
+          "narration": "Inspect the first region because its original annotation is too small in the complete figure.",
           "evidenceIds": [
             "evidence.figure"
           ],
@@ -1445,6 +2006,9 @@
               "region.input"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "region.input"
+            ],
             "detailViewId": null,
             "state": {
               "selectedRegions": {
@@ -1453,6 +2017,8 @@
             }
           },
           "camera": {
+            "frameId": "frame.figure-input",
+            "requestReason": "inspect_source_detail",
             "targetIds": [
               "region.input"
             ],
@@ -1470,12 +2036,12 @@
             "easing": "easeInOutCubic"
           },
           "timing": {
-            "holdMs": 11780
+            "holdMs": 17670
           }
         },
         {
           "id": "step.region-output",
-          "narration": "Compare it with the second region before accepting the conclusion.",
+          "narration": "After restoring spatial context, inspect the second region before accepting the conclusion.",
           "evidenceIds": [
             "evidence.figure"
           ],
@@ -1487,6 +2053,9 @@
               "region.output"
             ],
             "activeRelationIds": [],
+            "requiredReadableIds": [
+              "region.output"
+            ],
             "detailViewId": null,
             "state": {
               "selectedRegions": {
@@ -1495,6 +2064,8 @@
             }
           },
           "camera": {
+            "frameId": "frame.figure-output",
+            "requestReason": "restore_spatial_context",
             "targetIds": [
               "region.output"
             ],
@@ -1512,7 +2083,7 @@
             "easing": "easeInOutCubic"
           },
           "timing": {
-            "holdMs": 12540
+            "holdMs": 17290
           }
         }
       ]

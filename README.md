@@ -120,18 +120,18 @@ paper-explainer https://arxiv.org/abs/1706.03762
 启动器会选择空闲端口并打开浏览器。查看已构建的网页需要 Node.js 或 Python；不需要运行开发服务器。
 
 <a id="scenes"></a>
-## 内容决定讲法，镜头保留空间关系
+## 内容决定讲法，稳定画幅保护阅读
 
 | 内容能力 | 适合解释 | 你可以看到 |
 | :--- | :--- | :--- |
-| **概念讲解** | 问题、前置知识、关键观点与结论 | 围绕当前步骤聚焦关键概念 |
+| **概念讲解** | 问题、前置知识、关键观点与结论 | 固定画面内切换关键概念的强调 |
 | **架构执行** | 模型模块、数据流、训练与推理管线 | 模块与连接随步骤高亮 |
 | **公式拆解** | 核心公式、符号含义、数学关系 | LaTeX 公式与当前解释对应 |
 | **算法跟踪** | 伪代码、循环、状态更新 | 当前代码行与状态逐步变化 |
-| **对比分析** | 数据、方案、baseline、消融结果 | 指标与比较对象随步骤聚焦 |
+| **对比分析** | 数据、方案、baseline、消融结果 | 固定尺度下逐步显示并强调比较对象 |
 | **原图检视** | 架构图、定性结果、复杂图表 | 原图区域标注、局部放大与解读 |
 
-这些内容能力由统一场景图表达。Agent 先识别顺序、分支融合、层级模块、公式项、状态更新或区域比较等结构模式，再从模板目录选择表达方式；编译器把视觉意图展开为场景图。架构讲解可以在同一张 world 中完成“总览 → 局部 → detail → 缩回 → 另一局部”，对象不会在切步时重新排版。
+这些内容能力由统一场景图表达。Agent 先识别顺序、分支融合、层级模块、公式项、状态更新或区域比较等结构模式，再从模板目录选择表达方式；编译器把视觉意图展开为场景图。强调对象变化不会自动改变相机：一段讲解复用同一个固定 frame，复杂架构优先采用“固定局部讲解 → 折叠总图整合”，只有必读细节无法看清时才请求有理由的取景变化。
 
 每个关键结论、数字、公式解释和技术关系都要求绑定来源；基于原文的推导性解读单独标记，交付前生成来源与视觉审计报告。
 
@@ -140,12 +140,12 @@ paper-explainer https://arxiv.org/abs/1706.03762
 ```mermaid
 flowchart LR
     A["01 · 读取原文<br/>正文 / 公式 / 图表"] --> B["02 · 组织证据<br/>观点 / 结论 / 出处"]
-    B --> C["03 · 选择表达<br/>模板 / world / 镜头"]
+    B --> C["03 · 选择表达<br/>模板 / world / 固定 frame"]
     C --> D["04 · 确定性编译<br/>布局 / 场景图 / camera"]
     D --> E["05 · 构建与验证<br/>交互网页 / 来源审计"]
 ```
 
-事实和来源保存在 Paper IR，模板选择、字幕、步骤与焦点保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/paper-explainer/SKILL.md)。
+事实和来源保存在 Paper IR，模板选择、固定 frame、字幕、步骤与强调保存在 Visual Intent；Scene IR 由编译器生成。修改后重新构建，播放器、画面、字幕与来源会回到同一份可验证的数据链。完整执行规范见 [SKILL.md](skills/paper-explainer/SKILL.md)。
 
 <a id="delivery"></a>
 ## 交付的是一个可以带走的项目
@@ -205,7 +205,7 @@ flowchart LR
 | [执行规范](skills/paper-explainer/SKILL.md) | 输入约定、生成流程与交付要求 |
 | [环境与初始化](skills/paper-explainer/references/INIT.md) | 依赖与项目脚手架 |
 | [文档内容模型](skills/paper-explainer/references/PAPER-IR.md) | 事实、结论和证据组织 |
-| [视觉意图](skills/paper-explainer/references/VISUAL-INTENT.md) | world、对象、步骤、焦点和状态 |
+| [视觉意图](skills/paper-explainer/references/VISUAL-INTENT.md) | world、固定 frame、步骤、强调和状态 |
 | [模板选择](skills/paper-explainer/references/TEMPLATE-SELECTION.md) | 内容模式、候选与适用边界 |
 | [生成场景图](skills/paper-explainer/references/SCENE-IR.md) | 编译后的 geometry 与执行快照 |
 | [镜头与过渡](skills/paper-explainer/references/CAMERA-AND-MOTION.md) | camera、detail 和播放语义 |

@@ -5,13 +5,16 @@ Generated from `visual-intent.json`. Do not edit this copy.
 - Start with the paper's real contribution `scene.overview`
   - The problem `step.problem`
   - The contribution `step.contribution`
-- Move through one stable architecture `scene.architecture`
-  - Whole model `step.architecture-overview`
-  - Encoder `step.encoder`
-  - Fusion `step.fusion`
-  - Inside fusion `step.fusion-detail`
-  - Decoder `step.decoder`
-  - Return to the whole `step.architecture-return`
+- Build the representation `scene.encoder`
+  - Encoder input `step.encoder-input`
+  - Encoded state `step.encoder-context`
+- Combine the evidence `scene.fusion`
+  - Fusion inputs `step.fusion-inputs`
+  - Fusion output `step.fusion-output`
+- Recover the output `scene.decoder`
+  - Decoder path `step.decoder`
+- Connect the complete method `scene.architecture-summary`
+  - End-to-end path `step.architecture-summary`
 - Unfold the main equation `scene.equation`
   - step.primary-loss `step.primary-loss`
   - step.regularizer `step.regularizer`

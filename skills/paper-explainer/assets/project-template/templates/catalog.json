@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
+  "version": "2.2.0",
   "templates": [
     {
       "id": "grouped_overview",
@@ -7,7 +7,7 @@
       "applicablePatterns": ["hierarchical_modules", "overview_then_detail"],
       "allowedKinds": ["group", "node", "annotation"],
       "requiredKinds": ["node"],
-      "supportedTreatments": ["overview_detail_spotlight"],
+      "supportedTreatments": ["parts_then_whole", "static_emphasis", "progressive_reveal", "overview_detail_spotlight"],
       "antiPatterns": ["single_equation", "raw_figure_only"]
     },
     {
@@ -16,7 +16,7 @@
       "applicablePatterns": ["parallel_branches", "multi_modal_fusion"],
       "allowedKinds": ["group", "node", "annotation"],
       "requiredKinds": ["node"],
-      "supportedTreatments": ["overview_detail_spotlight"],
+      "supportedTreatments": ["parts_then_whole", "static_emphasis", "progressive_reveal", "overview_detail_spotlight"],
       "antiPatterns": ["unrelated_comparison"]
     },
     {
@@ -25,7 +25,7 @@
       "applicablePatterns": ["encoder_decoder", "bottleneck", "cross_stage_connections"],
       "allowedKinds": ["group", "node", "annotation"],
       "requiredKinds": ["node"],
-      "supportedTreatments": ["overview_detail_spotlight"],
+      "supportedTreatments": ["parts_then_whole", "static_emphasis", "progressive_reveal", "overview_detail_spotlight"],
       "antiPatterns": ["unrelated_parallel_branches"]
     },
     {
@@ -34,7 +34,7 @@
       "applicablePatterns": ["training_inference_split", "shared_modules"],
       "allowedKinds": ["group", "node", "annotation"],
       "requiredKinds": ["group", "node"],
-      "supportedTreatments": ["overview_detail_spotlight", "step_focus"],
+      "supportedTreatments": ["parts_then_whole", "static_emphasis", "progressive_reveal", "overview_detail_spotlight"],
       "antiPatterns": ["identical_execution_paths"]
     },
     {
@@ -43,7 +43,7 @@
       "applicablePatterns": ["problem_solution", "ordered_concepts"],
       "allowedKinds": ["card", "annotation"],
       "requiredKinds": ["card"],
-      "supportedTreatments": ["step_focus"],
+      "supportedTreatments": ["static_emphasis", "progressive_reveal", "parts_then_whole"],
       "antiPatterns": ["dense_data_flow"]
     },
     {
@@ -52,7 +52,7 @@
       "applicablePatterns": ["equation_terms", "progressive_derivation"],
       "allowedKinds": ["equation", "annotation"],
       "requiredKinds": ["equation"],
-      "supportedTreatments": ["step_focus"],
+      "supportedTreatments": ["static_emphasis", "progressive_reveal"],
       "antiPatterns": ["architecture_only"]
     },
     {
@@ -61,7 +61,7 @@
       "applicablePatterns": ["state_update", "iterative_process"],
       "allowedKinds": ["code", "annotation"],
       "requiredKinds": ["code"],
-      "supportedTreatments": ["step_focus"],
+      "supportedTreatments": ["static_emphasis", "progressive_reveal"],
       "antiPatterns": ["static_claims"]
     },
     {
@@ -70,7 +70,7 @@
       "applicablePatterns": ["ablation", "baseline_comparison"],
       "allowedKinds": ["chart", "annotation"],
       "requiredKinds": ["chart"],
-      "supportedTreatments": ["step_focus"],
+      "supportedTreatments": ["static_emphasis", "progressive_reveal"],
       "antiPatterns": ["values_without_shared_metric"]
     },
     {
@@ -79,7 +79,7 @@
       "applicablePatterns": ["qualitative_figure", "region_comparison"],
       "allowedKinds": ["image", "annotation"],
       "requiredKinds": ["image"],
-      "supportedTreatments": ["overview_detail_spotlight"],
+      "supportedTreatments": ["static_emphasis", "progressive_reveal", "overview_detail_spotlight"],
       "antiPatterns": ["missing_original_asset"]
     }
   ]

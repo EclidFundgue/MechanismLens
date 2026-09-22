@@ -1,19 +1,140 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://paper-explainer.local/schema/visual-intent.v2.schema.json",
-  "title": "Paper Explainer Visual Intent 2.0",
+  "title": "Paper Explainer Visual Intent 2.0/2.1",
   "type": "object",
   "required": ["schemaVersion", "paperId", "worlds", "scenes"],
-  "properties": { "schemaVersion": { "const": "2.0" }, "paperId": { "$ref": "#/$defs/id" }, "title": { "type": "string" }, "worlds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/world" } }, "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scene" } } },
+  "properties": {
+    "schemaVersion": { "enum": ["2.0", "2.1"] },
+    "paperId": { "$ref": "#/$defs/id" },
+    "title": { "type": "string" },
+    "worlds": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/world" } },
+    "scenes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/scene" } }
+  },
   "$defs": {
     "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
     "idList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" } },
-    "object": { "type": "object", "required": ["id", "kind"], "properties": { "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["group", "node", "card", "annotation", "equation", "code", "chart", "image"] }, "parentId": { "$ref": "#/$defs/id" }, "paperRef": { "$ref": "#/$defs/id" }, "evidenceIds": { "$ref": "#/$defs/idList" }, "label": { "type": "string" } }, "additionalProperties": true },
-    "relation": { "type": "object", "required": ["id", "from", "to"], "properties": { "id": { "$ref": "#/$defs/id" }, "from": { "$ref": "#/$defs/id" }, "to": { "$ref": "#/$defs/id" }, "label": { "type": "string" }, "paperRef": { "$ref": "#/$defs/id" }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": true },
-    "detail": { "type": "object", "required": ["id", "title", "explainsObjectId", "templateId", "objects"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "explainsObjectId": { "$ref": "#/$defs/id" }, "templateId": { "$ref": "#/$defs/id" }, "objects": { "type": "array", "items": { "$ref": "#/$defs/object" } }, "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } } }, "additionalProperties": true },
-    "world": { "type": "object", "required": ["id", "templateId", "selection", "objects"], "properties": { "id": { "$ref": "#/$defs/id" }, "templateId": { "$ref": "#/$defs/id" }, "selection": { "type": "object", "required": ["reason"], "properties": { "reason": { "type": "string", "minLength": 1 } }, "additionalProperties": true }, "layout": { "type": "object", "additionalProperties": true }, "objects": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/object" } }, "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } }, "detailViews": { "type": "array", "items": { "$ref": "#/$defs/detail" } } }, "additionalProperties": false },
-    "step": { "type": "object", "required": ["id", "narration"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string" }, "goal": { "type": "string" }, "narration": { "type": "string", "minLength": 1 }, "viewMode": { "enum": ["overview", "focus", "detail", "compare"] }, "focusMode": { "enum": ["fit", "tight", "contextual"] }, "focusIds": { "$ref": "#/$defs/idList" }, "visibleIds": { "$ref": "#/$defs/idList" }, "emphasisIds": { "$ref": "#/$defs/idList" }, "activeRelationIds": { "$ref": "#/$defs/idList" }, "detailViewId": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] }, "state": { "type": "object", "additionalProperties": true }, "transition": { "type": "object", "properties": { "strategy": { "enum": ["direct", "viaOverview"] }, "durationMs": { "type": "number", "minimum": 0 }, "easing": { "enum": ["linear", "easeInOutCubic"] } }, "additionalProperties": false }, "timing": { "type": "object", "properties": { "holdMs": { "type": "number", "minimum": 0 } }, "additionalProperties": false }, "evidenceIds": { "$ref": "#/$defs/idList" } }, "additionalProperties": false },
-    "scene": { "type": "object", "required": ["id", "title", "contentKind", "worldId", "steps"], "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "type": "string", "minLength": 1 }, "eyebrow": { "type": "string" }, "contentKind": { "type": "string", "minLength": 1 }, "worldId": { "$ref": "#/$defs/id" }, "claimIds": { "$ref": "#/$defs/idList" }, "evidenceIds": { "$ref": "#/$defs/idList" }, "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/step" } } }, "additionalProperties": false }
+    "object": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["group", "node", "card", "annotation", "equation", "code", "chart", "image"] },
+        "parentId": { "$ref": "#/$defs/id" },
+        "paperRef": { "$ref": "#/$defs/id" },
+        "evidenceIds": { "$ref": "#/$defs/idList" },
+        "label": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "relation": {
+      "type": "object",
+      "required": ["id", "from", "to"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "from": { "$ref": "#/$defs/id" },
+        "to": { "$ref": "#/$defs/id" },
+        "label": { "type": "string" },
+        "paperRef": { "$ref": "#/$defs/id" },
+        "evidenceIds": { "$ref": "#/$defs/idList" }
+      },
+      "additionalProperties": true
+    },
+    "frame": {
+      "type": "object",
+      "required": ["id", "targetIds", "mode", "requiredReadableIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "targetIds": { "$ref": "#/$defs/idList" },
+        "mode": { "enum": ["fit", "tight", "contextual"] },
+        "requiredReadableIds": { "$ref": "#/$defs/idList" },
+        "request": {
+          "type": "object",
+          "required": ["reason"],
+          "properties": { "reason": { "enum": ["required_content_unreadable", "inspect_source_detail", "restore_spatial_context"] } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "detail": {
+      "type": "object",
+      "required": ["id", "title", "explainsObjectId", "templateId", "objects"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "explainsObjectId": { "$ref": "#/$defs/id" },
+        "templateId": { "$ref": "#/$defs/id" },
+        "objects": { "type": "array", "items": { "$ref": "#/$defs/object" } },
+        "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } }
+      },
+      "additionalProperties": true
+    },
+    "world": {
+      "type": "object",
+      "required": ["id", "templateId", "selection", "objects"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "templateId": { "$ref": "#/$defs/id" },
+        "selection": { "type": "object", "required": ["reason"], "properties": { "reason": { "type": "string", "minLength": 1 } }, "additionalProperties": true },
+        "layout": { "type": "object", "additionalProperties": true },
+        "objects": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/object" } },
+        "relations": { "type": "array", "items": { "$ref": "#/$defs/relation" } },
+        "frames": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/frame" } },
+        "detailViews": { "type": "array", "items": { "$ref": "#/$defs/detail" } }
+      },
+      "additionalProperties": false
+    },
+    "presentation": {
+      "type": "object",
+      "required": ["treatment", "cameraPolicy", "defaultFrameId"],
+      "properties": {
+        "treatment": { "enum": ["static_emphasis", "progressive_reveal", "parts_then_whole", "overview_detail_spotlight"] },
+        "cameraPolicy": { "const": "static_first" },
+        "defaultFrameId": { "$ref": "#/$defs/id" }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["id", "narration"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string" },
+        "goal": { "type": "string" },
+        "narration": { "type": "string", "minLength": 1 },
+        "frameId": { "$ref": "#/$defs/id" },
+        "viewMode": { "enum": ["overview", "focus", "detail", "compare"] },
+        "focusMode": { "enum": ["fit", "tight", "contextual"] },
+        "focusIds": { "$ref": "#/$defs/idList" },
+        "visibleIds": { "$ref": "#/$defs/idList" },
+        "emphasisIds": { "$ref": "#/$defs/idList" },
+        "activeRelationIds": { "$ref": "#/$defs/idList" },
+        "requiredReadableIds": { "$ref": "#/$defs/idList" },
+        "detailViewId": { "anyOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+        "state": { "type": "object", "additionalProperties": true },
+        "transition": { "type": "object", "properties": { "strategy": { "enum": ["direct", "viaOverview"] }, "durationMs": { "type": "number", "minimum": 0 }, "easing": { "enum": ["linear", "easeInOutCubic"] } }, "additionalProperties": false },
+        "timing": { "type": "object", "properties": { "holdMs": { "type": "number", "minimum": 0 } }, "additionalProperties": false },
+        "evidenceIds": { "$ref": "#/$defs/idList" }
+      },
+      "additionalProperties": false
+    },
+    "scene": {
+      "type": "object",
+      "required": ["id", "title", "contentKind", "worldId", "steps"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1 },
+        "eyebrow": { "type": "string" },
+        "contentKind": { "type": "string", "minLength": 1 },
+        "worldId": { "$ref": "#/$defs/id" },
+        "claimIds": { "$ref": "#/$defs/idList" },
+        "evidenceIds": { "$ref": "#/$defs/idList" },
+        "presentation": { "$ref": "#/$defs/presentation" },
+        "steps": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/step" } }
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

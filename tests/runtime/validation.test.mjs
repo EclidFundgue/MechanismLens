@@ -36,9 +36,9 @@ test("duplicate, missing, and hidden references are reported without normalizati
 
 test("parent cycles, invalid template slots, and missing relation endpoints are hard errors", () => {
   const intent = clone(baselineIntent);
-  const world = intent.worlds.find((item) => item.id === "world.architecture");
-  world.objects[0].parentId = "group.encoder";
-  world.objects.find((item) => item.id === "group.encoder").parentId = "node.input";
+  const world = intent.worlds.find((item) => item.id === "world.encoder-local");
+  world.objects.push({ id: "group.a", kind: "group", parentId: "group.b" }, { id: "group.b", kind: "group", parentId: "group.a" });
+  world.objects[0].parentId = "encoder.embed";
   world.relations[0].to = "node.missing";
   const report = validateSource(clone(baselinePaper), intent, catalog);
   assert.ok(codes(report).includes("INVALID_PARENT"));
@@ -55,16 +55,42 @@ test("chart snapshots keep the baseline visible and image regions stay normalize
   assert.ok(codes(report).includes("INVALID_REGION"));
 });
 
+test("step-readable chart items must be visible in that step", () => {
+  const intent = clone(baselineIntent);
+  const step = intent.scenes.find((item) => item.id === "scene.ablation").steps[0];
+  step.requiredReadableIds = ["bar.baseline", "bar.full"];
+  const report = validateSource(clone(baselinePaper), intent, catalog);
+  assert.ok(codes(report).includes("REQUIRED_CONTENT_HIDDEN"));
+});
+
 test("dense chart guidance remains a warning", () => {
   const intent = clone(baselineIntent);
   const chart = intent.worlds.find((item) => item.id === "world.ablation").objects[0];
   chart.items = Array.from({ length: 8 }, (_, index) => ({ id: `bar.${index}`, label: String(index), value: index }));
   chart.baselineId = "bar.0";
+  intent.worlds.find((item) => item.id === "world.ablation").frames[0].requiredReadableIds = chart.items.map((item) => item.id);
   const scene = intent.scenes.find((item) => item.id === "scene.ablation");
-  scene.steps = [{ id: "step.dense", narration: "dense", focusIds: ["bar.7"], state: { visibleItems: { "chart.ablation": chart.items.map((item) => item.id) } } }];
+  scene.steps = [{ id: "step.dense", narration: "dense", frameId: "frame.ablation", emphasisIds: ["bar.7"], state: { visibleItems: { "chart.ablation": chart.items.map((item) => item.id) } } }];
   const report = validateSource(clone(baselinePaper), intent, catalog);
   assert.deepEqual(report.errors, []);
   assert.ok(report.warnings.some((issue) => issue.code === "DENSE_COMPARISON"));
+});
+
+test("v2.1 frames require valid references and reasons for non-default camera changes", () => {
+  const intent = clone(baselineIntent);
+  const world = intent.worlds.find((item) => item.id === "world.overview");
+  world.frames.push({ id: "frame.bad", targetIds: ["card.missing"], mode: "fit", requiredReadableIds: ["card.missing"] });
+  intent.scenes[0].steps[1].frameId = "frame.bad";
+  const report = validateSource(clone(baselinePaper), intent, catalog);
+  assert.ok(codes(report).includes("MISSING_REFERENCE"));
+  assert.ok(codes(report).includes("CAMERA_REASON_REQUIRED"));
+});
+
+test("v2.1 rejects legacy camera fields instead of changing their meaning", () => {
+  const intent = clone(baselineIntent);
+  intent.scenes[0].steps[0].focusIds = ["card.problem"];
+  const report = validateSource(clone(baselinePaper), intent, catalog);
+  assert.ok(codes(report).includes("LEGACY_CAMERA_FIELDS"));
 });
 
 test("schemas describe separate source intent and generated scene contracts", () => {
@@ -72,7 +98,7 @@ test("schemas describe separate source intent and generated scene contracts", ()
   const intentSchema = read("schemas/visual-intent.schema.json");
   const sceneSchema = read("schemas/scene-ir.schema.json");
   assert.equal(paperSchema.properties.schemaVersion.const, "2.0");
-  assert.equal(intentSchema.properties.schemaVersion.const, "2.0");
+  assert.deepEqual(intentSchema.properties.schemaVersion.enum, ["2.0", "2.1"]);
   assert.match(sceneSchema.description, /Generated/);
   assert.ok(sceneSchema.properties.build);
 });

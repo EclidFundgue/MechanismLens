@@ -105,10 +105,10 @@ node "$SELF/scripts/scaffold-project.mjs" "./<paper-slug>-explainer" \
 1. 从 Paper IR 识别结构模式；
 2. 对有真实选择空间的内容比较 2–3 个模板候选，记录最终选择理由；
 3. 建立可跨步骤复用的 world，绑定 Paper 对象和关系；
-4. 编排 scene 与 step，指定叙事目标、焦点、显隐、状态、detail 与转场；
+4. 编排 scene 与 step，先为一段讲解选择固定 frame，再指定强调、显隐、状态、detail 与必要转场；
 5. 一步只引入或强调一个逻辑动作。
 
-内容类型只描述“在讲什么”，不决定 renderer。总览、局部聚焦和 detail 是可以叠加在不同结构模板上的叙事方式。不要填写像素坐标；原图 region 的 0–1 归一化位置除外。
+默认使用 `cameraPolicy: "static_first"`：`emphasisIds` 只改变注意力，`frameId` 才决定取景。同一 frame 内连续讲完一个小问题；只有当前 frame 无法让 `requiredReadableIds` 可读时，才使用带理由的非默认 frame。内容类型只描述“在讲什么”，不决定 renderer。总览、固定局部页和 detail 是可以叠加在不同结构模板上的叙事方式。不要填写像素坐标；原图 region 的 0–1 归一化位置除外。
 
 ### 5. 素材绑定
 
@@ -129,9 +129,10 @@ node "$SELF/scripts/build-project.mjs" "./<paper-slug>-explainer"
 - 所有 scene / step 前后切换和目录跳转都正确；
 - `←` / `→` 在主体、导航按钮或链接获得焦点时切换步骤，在输入和可编辑区域不接管；
 - 顺序播放与直接跳到某一步的最终画面一致；
-- overview → detail → overview → another detail 保留空间关系；
-- `viaOverview` 先恢复共同上下文再进入远处目标；
+- 同一 frame 的连续步骤只改变强调和状态，不发生相机动画；
+- 确有必要的 `viaOverview` 先恢复共同上下文再进入远处目标；
 - detail panel 不遮挡焦点，小屏改为上下布局；
+- 发生取景变化时，字幕在画面稳定后出现，自动播放从稳定时刻开始计算停留；
 - 公式、算法状态、对比尺度、图片 region 和素材错误提示正常；
 - 字幕、当前视觉对象与 Evidence Drawer 来源一致；
 - reduced-motion 下直接到达完整目标状态；
@@ -152,7 +153,8 @@ Evidence Drawer 只读取 Paper IR：精确 `url` 优先；其次本地 PDF + `p
 ## 视觉约束
 
 - 同一 world 的对象在步骤间保持稳定 identity 和 geometry；显隐不引发布局跳动。
-- 非 focus 元素降权并保留必要上下文；需要显著改变结构时使用 detail view。
+- 非 emphasis 元素降权并保留必要上下文；需要显著改变结构时使用固定局部 world 或 detail view。
+- 相机移动只解决必读内容不可读、原图细节检查或恢复空间上下文；不能用于增加动感或代替高亮。
 - 模板不能创造论文没有声明的模块、关系、训练路径或数值。
 - 原论文图保持原色，使用浅色 paper canvas；公式、英文和数字保持可读。
 - 颜色只承担语义：accent 表示当前 focus、活动路径或来源入口。

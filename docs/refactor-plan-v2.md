@@ -2,6 +2,8 @@
 
 状态：核心 v2 纵向链路已实施。设计日期：2026-09-21；首次实施：2026-09-22。
 
+> 历史说明：本文记录 2.0 重构设计。当前实现已升级到 Visual Intent / Scene IR 2.1 的 `static_first` 固定 frame 契约；最新语义以 `references/VISUAL-INTENT.md` 与 `references/CAMERA-AND-MOTION.md` 为准。
+
 当前已完成：Paper IR 2.0、Visual Intent 2.0、模板目录、确定性编译器、generated Scene IR 2.0、嵌套 group 布局、anchors、camera direct/viaOverview、detail panel、统一 WorldStage、六类内容能力迁移、稳定 ID cursor、三层校验、独立交付构建和 Skill 文档切换。后续扩展项包括更专门的 encoder-decoder / training-inference 布局策略、最近公共 group 的过渡视角、统一逻辑时钟暂停动画、schema 派生类型和更完整的浏览器视觉回归。
 
 ## 1. 重构结论与目标

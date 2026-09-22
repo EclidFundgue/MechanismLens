@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comparisonDelta, comparisonDomain, easeInOutCubic, interpolateBounds } from "../skills/paper-explainer/assets/project-template/project/src/stage/model.ts";
+import { boundsNearlyEqual, comparisonDelta, comparisonDomain, easeInOutCubic, interpolateBounds } from "../skills/paper-explainer/assets/project-template/project/src/stage/model.ts";
 import { layoutWorld, targetBounds } from "../skills/paper-explainer/assets/project-template/engine/compiler/layout.mjs";
 
 test("keeps one zero-based scale and respects lower-is-better metrics", () => {
@@ -14,6 +14,13 @@ test("interpolates camera bounds without overshooting", () => {
   assert.deepEqual(interpolateBounds({ x: 0, y: 20, width: 100, height: 60 }, { x: 40, y: 0, width: 20, height: 100 }, .25), { x: 10, y: 15, width: 80, height: 70 });
   assert.equal(easeInOutCubic(0), 0);
   assert.equal(easeInOutCubic(1), 1);
+});
+
+test("treats numerically identical camera targets as a no-op", () => {
+  const target = { x: 10, y: 20, width: 300, height: 180 };
+  assert.equal(boundsNearlyEqual(target, { ...target }), true);
+  assert.equal(boundsNearlyEqual(target, { ...target, x: 10.005 }), true);
+  assert.equal(boundsNearlyEqual(target, { ...target, x: 11 }), false);
 });
 
 test("lays out nested groups once and derives focus bounds from the same world", () => {
