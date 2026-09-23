@@ -1,0 +1,256 @@
+{
+  "mechanismId": "mechanism.oawam-address-routing",
+  "title": "OA-WAM: stable selection, current content",
+  "worlds": [
+    {
+      "id": "world.slot-lifecycle",
+      "title": "One slot, two lifecycles",
+      "templateId": "concept_sequence",
+      "selection": { "reason": "An ordered concept sequence separates the representation problem from the two slot subspaces before any attention detail appears." },
+      "objects": [
+        { "id": "card.problem", "kind": "card", "label": "One vector, two jobs", "text": "Identity must stay stable while state changes.", "width": 180, "height": 120, "mechanismRef": "scenario.address-routing" },
+        { "id": "card.addr", "kind": "card", "label": "addr · 32", "text": "Computed once at t=0; fixed during the episode.", "width": 180, "height": 120, "mechanismRef": "state.addr-cached" },
+        { "id": "card.cnt", "kind": "card", "label": "cnt · 256", "text": "Recomputed from the current observation every frame.", "width": 180, "height": 120, "mechanismRef": "state.cnt-current" }
+      ],
+      "relations": [],
+      "frames": [{ "id": "frame.slot-lifecycle", "targetIds": ["card.problem", "card.addr", "card.cnt"], "mode": "fit", "requiredReadableIds": ["card.problem", "card.addr", "card.cnt"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.selection",
+      "title": "Query context meets a stable candidate key",
+      "templateId": "branch_merge_pipeline",
+      "selection": { "reason": "Two explicit sources prevent the querying position from being confused with the candidate slot." },
+      "objects": [
+        { "id": "node.query-context", "kind": "node", "label": "query context", "width": 130, "height": 84, "mechanismRef": "participant.query" },
+        { "id": "node.query", "kind": "node", "label": "Q · full state", "width": 130, "height": 84, "mechanismRef": "participant.query" },
+        { "id": "node.candidate-slot", "kind": "node", "label": "candidate slot", "width": 130, "height": 84, "mechanismRef": "participant.slot" },
+        { "id": "node.key", "kind": "node", "label": "K · addr only", "width": 130, "height": 84, "mechanismRef": "participant.key" },
+        { "id": "node.weights", "kind": "node", "label": "QK weights", "width": 130, "height": 84, "mechanismRef": "participant.attention" }
+      ],
+      "relations": [
+        { "id": "edge.context-query", "from": "node.query-context", "to": "node.query", "label": "W_Q", "mechanismRef": "step.query-context" },
+        { "id": "edge.slot-key", "from": "node.candidate-slot", "to": "node.key", "label": "mask<=32 → W_K", "mechanismRef": "step.key-route" },
+        { "id": "edge.query-weights", "from": "node.query", "to": "node.weights", "mechanismRef": "step.attention-read" },
+        { "id": "edge.key-weights", "from": "node.key", "to": "node.weights", "mechanismRef": "step.attention-read" }
+      ],
+      "frames": [
+        { "id": "frame.selection-query", "targetIds": ["node.query-context", "node.query"], "mode": "fit", "requiredReadableIds": ["node.query-context", "node.query"] },
+        { "id": "frame.selection-key", "targetIds": ["node.candidate-slot", "node.key"], "mode": "fit", "requiredReadableIds": ["node.candidate-slot", "node.key"], "request": { "reason": "required_content_unreadable" } },
+        { "id": "frame.selection-weights", "targetIds": ["node.query", "node.key", "node.weights"], "mode": "fit", "requiredReadableIds": ["node.query", "node.key", "node.weights"], "request": { "reason": "required_content_unreadable" } }
+      ],
+      "detailViews": []
+    },
+    {
+      "id": "world.payload",
+      "title": "The value keeps the candidate's current content",
+      "templateId": "grouped_overview",
+      "selection": { "reason": "A local payload view separates what V carries from how the later weighted sum consumes it." },
+      "objects": [
+        { "id": "node.payload-slot", "kind": "node", "label": "candidate slot", "width": 130, "height": 84, "mechanismRef": "participant.slot" },
+        { "id": "node.value", "kind": "node", "label": "V · full state", "width": 130, "height": 84, "mechanismRef": "participant.value" }
+      ],
+      "relations": [
+        { "id": "edge.slot-value", "from": "node.payload-slot", "to": "node.value", "label": "W_V", "mechanismRef": "step.value-content" }
+      ],
+      "frames": [{ "id": "frame.payload", "targetIds": ["node.payload-slot", "node.value"], "mode": "fit", "requiredReadableIds": ["node.payload-slot", "node.value"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.mixing",
+      "title": "Selection weights mix full-state values",
+      "templateId": "branch_merge_pipeline",
+      "selection": { "reason": "The merge view keeps the identity-derived weights and current-content values visible together without reusing one slot as every Q/K/V source." },
+      "objects": [
+        { "id": "node.weights-input", "kind": "node", "label": "QK weights", "width": 130, "height": 84, "mechanismRef": "participant.attention" },
+        { "id": "node.value-input", "kind": "node", "label": "V · full state", "width": 130, "height": 84, "mechanismRef": "participant.value" },
+        { "id": "node.readout", "kind": "node", "label": "sum weights × V", "width": 130, "height": 84, "mechanismRef": "participant.attention" }
+      ],
+      "relations": [
+        { "id": "edge.weights-readout", "from": "node.weights-input", "to": "node.readout", "mechanismRef": "step.attention-read" },
+        { "id": "edge.value-readout", "from": "node.value-input", "to": "node.readout", "mechanismRef": "step.attention-read" }
+      ],
+      "frames": [{ "id": "frame.mixing", "targetIds": ["node.weights-input", "node.value-input", "node.readout"], "mode": "fit", "requiredReadableIds": ["node.weights-input", "node.value-input", "node.readout"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.reset",
+      "title": "Restore the slot address for the next layer",
+      "templateId": "grouped_overview",
+      "selection": { "reason": "A short local sequence isolates the slot residual path from the separate ACT_Q path." },
+      "layout": { "direction": "vertical" },
+      "objects": [
+        { "id": "node.slot-update", "kind": "node", "label": "slot after residual + FFN", "width": 130, "height": 64, "mechanismRef": "participant.residual" },
+        { "id": "node.reset", "kind": "node", "label": "restore first 32", "width": 130, "height": 64, "mechanismRef": "state.addr-restored" },
+        { "id": "node.next-slot", "kind": "node", "label": "next-layer slot", "width": 130, "height": 64, "mechanismRef": "participant.slot" }
+      ],
+      "relations": [
+        { "id": "edge.update-reset", "from": "node.slot-update", "to": "node.reset", "mechanismRef": "step.reset-address" },
+        { "id": "edge.reset-next", "from": "node.reset", "to": "node.next-slot", "mechanismRef": "step.reset-address" }
+      ],
+      "frames": [{ "id": "frame.reset", "targetIds": ["node.slot-update", "node.reset", "node.next-slot"], "mode": "fit", "requiredReadableIds": ["node.slot-update", "node.reset", "node.next-slot"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.action-readout",
+      "title": "Attention updates ACT_Q before the action head",
+      "templateId": "grouped_overview",
+      "selection": { "reason": "A separate readout path makes clear that reset belongs to slot state while the action head reads H_ACT_Q." },
+      "layout": { "direction": "vertical" },
+      "objects": [
+        { "id": "node.attention-output", "kind": "node", "label": "attention output", "width": 130, "height": 64, "mechanismRef": "participant.attention" },
+        { "id": "node.actq", "kind": "node", "label": "H_ACT_Q", "width": 130, "height": 64, "mechanismRef": "participant.actq" },
+        { "id": "node.action-head", "kind": "node", "label": "action head", "width": 130, "height": 64, "mechanismRef": "participant.action-head" }
+      ],
+      "relations": [
+        { "id": "edge.output-actq", "from": "node.attention-output", "to": "node.actq", "mechanismRef": "step.action-readout" },
+        { "id": "edge.actq-head", "from": "node.actq", "to": "node.action-head", "mechanismRef": "step.action-readout" }
+      ],
+      "frames": [{ "id": "frame.action-readout", "targetIds": ["node.attention-output", "node.actq", "node.action-head"], "mode": "fit", "requiredReadableIds": ["node.attention-output", "node.actq", "node.action-head"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.ablation",
+      "title": "OA switch isolation",
+      "templateId": "compare_variant",
+      "selection": { "reason": "All three variants share the LP-camera success metric and differ in the OA mask/reset switches." },
+      "objects": [{
+        "id": "chart.ablation",
+        "kind": "chart",
+        "label": "LP-camera success",
+        "width": 400,
+        "height": 300,
+        "mechanismRef": "step.ablation",
+        "metric": { "label": "LP-camera success", "unit": "%", "direction": "higher", "decimals": 1 },
+        "baselineId": "bar.v2",
+        "items": [
+          { "id": "bar.v2", "label": "V2 · no OA", "value": 60.5 },
+          { "id": "bar.v1", "label": "V1 · reset only", "value": 67.2 },
+          { "id": "bar.v0", "label": "V0 · mask + reset", "value": 80.5 }
+        ]
+      }],
+      "relations": [],
+      "frames": [{ "id": "frame.ablation", "targetIds": ["chart.ablation"], "mode": "fit", "requiredReadableIds": ["chart.ablation"] }],
+      "detailViews": []
+    },
+    {
+      "id": "world.swap",
+      "title": "Address-swap intervention and boundary",
+      "templateId": "compare_variant",
+      "selection": { "reason": "The intervention variants share swap-binding cosine; a concise annotation preserves the upstream perception boundary." },
+      "objects": [
+        {
+          "id": "chart.swap",
+          "kind": "chart",
+          "label": "Swap-binding cosine",
+          "width": 400,
+          "height": 300,
+          "mechanismRef": "step.swap",
+          "metric": { "label": "Swap-binding cosine", "unit": "", "direction": "higher", "decimals": 2 },
+          "baselineId": "bar.swap-v2",
+          "items": [
+            { "id": "bar.swap-v2", "label": "V2 · no OA", "value": 0.06 },
+            { "id": "bar.holistic-max", "label": "best holistic baseline", "value": 0.09 },
+            { "id": "bar.swap-v1", "label": "V1 · reset only", "value": 0.19 },
+            { "id": "bar.swap-v0", "label": "V0 · mask + reset", "value": 0.87 }
+          ]
+        },
+        { "id": "note.boundary", "kind": "annotation", "label": "Boundary", "text": "Stable routing assumes the correct object slot and an unambiguous initial address.", "width": 400, "height": 80, "mechanismRef": "step.boundary" }
+      ],
+      "relations": [],
+      "frames": [
+        { "id": "frame.swap-chart", "targetIds": ["chart.swap"], "mode": "fit", "requiredReadableIds": ["chart.swap"] },
+        { "id": "frame.swap-boundary", "targetIds": ["note.boundary"], "mode": "fit", "requiredReadableIds": ["note.boundary"], "request": { "reason": "required_content_unreadable" } }
+      ],
+      "detailViews": []
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene.slot-lifecycle",
+      "title": "One slot, two lifecycles",
+      "contentKind": "concept",
+      "worldId": "world.slot-lifecycle",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.slot-lifecycle" },
+      "steps": [
+        { "id": "view.slot-split", "narration": "One slot has to preserve identity while its observed state changes, so OA-WAM gives those jobs separate subvectors.", "frameId": "frame.slot-lifecycle", "mechanismStepIds": ["step.slot-split"], "emphasisIds": ["card.problem"] },
+        { "id": "view.lifecycle", "narration": "The address is created once and stays fixed; the content is recomputed from each new frame.", "frameId": "frame.slot-lifecycle", "mechanismStepIds": ["step.lifecycle"], "emphasisIds": ["card.addr", "card.cnt"] }
+      ]
+    },
+    {
+      "id": "scene.selection",
+      "title": "Form the request, then compare stable identities",
+      "contentKind": "architecture",
+      "worldId": "world.selection",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.selection-query" },
+      "steps": [
+        { "id": "view.query", "narration": "The querying position forms Q from its full hidden state, so the request can remain context-dependent.", "frameId": "frame.selection-query", "mechanismStepIds": ["step.query-context"], "emphasisIds": ["node.query-context", "node.query"], "activeRelationIds": ["edge.context-query"] },
+        { "id": "view.key", "narration": "Each candidate slot forms K only from its first 32 address coordinates, keeping the candidate identity stable while content changes.", "frameId": "frame.selection-key", "mechanismStepIds": ["step.key-route"], "emphasisIds": ["node.candidate-slot", "node.key"], "activeRelationIds": ["edge.slot-key"] },
+        { "id": "view.selection-weights", "narration": "The context-dependent query compares with those address-only keys to determine the selection weights.", "frameId": "frame.selection-weights", "mechanismStepIds": ["step.attention-read"], "emphasisIds": ["node.query", "node.key", "node.weights"], "activeRelationIds": ["edge.query-weights", "edge.key-weights"] }
+      ]
+    },
+    {
+      "id": "scene.payload",
+      "title": "Use stable weights to retrieve current content",
+      "contentKind": "architecture",
+      "worldId": "world.payload",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.payload" },
+      "steps": [
+        { "id": "view.value", "narration": "The value projection reads the candidate slot's full hidden state, so its current content remains available as the payload.", "frameId": "frame.payload", "mechanismStepIds": ["step.value-content"], "emphasisIds": ["node.payload-slot", "node.value"], "activeRelationIds": ["edge.slot-value"] }
+      ]
+    },
+    {
+      "id": "scene.mixing",
+      "title": "Mix the selected candidates' current content",
+      "contentKind": "architecture",
+      "worldId": "world.mixing",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.mixing" },
+      "steps": [
+        { "id": "view.attention", "narration": "The weights chosen with address-restricted keys mix the candidates' full-state values into the attention readout.", "frameId": "frame.mixing", "mechanismStepIds": ["step.attention-read"], "emphasisIds": ["node.weights-input", "node.value-input", "node.readout"], "activeRelationIds": ["edge.weights-readout", "edge.value-readout"] }
+      ]
+    },
+    {
+      "id": "scene.reset",
+      "title": "Restore the address after each slot update",
+      "contentKind": "architecture",
+      "worldId": "world.reset",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.reset" },
+      "steps": [
+        { "id": "view.reset", "narration": "After residual and feed-forward updates, OA-WAM restores the slot's first 32 address coordinates and keeps the remaining 4064 coordinates updated for the next layer.", "frameId": "frame.reset", "mechanismStepIds": ["step.reset-address"], "emphasisIds": ["node.slot-update", "node.reset", "node.next-slot"], "activeRelationIds": ["edge.update-reset", "edge.reset-next"] }
+      ]
+    },
+    {
+      "id": "scene.action-readout",
+      "title": "Read actions from the updated ACT_Q state",
+      "contentKind": "architecture",
+      "worldId": "world.action-readout",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.action-readout" },
+      "steps": [
+        { "id": "view.action-readout", "narration": "The attention output updates H_ACT_Q, and the action head reads that full query state rather than an address-only slot vector.", "frameId": "frame.action-readout", "mechanismStepIds": ["step.action-readout"], "emphasisIds": ["node.attention-output", "node.actq", "node.action-head"], "activeRelationIds": ["edge.output-actq", "edge.actq-head"] }
+      ]
+    },
+    {
+      "id": "scene.ablation",
+      "title": "Both routing operations carry weight",
+      "contentKind": "experiment",
+      "worldId": "world.ablation",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.ablation" },
+      "steps": [
+        { "id": "view.ablation-v2", "narration": "Without the address mask or reset hook, LP-camera success is 60.5.", "frameId": "frame.ablation", "mechanismStepIds": ["step.ablation"], "emphasisIds": ["bar.v2"], "state": { "visibleItems": { "chart.ablation": ["bar.v2"] } } },
+        { "id": "view.ablation-v1", "narration": "Restoring the address without masking the key raises the result to 67.2 but does not reproduce the full design.", "frameId": "frame.ablation", "mechanismStepIds": ["step.ablation"], "emphasisIds": ["bar.v1"], "state": { "visibleItems": { "chart.ablation": ["bar.v2", "bar.v1"] } } },
+        { "id": "view.ablation-v0", "narration": "With both address-only keys and per-layer reset, the same metric reaches 80.5.", "frameId": "frame.ablation", "mechanismStepIds": ["step.ablation"], "emphasisIds": ["bar.v0"], "state": { "visibleItems": { "chart.ablation": ["bar.v2", "bar.v1", "bar.v0"] } } }
+      ]
+    },
+    {
+      "id": "scene.swap-boundary",
+      "title": "Intervene on the address, then state the boundary",
+      "contentKind": "experiment",
+      "worldId": "world.swap",
+      "presentation": { "treatment": "progressive_reveal", "cameraPolicy": "static_first", "defaultFrameId": "frame.swap-chart" },
+      "steps": [
+        { "id": "view.swap", "narration": "When only the target address is swapped, full OA-WAM follows the swapped target much more strongly than the variants and holistic baselines.", "frameId": "frame.swap-chart", "mechanismStepIds": ["step.swap"], "emphasisIds": ["bar.swap-v0"], "state": { "visibleItems": { "chart.swap": ["bar.swap-v2", "bar.holistic-max", "bar.swap-v1", "bar.swap-v0"] } } },
+        { "id": "view.boundary", "narration": "This tests routing after a slot exists; it does not recover an object missed by perception or an ambiguous initial address.", "frameId": "frame.swap-boundary", "mechanismStepIds": ["step.boundary"], "emphasisIds": ["note.boundary"], "state": { "visibleItems": { "chart.swap": ["bar.swap-v2", "bar.holistic-max", "bar.swap-v1", "bar.swap-v0"] } } }
+      ]
+    }
+  ]
+}

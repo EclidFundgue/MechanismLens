@@ -155,6 +155,8 @@ flowchart LR
 
 论文事实保存在 Paper IR，代码事实保存在 Code IR；二者都先进入 Mechanism IR，再由 Visual Intent 选择讲法。Scene IR 与来源 bundle 由编译器生成。完整执行规范见 [SKILL.md](skills/mechanism-lens/SKILL.md)。
 
+完整 Paper Lens 任务会把工作分成论文分析、教学编排、视觉实现和独立评审。分析与编排分别写入精简的 `content/analysis.md` 和 `content/teaching-plan.md`，只保存取舍、依赖、语义边界与 IR ID；事实和机制仍由各层 IR 管理。环境支持 subagent 时，各阶段使用隔离上下文和结构化交接，视觉实现无需反复加载整篇论文。
+
 <a id="delivery"></a>
 ## 交付的是一个可以带走的项目
 
@@ -168,7 +170,7 @@ flowchart LR
 │   ├── code/repository/              # URL 输入的完整浅克隆仓库及 .git
 │   ├── supplements/                  # 相关补充材料（按需）
 │   └── manifest.md                   # 来源、相对路径与获取状态
-├── content/                          # Paper/Code/Mechanism IR、视觉意图与派生产物
+├── content/                          # 分析/教学交接、各层 IR、视觉意图与派生产物
 ├── templates/                        # 模板能力目录
 ├── engine/                           # 确定性编译、布局与校验
 ├── project/                          # 可编辑的 React / TypeScript 源码
@@ -214,6 +216,10 @@ flowchart LR
 | [执行规范](skills/mechanism-lens/SKILL.md) | 输入约定、生成流程与交付要求 |
 | [环境与初始化](skills/mechanism-lens/references/INIT.md) | 依赖与项目脚手架 |
 | [文档内容模型](skills/mechanism-lens/references/PAPER-IR.md) | 事实、结论和证据组织 |
+| [分阶段工作流](skills/mechanism-lens/references/STAGED-WORKFLOW.md) | subagent 分工、最小上下文、交接卡与返工路径 |
+| [论文分析规范](skills/mechanism-lens/references/PAPER-ANALYSIS.md) | 贡献主次、关键疑问、机制—实验论证与分析门槛 |
+| [教学编排规范](skills/mechanism-lens/references/TEACHING-PLAN.md) | 概念依赖、学习变化、理解检查与证据闭环 |
+| [完整 Paper Lens 示例](skills/mechanism-lens/references/examples/oawam-address-routing/README.md) | OA-WAM 地址路由的分析、教学计划、三层 IR 与构建方式 |
 | [代码工作流](skills/mechanism-lens/references/CODE-WORKFLOW.md) | 仓库读取、Code IR 与只读边界 |
 | [机制模型](skills/mechanism-lens/references/MECHANISM-IR.md) | 参与者、条件、步骤、状态和未知项 |
 | [证据合同](skills/mechanism-lens/references/EVIDENCE.md) | 论文与代码证据绑定 |

@@ -1,0 +1,43 @@
+{
+  "id": "mechanism.oawam-address-routing",
+  "title": "OA-WAM address routing",
+  "question": "Why split addr and cnt, and why restrict only the slot key?",
+  "summary": "Stable slot keys choose an object while full-state values and residuals carry its changing content; a per-layer reset preserves that division across the trunk.",
+  "sources": [{ "id": "paper.oawam", "kind": "paper" }],
+  "participants": [
+    { "id": "participant.slot", "title": "Object slot", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "module.slot" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.slot" }] },
+    { "id": "participant.query", "title": "Query context", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "equation.qkv" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+    { "id": "participant.key", "title": "Address-restricted slot key", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "relation.addr-to-key" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+    { "id": "participant.value", "title": "Full-state slot value", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "relation.cnt-to-value" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+    { "id": "participant.attention", "title": "Attention readout", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "module.attention" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+    { "id": "participant.residual", "title": "Residual and feed-forward update", "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.reset" }] },
+    { "id": "participant.actq", "title": "ACT_Q hidden state", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "relation.actq-to-head" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.action-query" }] },
+    { "id": "participant.action-head", "title": "Action head", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "module.action-head" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.action-query" }] }
+  ],
+  "states": [
+    { "id": "state.addr-cached", "title": "Episode-stable address", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "concept.addr" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.slot" }] },
+    { "id": "state.cnt-current", "title": "Current-frame content", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "concept.cnt" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.slot" }] },
+    { "id": "state.addr-restored", "title": "Address coordinates restored after a block", "sourceRefs": [{ "sourceId": "paper.oawam", "objectId": "algorithm.address-reset" }], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.reset" }] }
+  ],
+  "scenarios": [{
+    "id": "scenario.address-routing",
+    "title": "Select by stable identity, read current content",
+    "basis": "source_fact",
+    "assumptions": ["Upstream perception extracted the relevant object slot.", "The address was initialized without ambiguity."],
+    "steps": [
+      { "id": "step.slot-split", "title": "Separate identity and content", "explanation": "Construct each slot with a dedicated address subvector and a separate content subvector.", "basis": "source_fact", "participantIds": ["participant.slot"], "stateChanges": ["create state.addr-cached and state.cnt-current"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.slot" }] },
+      { "id": "step.lifecycle", "title": "Use different lifecycles", "explanation": "Keep addr fixed through the episode and recompute cnt from the current observation every frame.", "basis": "source_fact", "participantIds": ["participant.slot"], "stateChanges": ["state.addr-cached remains fixed; state.cnt-current refreshes"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.slot" }] },
+      { "id": "step.query-context", "title": "Form the query from full context", "explanation": "Project Q from the full hidden state so the querying position can remain context-dependent.", "basis": "source_fact", "participantIds": ["participant.query"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+      { "id": "step.key-route", "title": "Expose stable identity through K", "explanation": "At slot positions, zero coordinates after the address slice before the key projection.", "basis": "source_fact", "participantIds": ["participant.slot", "participant.key"], "condition": "The token is a slot position.", "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+      { "id": "step.value-content", "title": "Carry current content through V", "explanation": "Project V from the full hidden state, retaining time-varying content for the information read from a selected slot.", "basis": "source_fact", "participantIds": ["participant.slot", "participant.value"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }, { "sourceId": "paper.oawam", "evidenceId": "evidence.reset" }] },
+      { "id": "step.attention-read", "title": "Select and retrieve", "explanation": "Use Q and address-restricted K to form attention weights, then apply those weights to full-state V.", "basis": "static_inference", "participantIds": ["participant.query", "participant.key", "participant.value", "participant.attention"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+      { "id": "step.reset-address", "title": "Restore the address after every block", "explanation": "After residual and feed-forward updates, restore only the first 32 slot coordinates from the cached address and keep the other 4064 coordinates updated.", "basis": "source_fact", "participantIds": ["participant.residual", "participant.slot"], "stateChanges": ["address coordinates become state.addr-restored; non-address coordinates retain the block update"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.reset" }] },
+      { "id": "step.action-readout", "title": "Read the routed result at ACT_Q", "explanation": "The action head consumes the final ACT_Q hidden state, which can depend on content retrieved through values and residual updates.", "basis": "static_inference", "participantIds": ["participant.actq", "participant.action-head"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.action-query" }, { "sourceId": "paper.oawam", "evidenceId": "evidence.qkv" }] },
+      { "id": "step.ablation", "title": "Test the mask and reset switches", "explanation": "Compare no OA, reset only, and full mask-plus-reset variants on the same LP-camera metric.", "basis": "source_fact", "participantIds": ["participant.key", "participant.residual"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.ablation" }] },
+      { "id": "step.swap", "title": "Intervene on the address", "explanation": "Swap the target address while holding other inputs fixed and measure whether the end-effector trajectory follows the swapped target.", "basis": "source_fact", "participantIds": ["participant.slot", "participant.action-head"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.swap" }] },
+      { "id": "step.boundary", "title": "Preserve the perception boundary", "explanation": "Treat address routing as conditional on correct slot extraction and unambiguous address initialization.", "basis": "source_fact", "participantIds": ["participant.slot"], "evidenceRefs": [{ "sourceId": "paper.oawam", "evidenceId": "evidence.reset" }, { "sourceId": "paper.oawam", "evidenceId": "evidence.sensor-boundary" }] }
+    ],
+    "branches": [{ "condition": "The token is not a slot position.", "description": "Use the unmodified base attention path." }],
+    "unresolved": ["The selected evidence does not establish real-robot robustness."]
+  }]
+}

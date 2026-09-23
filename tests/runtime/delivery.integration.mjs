@@ -113,6 +113,8 @@ test("scaffolded delivery validates, builds, and serves outside the repository",
     const generatedValidator = join(delivered, "runtime/validate-data.mjs");
     assert.equal(existsSync(join(delivered, "engine/compiler/index.mjs")), true);
     assert.equal(existsSync(join(delivered, "engine/validation/index.mjs")), true);
+    assert.equal(existsSync(join(delivered, "content/analysis.md")), true);
+    assert.equal(existsSync(join(delivered, "content/teaching-plan.md")), true);
     assert.equal(existsSync(join(delivered, "content/mechanism-ir.json")), true);
     assert.equal(existsSync(join(delivered, "content/visual-intent.json")), true);
     assert.equal(existsSync(join(delivered, "content/source-bundle.json")), true);

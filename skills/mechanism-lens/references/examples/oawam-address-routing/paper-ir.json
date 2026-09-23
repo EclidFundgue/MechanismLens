@@ -1,0 +1,55 @@
+{
+  "paper": {
+    "id": "paper.oawam",
+    "title": "OA-WAM: Object-Addressable World Action Model for Robust Robot Manipulation",
+    "summary": "OA-WAM separates stable object identity from time-varying content and constrains slot keys to route through the identity subspace.",
+    "originalUrl": ""
+  },
+  "evidence": [
+    { "id": "evidence.abstract", "label": "Problem and object-addressability claim", "kind": "section", "section": "Abstract", "anchor": "neurips_2026.tex:79-80", "excerpt": "The manuscript frames the failure as missing object addressability and separates object identity from current content.", "confidence": "direct" },
+    { "id": "evidence.slot", "label": "Slot construction and lifecycle", "kind": "equation", "section": "Method", "anchor": "Eq. slot; neurips_2026.tex:317-322", "excerpt": "A 320-dimensional slot concatenates addr (32), cnt (256), frame (16), and role (16); addr is fixed per episode while cnt is refreshed per frame.", "confidence": "direct" },
+    { "id": "evidence.action-query", "label": "Action query readout", "kind": "section", "section": "Architecture", "anchor": "neurips_2026.tex:322,349-359", "excerpt": "The action head reads the final hidden state at the ACT_Q token.", "confidence": "direct" },
+    { "id": "evidence.qkv", "label": "Slot-aware Q/K/V rule", "kind": "equation", "section": "Object-addressable attention", "anchor": "Eq. oa; neurips_2026.tex:335-344", "excerpt": "Only slot K applies mask<=32 before projection; Q and V use the full hidden state, and non-slot positions keep base attention.", "confidence": "direct" },
+    { "id": "evidence.reset", "label": "Per-layer reset and boundary", "kind": "section", "section": "Object-addressable attention", "anchor": "neurips_2026.tex:344", "excerpt": "After every block the first 32 slot coordinates are restored from addr, while the other 4064 coordinates remain updated; the guarantee assumes correct slot extraction.", "confidence": "direct" },
+    { "id": "evidence.ablation", "label": "OA isolation ablation", "kind": "table", "section": "Experiments", "anchor": "Table abl-oa; neurips_2026.tex:513-529", "excerpt": "LP-camera success is 60.5 without OA, 67.2 with reset only, and 80.5 with mask and reset.", "confidence": "direct" },
+    { "id": "evidence.swap", "label": "Address-swap intervention", "kind": "table", "section": "Experiments", "anchor": "Table abl-intervention; neurips_2026.tex:539-566", "excerpt": "Swapping the target address while holding other inputs fixed yields swap-binding 0.87 for full OA-WAM, versus 0.19 without the key mask and at most 0.09 for holistic baselines.", "confidence": "direct" },
+    { "id": "evidence.sensor-boundary", "label": "Sensor-noise boundary", "kind": "table", "section": "Limitations", "anchor": "Table libero-plus; neurips_2026.tex:464-485,508,573", "excerpt": "Sensor-noise success is 75.6 for OA-WAM, 89.7 for pi-0.5, and 92.7 for Cosmos-Policy; the manuscript attributes the deficit to slot extraction.", "confidence": "direct" }
+  ],
+  "claims": [
+    { "id": "claim.address-routing", "title": "Stable address-based slot routing", "summary": "Slot candidates expose stable identity through K while Q, V, and residual state retain current context and content.", "evidenceIds": ["evidence.abstract", "evidence.qkv", "evidence.reset"] },
+    { "id": "claim.action-readout", "title": "The action head is not address-only", "summary": "The action head reads the final ACT_Q hidden state rather than a raw address vector.", "evidenceIds": ["evidence.action-query", "evidence.qkv"] },
+    { "id": "claim.conditional-boundary", "title": "Routing is conditional on slot extraction", "summary": "The architectural constraint cannot recover an object missed by upstream perception or an ambiguously initialized address.", "evidenceIds": ["evidence.reset", "evidence.sensor-boundary"] }
+  ],
+  "contributions": [
+    { "id": "contribution.address-constraint", "title": "Address-only slot keys with per-layer address reset", "summary": "A parameter-free mask and reset keep slot routing tied to episode-stable identity.", "evidenceIds": ["evidence.abstract", "evidence.qkv", "evidence.reset"] },
+    { "id": "contribution.object-addressability", "title": "Object addressability problem framing", "summary": "The paper separates which object to act on from what that object currently is.", "evidenceIds": ["evidence.abstract"] }
+  ],
+  "concepts": [
+    { "id": "concept.addr", "title": "Stable address", "summary": "The first 32 slot coordinates identify an object and remain fixed during an episode.", "evidenceIds": ["evidence.slot"] },
+    { "id": "concept.cnt", "title": "Time-varying content", "summary": "A 256-dimensional content vector is recomputed from the current observation each frame.", "evidenceIds": ["evidence.slot"] },
+    { "id": "concept.selection-payload", "title": "Selection versus payload", "summary": "QK determines reading weights and V carries the information that is mixed.", "evidenceIds": ["evidence.qkv"] }
+  ],
+  "modules": [
+    { "id": "module.slot", "title": "Object slot", "summary": "The pre-adapter slot concatenates addr, cnt, frame, and role.", "evidenceIds": ["evidence.slot"] },
+    { "id": "module.attention", "title": "Slot-aware transformer attention", "summary": "The mask changes slot K inputs and the reset restores address coordinates after each block.", "evidenceIds": ["evidence.qkv", "evidence.reset"] },
+    { "id": "module.action-head", "title": "Action head", "summary": "The action head consumes the final ACT_Q hidden state.", "evidenceIds": ["evidence.action-query"] }
+  ],
+  "relations": [
+    { "id": "relation.addr-to-key", "title": "Address supplies slot key input", "summary": "The slot key projection receives only the first 32 coordinates.", "evidenceIds": ["evidence.qkv"] },
+    { "id": "relation.cnt-to-value", "title": "Content remains available to values", "summary": "The value projection receives the full hidden state.", "evidenceIds": ["evidence.qkv", "evidence.reset"] },
+    { "id": "relation.actq-to-head", "title": "ACT_Q supplies the action head", "summary": "The action head reads H_ACT_Q after the trunk.", "evidenceIds": ["evidence.action-query"] }
+  ],
+  "equations": [
+    { "id": "equation.slot", "title": "Slot composition", "text": "s_k^t = [addr_k(32) || cnt_k^t(256) || pi^t(16) || rho_k(16)]", "evidenceIds": ["evidence.slot"] },
+    { "id": "equation.qkv", "title": "Slot-aware Q/K/V", "text": "K=W_K mask<=32(x); Q=W_Q x; V=W_V x", "evidenceIds": ["evidence.qkv"] }
+  ],
+  "algorithms": [
+    { "id": "algorithm.address-reset", "title": "Per-layer address reset", "summary": "After every block, restore slot coordinates 1:32 from the cached address.", "evidenceIds": ["evidence.reset"] }
+  ],
+  "experiments": [
+    { "id": "experiment.oa-ablation", "title": "Key-mask and reset isolation", "summary": "V2, V1, and V0 compare common training and evaluation with the two OA switches changed.", "evidenceIds": ["evidence.ablation"] },
+    { "id": "experiment.address-swap", "title": "Address-swap intervention", "summary": "The target address is swapped while other inputs remain fixed, then trajectory alignment is measured.", "evidenceIds": ["evidence.swap"] },
+    { "id": "experiment.sensor-boundary", "title": "Sensor-noise boundary", "summary": "The weaker sensor-noise result exposes the dependence on upstream slot extraction.", "evidenceIds": ["evidence.sensor-boundary"] }
+  ],
+  "figures": []
+}

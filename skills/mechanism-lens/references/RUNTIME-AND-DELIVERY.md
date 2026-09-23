@@ -3,7 +3,7 @@
 生成的项目是自包含的：
 
 ```text
-content/      来源 IR、机制 IR、视觉意图、生成的场景 IR 和来源数据包
+content/      分析/教学交接、来源 IR、机制 IR、视觉意图、生成的场景 IR 和来源数据包
 sources/      论文原件和保留的 URL 仓库
 engine/       编译器、布局和校验
 project/      React/Vite 播放器

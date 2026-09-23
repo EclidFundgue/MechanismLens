@@ -47,11 +47,15 @@ URL 仓库不会进入 `project/public/` 或 `site/`。本地仓库默认不复�
 自动化代理维护：
 
 ```text
+content/analysis.md        # 范围、贡献主次、机制约束与未解决项的精简交接
+content/teaching-plan.md   # 学习目标、问题链、误解防护与证据论证
 content/paper-ir.json      # 论文模式
 content/code-ir.json       # 代码模式
 content/mechanism-ir.json
 content/visual-intent.json
 ```
+
+`analysis.md` 和 `teaching-plan.md` 是分阶段作者产物，不进入运行时编译。它们只保留取舍、约束和 ID 引用；来源事实留在 Paper/Code IR，机制事实留在 Mechanism IR，避免跨阶段复制整份材料。
 
 运行时生成：
 
